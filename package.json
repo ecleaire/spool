@@ -1,0 +1,1 @@
+{"name":"spool-offline","private":true,"type":"module","scripts":{"build":"node build-offline.mjs","test":"node tests/offline.test.mjs"}}
