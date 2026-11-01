@@ -31,5 +31,6 @@ const before=file.read();file.externalWrite(before+'\n');fresh.run('saveBookings
 const embedded=boot({embedded:saved});assert.equal(embedded.run('items[0].image'),initialItem.image);assert.equal(embedded.run('reservations[0].printStatus'),'未定');
 const restricted=boot({embedded:saved,blocked:true});restricted.run('saveBookings(reservations.map(x=>({...x,title:"一時メモリー"})))');assert.equal(restricted.run('reservations[0].title'),'一時メモリー');assert.equal(restricted.run('storage.persistent'),false);assert.ok(restricted.get('#storageStatus').textContent.includes('この画面内'));
 const legacy=JSON.stringify({version:1,items:[initialItem]});assert.equal(app.run('decodeData('+JSON.stringify(legacy)+').reservations.length'),0);
+const unsupported=boot({embedded:saved});unsupported.context.window.showSaveFilePicker=async()=>{const error=Error('Unavailable');error.name='SecurityError';throw error};await unsupported.run('saveDataFileAs()');assert.equal(unsupported.downloads.length,1);assert.match(unsupported.downloads[0],/^SPOOL-data-.*\.json$/);
 app.run('showBookingView(false)');assert.equal(app.get('.inventory').hidden,false);
 console.log('Passed: no network runtime, complete inline scripts, legacy cache, booking registration/edit/status/filter, JSON save/load across fresh versions, image retention, overwrite conflict and restricted-storage fallback.');
