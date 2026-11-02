@@ -5,7 +5,7 @@ import {webcrypto} from 'node:crypto';
 const html=fs.readFileSync('dist/index.html','utf8');
 assert.ok(!/<script\b[^>]*src=|<link\b[^>]*rel="stylesheet"|@import|\bfetch\s*\(/i.test(html),'Offline artifact must not request runtime dependencies');
 const scripts=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('application/json')).map(x=>x[2]);
-assert.equal(scripts.length,7);scripts.forEach(s=>new vm.Script(s));
+assert.equal(scripts.length,8);scripts.forEach(s=>new vm.Script(s));
 const initialItem={id:'spool_test',name:'PLA Basic',brand:'Bambu Lab',material:'PLA',colorName:'白',color:'#FFFFFF',remaining:800,capacity:1000,diameter:'1.75',image:'data:image/png;base64,AAAA'};
 function boot({cached=[],embedded={},blocked=false}={}){
  const data=new Map(cached),nodes=new Map(),downloads=[];
@@ -84,3 +84,22 @@ const smallModel=Object.assign(new Blob(['abc'],{type:'application/octet-stream'
 bookingUi.context.FileReader=class{readAsDataURL(blob){blob.arrayBuffer().then(bytes=>{this.result='data:application/octet-stream;base64,'+Buffer.from(bytes).toString('base64');this.onload()})}};
 await bookingForm.onsubmit({target:bookingForm,preventDefault(){}});assert.equal(bookingUi.run('reservations[0].deadline'),'');assert.equal(bookingUi.run('reservations[0].className'),'');assert.equal(bookingUi.run('reservations[0].printMinutes'),135);assert.equal(bookingUi.run('reservations[0].attachments[0].data'),'data:application/octet-stream;base64,YWJj');assert.equal(bookingUi.get('#bookingUrgent').textContent,0);
 const modelData=JSON.parse(bookingUi.run('serializeData()'));const modelRestored=boot({embedded:modelData});assert.equal(modelRestored.run('reservations[0].attachments[0].name'),'model.stl');assert.ok(modelRestored.get('#bookingCards').innerHTML.includes('model.stl'));assert.equal(modelRestored.run('validBookings(reservations)'),true);console.log('Passed: weekday defaults, unknown deadlines, blank class, stock-only visual colors, combined duration, file staging and embedded-file JSON restore.');
+
+// Duration shortcuts keep the same persisted minute schema and respect limits.
+const ergonomic=boot({cached:[['spool-inventory-v1',JSON.stringify([initialItem])]]});
+const duration=ergonomic.get('#bookingForm').elements.namedItem('printDuration');
+for(const [input,minutes]of [['１：３０',90],['90分',90],['1時間30分',90],['1000:00',60000],['0:01',1],['1:60',null],['0:00',null],['1000:01',null],['-15',null]])assert.equal(ergonomic.run('parsePrintDuration('+JSON.stringify(input)+')'),minutes);
+ergonomic.run('setPrintDuration(90)');assert.equal(duration.value,'1:30');
+ergonomic.get('#durationPlus').onclick();assert.equal(duration.value,'1:45');ergonomic.get('#durationMinus').onclick();assert.equal(duration.value,'1:30');
+ergonomic.run('setPrintDuration(1)');ergonomic.get('#durationMinus').onclick();assert.equal(duration.value,'0:01');
+ergonomic.run('setPrintDuration(60000)');ergonomic.get('#durationPlus').onclick();assert.equal(duration.value,'1000:00');
+duration.setCustomValidity('old error');ergonomic.run('openBooking()');assert.equal(duration.validationMessage,'');assert.equal(duration.value,'1:00');
+ergonomic.get('#bookingNoPreference').onclick();assert.equal(JSON.parse(ergonomic.get('#bookingColor').value).preference,'none');
+const random=ergonomic.run('chooseRandomBookingColor()');assert.equal(random.color,initialItem.color);assert.equal(JSON.parse(ergonomic.get('#bookingColor').value).preference,'random');
+assert.equal(ergonomic.run('isTranslucentFilament({variant:"PLA Translucent"})'),true);assert.equal(ergonomic.run('isTranslucentFilament({variant:"PLA Matte"})'),false);
+const ergonomicForm=ergonomic.get('#bookingForm');ergonomicForm.data={registeredDate:'2026-11-03',deadline:'2026-11-04',title:'キーホルダー',creator:'作者A',weekday:'火',className:'',printStatus:'印刷予定',desiredColor:ergonomic.get('#bookingColor').value,printDuration:'90分'};
+await ergonomicForm.onsubmit({target:ergonomicForm,preventDefault(){}});assert.equal(ergonomic.run('reservations[0].creator'),'作者A');assert.equal(ergonomic.run('reservations[0].colorPreference'),'random');assert.equal(ergonomic.run('reservations[0].printMinutes'),90);
+ergonomic.run('openBooking(reservations[0].id)');assert.equal(JSON.parse(ergonomic.get('#bookingColor').value).preference,'random');
+ergonomic.get('#bookingNoPreference').onclick();ergonomicForm.data={...ergonomicForm.data,creator:'',desiredColor:ergonomic.get('#bookingColor').value};await ergonomicForm.onsubmit({target:ergonomicForm,preventDefault(){}});assert.equal(ergonomic.run('reservations[0].creator'),'');assert.equal(ergonomic.run('reservations[0].colorPreference'),'none');
+ergonomic.run('openBooking(reservations[0].id)');assert.equal(JSON.parse(ergonomic.get('#bookingColor').value).preference,'none');
+console.log('Passed: duration formats, fifteen-minute shortcuts, bounds, validation reset, optional creator, no preference/random persistence and translucent detection.');
