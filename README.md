@@ -41,3 +41,13 @@ HEXは公式販売ページの表示色を参考値として収録し、複数�
 - https://jp.elegoo.com/products/pla-translucent
 
 共同作業は AGENTS.md と COLLABORATION.md を参照してください。
+# 最近の操作改善
+
+- 上部メニューでフィラメントと印刷予約を切り替え。ライブラリ選択・保存状態を常時表示し、データ管理・メンバー・添付を管理ダイアログへ整理。
+- 「並べ替え」でつまみをドラッグ、または上下ボタンで好きな順番に移動。「好きな順番」の選択で保存済みの配置に戻る。
+- 名前（数字も考慮）・ブランド・素材・残量・残量率・カラー・保管場所でソート。登録順も保持。
+- 手動順は各在庫の `manualOrder` としてオンライン／JSONへ保存。絞り込み中は非表示の商品位置を維持。
+- 商品ライブラリはBambu Lab PLA Basic（30色）／Matte（25色）、ELEGOO PLA・Matte・Silk・Translucent・PLA+（7色追加）の計7種類108色。
+- Bambuの色は公式BambuStudioの定義、写真は公式日本ストアのスナップショット。Matteナルドグレーは公式の個別画像がないため代表画像である旨を表示。
+- 出典: https://jp.elegoo.com/products/elegoo-pla-plus-3d-printer-filament-1-75mm-colored-1kg 、https://bambu-lab-jp.myshopify.com/products/pla-basic-filament 、https://bambu-lab-jp.myshopify.com/products/pla-matte-filament
+

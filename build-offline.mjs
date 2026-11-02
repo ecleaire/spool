@@ -4,7 +4,7 @@ const root=fs.realpathSync(process.cwd()),publicDir=path.join(root,'public'),out
 const inlineJs=name=>'<script>\n'+fs.readFileSync(path.join(publicDir,name),'utf8').replace(/<\/script/gi,'<\\/script')+'\n</script>';
 let html=fs.readFileSync(path.join(publicDir,'inventory.html'),'utf8');
 html=html.replace('<link rel="stylesheet" href="style.css">',()=>'<style>\n'+fs.readFileSync(path.join(publicDir,'style.css'),'utf8')+'\n</style>');
-for(const name of ['bootstrap.js','color-presets.js','elegoo-library.js','app.js','reservations.js','offline.js']){
+for(const name of ['bootstrap.js','color-presets.js','elegoo-library.js','bambu-library.js','app.js','reservations.js','offline.js']){
  const marker='<script src="'+name+'"></script>';
  if(!html.includes(marker))throw Error('Missing script '+name);
  html=html.replace(marker,()=>inlineJs(name));

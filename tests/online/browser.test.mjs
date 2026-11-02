@@ -44,6 +44,18 @@ try{
  await authenticated.evaluate(()=>window.spoolOnlineChanged());
  await authenticated.waitForFunction(()=>document.querySelector('#cloud-save-status')?.textContent==='オンライン保存済み');
  assert.equal(writes.length,1);assert.equal(writes[0].lib,lib);assert.equal(writes[0].expected_revision,0);
+ await authenticated.locator('[data-cloud-nav="bookings"]').click();
+ assert.equal(await authenticated.locator('#bookingView').isVisible(),true);
+ assert.equal(await authenticated.locator('[data-cloud-nav="bookings"]').getAttribute('aria-current'),'page');
+ await authenticated.locator('[data-cloud-nav="inventory"]').click();
+ await authenticated.locator('[data-open-tools="data"]').click();
+ assert.equal(await authenticated.locator('#cloud-tools-dialog').isVisible(),true);
+ assert.equal(await authenticated.locator('#cloud-export').isVisible(),true);
+ await authenticated.locator('[data-close-cloud-tools]').click();
+ await authenticated.setViewportSize({width:390,height:844});
+ assert.equal(await authenticated.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await authenticated.locator('[aria-label="アカウントメニュー"]').click();
+ assert.equal(await authenticated.locator('#cloud-logout').isVisible(),true);
  await authenticated.locator('#cloud-logout').click();
  await authenticated.locator('#cloud-login').waitFor({timeout:5000}).catch(async error=>{console.log(await authenticated.locator('#cloud-panel').innerText(),errors);throw error});assert.equal(await authenticated.locator('main').isVisible(),false);
  assert.deepEqual(await authenticated.evaluate(()=>window.spoolBridge.snapshot()),{items:[],deleted:[],customColorPresets:[],reservations:[]});

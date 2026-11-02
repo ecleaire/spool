@@ -11,7 +11,7 @@ if(!html.includes(memory))throw Error('Missing bootstrap marker');
 html=html.replace('function queueOfflineSave(){','function queueOfflineSave(){window.spoolOnlineChanged?.();return;');
 html=html.replace('restoreFileLink();','/* Online state is loaded only after authenticated membership checks. */');
 html=html.replace('<body>','<body class="cloud-locked"><section id="cloud-panel" aria-label="オンラインライブラリ"></section>');
-const bridge=`window.spoolBridge={snapshot:()=>structuredClone(currentOfflineState()),apply:state=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;selected.clear();render();renderBookings()},valid:validOfflineState,esc};`;
+const bridge=`window.spoolBridge={snapshot:()=>structuredClone(currentOfflineState()),apply:state=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;selected.clear();reorderMode=false;render();renderBookings()},valid:validOfflineState,navigate:showBookingView,esc};`;
 html=html.replace('</body>',()=>'<script>'+bridge+'</script><script type="module" src="./online.js"></script></body>');
 html=html.replace('</head>','<link rel="stylesheet" href="./online.css"></head>');
 const out=path.join(root,'online-dist');mkdirSync(out,{recursive:true});

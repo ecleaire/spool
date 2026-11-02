@@ -5,7 +5,7 @@ import {webcrypto} from 'node:crypto';
 const html=fs.readFileSync('dist/index.html','utf8');
 assert.ok(!/<script\b[^>]*src=|<link\b[^>]*rel="stylesheet"|@import|\bfetch\s*\(/i.test(html),'Offline artifact must not request runtime dependencies');
 const scripts=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('application/json')).map(x=>x[2]);
-assert.equal(scripts.length,6);scripts.forEach(s=>new vm.Script(s));
+assert.equal(scripts.length,7);scripts.forEach(s=>new vm.Script(s));
 const initialItem={id:'spool_test',name:'PLA Basic',brand:'Bambu Lab',material:'PLA',colorName:'白',color:'#FFFFFF',remaining:800,capacity:1000,diameter:'1.75',image:'data:image/png;base64,AAAA'};
 function boot({cached=[],embedded={},blocked=false}={}){
  const data=new Map(cached),nodes=new Map(),downloads=[];
@@ -21,8 +21,10 @@ assert.equal(app.run('items.length'),1);assert.equal(app.run('normalizeHex("abc"
 app.get('#navBookings').onclick();assert.equal(app.get('#navBookings').attributes['aria-current'],'page');assert.equal(app.get('#addBooking').hidden,false);assert.equal(app.get('#openLibrary').hidden,true);
 app.get('#showInventory').onclick();assert.equal(app.get('#navInventory').attributes['aria-current'],'page');assert.equal(app.get('#addBooking').hidden,true);
 app.get('#manageData').onclick();assert.equal(app.get('#dataDialog').open,true);app.get('#closeData').onclick();assert.equal(app.get('#dataDialog').open,false);
-assert.equal(app.run('ELEGOO_LIBRARY.length'),4);assert.equal(app.run('ELEGOO_LIBRARY.reduce((n,x)=>n+x.colors.length,0)'),46);
+assert.equal(app.run('ELEGOO_LIBRARY.length'),5);assert.equal(app.run('ELEGOO_LIBRARY.reduce((n,x)=>n+x.colors.length,0)'),53);
 assert.ok(app.run('ELEGOO_LIBRARY.every(p=>p.colors.every(x=>/^data:image\\/jpeg;base64,/.test(x.image)&&/^#[0-9A-F]{6}$/.test(x.color)&&x.shopUrl.startsWith("https://jp.elegoo.com/products/")))'));
+assert.equal(app.run('BAMBU_LIBRARY.length'),2);assert.equal(app.run('PRODUCT_LIBRARY.reduce((n,p)=>n+p.colors.length,0)'),108);
+for(const [id,brand,variant,count]of [['elegoo-plus','ELEGOO','PLA+',7],['bambu-basic','Bambu Lab','PLA Basic',30],['bambu-matte','Bambu Lab','PLA Matte',25]]){app.run('applyELEGOOProduct('+JSON.stringify(id)+')');assert.equal(app.get('#form').elements.namedItem('brand').value,brand);assert.equal(app.get('#form').elements.namedItem('variant').value,variant);assert.equal(app.run('paletteFor(colorContext()).official.length'),count);assert.ok(app.run('photo.startsWith("data:image/jpeg;base64,")'));}
 app.get('#openLibrary').onclick();assert.equal(app.get('#elegooLibrary').open,true);app.run('applyELEGOOProduct("elegoo-translucent")');assert.equal(app.get('#form').elements.namedItem('brand').value,'ELEGOO');assert.equal(app.get('#form').elements.namedItem('variant').value,'PLA Translucent');assert.ok(app.run('photo.startsWith("data:image/jpeg;base64,")'));assert.equal(app.run('paletteFor(colorContext()).official.length'),9);
 assert.equal(app.run('bookingDue({deadline:"2026-11-01",printStatus:"印刷済み"},"2026-11-02").tone'),'complete');assert.equal(app.run('bookingDue({deadline:"2026-11-01",printStatus:"印刷予定"},"2026-11-02").label'),'1日超過');assert.equal(app.run('bookingDue({deadline:"2026-11-03",printStatus:"印刷予定"},"2026-11-02").label'),'明日期限');
 app.run('showBookingView(true)');assert.equal(app.get('#bookingView').hidden,false);assert.equal(app.get('.inventory').hidden,true);
@@ -53,3 +55,18 @@ assert.equal(app.run('decodeData(serializeData()).reservations[0].files[0]'),mod
 assert.ok(app.run('bookingFileMarkup(reservations[0])').includes('spool-bambu://open/?path='+encodeURIComponent(modelPath)));
 app.run('openBooking(reservations[0].id)');assert.equal(form.elements.namedItem('files').value,[modelPath,uncPath].join('\n'));
 console.log('Passed: local/UNC model references, unsafe path rejection, JSON preservation and edit prefill.');
+
+// Manual order is saved on each item; registration order and filtered-out slots stay intact.
+const ordered=boot({cached:[['spool-inventory-v1',JSON.stringify(['a','b','c','d'].map((id,i)=>({...initialItem,id,name:['Part 10','Part 2','Part 30','Part 1'][i],remaining:[900,50,100,0][i],capacity:[1000,100,1000,1000][i]})))]]});
+ordered.run("reorderMode=true;$('#sort').value='manual';render();visibleIds=['a','c']");
+assert.equal(ordered.run("moveFilament('c','a')"),true);
+assert.equal(ordered.run("sortFilaments(items,'manual').map(x=>x.id).join(',')"),'c,b,a,d');
+assert.equal(ordered.run("sortFilaments(items,'new').map(x=>x.id).join(',')"),'a,b,c,d');
+assert.equal(ordered.run("sortFilaments(items,'name').map(x=>x.id).join(',')"),'d,b,a,c');
+assert.equal(ordered.run("sortFilaments(items,'remaining-desc').map(x=>x.id).join(',')"),'a,c,b,d');
+assert.equal(ordered.run("sortFilaments(items,'ratio').map(x=>x.id).join(',')"),'d,c,b,a');
+ordered.run("$('#sort').value='name'");assert.equal(ordered.run("moveFilament('a','b')"),false);
+const restoredOrder=boot({cached:[...ordered.data]});assert.equal(restoredOrder.run("sortFilaments(items,'manual').map(x=>x.id).join(',')"),'c,b,a,d');
+const orderFile=fakeFile();ordered.context.window.showSaveFilePicker=async()=>orderFile;await ordered.run('saveDataFileAs()');const orderJson=JSON.parse(orderFile.read());assert.equal(orderJson.items.find(x=>x.id==='c').manualOrder,0);
+const orderVersion=boot({embedded:orderJson});assert.equal(orderVersion.run("sortFilaments(items,'manual').map(x=>x.id).join(',')"),'c,b,a,d');
+console.log('Passed: product brand/color/photo selection, manual order, filtered moves, numeric sorting and JSON version persistence.');
