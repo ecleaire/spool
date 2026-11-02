@@ -2,6 +2,10 @@
 
 ## 目的と構成
 
+- ユーザーの追加依頼によりオンライン版を併設。Googleログイン・個人／共有ライブラリ・非公開添付は `online/` と `supabase/`。接続設定・検証範囲は `online/README.md` を参照。
+- 以下の単体HTML要件はオフライン版に適用。オンライン版は別出力 `online-dist/` とし、オフライン版に認証や通信依存を混ぜない。
+- オンライン版は `npm ci --prefix online`、`node build-offline.mjs`、`npm --prefix online run build`、`npm --prefix online test`。RLSを維持し、Publishable/anon以外のキーをブラウザーへ渡さない。
+
 - 最終成果物は、通信・ログイン・追加インストールなしで動く単体HTML。
 - 編集対象は `public/`。生成済みの `dist/index.html` を直接編集しない。
 - `node build-offline.mjs` でHTMLを生成し、`node tests/offline.test.mjs` で検証する。

@@ -1,0 +1,82 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {PGlite} from '../../online/node_modules/@electric-sql/pglite/dist/index.js';
+const ids=['11111111-1111-4111-8111-111111111111','22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333','44444444-4444-4444-8444-444444444444'];
+const state={items:[],deleted:[],reservations:[],customColorPresets:[]};
+test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history and private file access',async()=>{
+ const db=new PGlite();
+ try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create schema storage;
+ create table auth.users(id uuid primary key);
+ create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub'$$;
+ ` .replace("select nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub'","select (nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub')::uuid"));
+ await db.exec(`create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
+ grant usage on schema auth,public,storage to authenticated,anon;
+ grant execute on all functions in schema auth to authenticated,anon;
+ create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+ create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);
+ alter table storage.objects enable row level security;
+ grant select,insert,delete on storage.objects to authenticated;
+ `);
+ for(const id of ids)await db.query('insert into auth.users values($1)',[id]);
+ await db.exec(readFileSync(new URL('../../supabase/schema.sql',import.meta.url),'utf8'));
+ await db.query("insert into public.spool_users values('owner@example.com')");
+ async function as(index,email,fn,provider='google'){
+  await db.exec('set role authenticated');
+  await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:ids[index],email,app_metadata:{provider}})]);
+  try{return await fn()}finally{await db.exec('reset role')}
+ }
+ const scalar=async(sql,args=[])=>(await db.query(sql,args)).rows[0];
+ let mine,shared;
+ await as(0,'owner@example.com',async()=>{
+  mine=(await scalar('select public.ensure_my_library() as id')).id;
+  assert.equal((await scalar('select public.ensure_my_library() as id')).id,mine);
+  await db.query("select public.invite_library_member($1,'editor@example.com','editor')",[mine]);
+  await db.query("select public.invite_library_member($1,'viewer@example.com','viewer')",[mine]);
+ });
+ await as(3,'stranger@example.com',async()=>{
+  assert.equal((await db.query('select * from public.library_state')).rows.length,0);
+  await assert.rejects(db.query('select public.ensure_my_library()'),/invitation required/);
+  await assert.rejects(db.query("select public.save_library_state($1,0,$2)",[mine,state]),/Editor required/);
+ });
+ await as(1,'editor@example.com',async()=>{
+  shared=(await scalar('select public.ensure_my_library() as id')).id;assert.notEqual(shared,mine);
+  assert.equal((await db.query('select * from public.libraries')).rows.length,2);
+  assert.equal((await scalar('select public.save_library_state($1,0,$2) as revision',[mine,state])).revision,1);
+  await assert.rejects(db.query('select public.save_library_state($1,0,$2)',[mine,state]),/Library changed/);
+  assert.equal((await db.query('select * from public.library_history where library_id=$1',[mine])).rows.length,1);
+  await assert.rejects(db.query("select public.invite_library_member($1,'bad@example.com','editor')",[mine]),/Owner required/);
+  await assert.rejects(db.query("update public.library_members set role='owner'"),/permission denied/);
+  await assert.rejects(db.query('update public.library_state set revision=99'),/permission denied/);
+ });
+ const fileId='55555555-5555-4555-8555-555555555555',filePath=`${mine}/${fileId}/model`;
+ await as(0,'owner@example.com',async()=>{
+  // Owner's personal library cannot read the editor's private library.
+  assert.equal((await db.query('select * from public.library_state where library_id=$1',[shared])).rows.length,0);
+  await db.query("insert into public.library_files(id,library_id,booking_id,name,object_path,size) values($1,$2,'booking-1','part.3mf',$3,100)",[fileId,mine,filePath]);
+  await db.query("insert into storage.objects(bucket_id,name) values('spool-models',$1)",[filePath]);
+  await assert.rejects(db.query("insert into storage.objects(bucket_id,name) values('spool-models','arbitrary/path')"),/row-level security/);
+ });
+ await as(2,'viewer@example.com',async()=>{
+  await db.query('select public.ensure_my_library()');
+  assert.equal((await db.query('select * from storage.objects')).rows.length,1);
+  await assert.rejects(db.query('select public.save_library_state($1,1,$2)',[mine,state]),/Editor required/);
+  await assert.rejects(db.query("insert into storage.objects(bucket_id,name) values('spool-models',$1)",[filePath]),/row-level security/);
+  assert.equal((await db.query('delete from storage.objects returning *')).rows.length,0);
+ });
+ await as(3,'stranger@example.com',async()=>{assert.equal((await db.query('select * from storage.objects')).rows.length,0)});
+ await as(0,'owner@example.com',async()=>{await db.query('select public.remove_library_member($1,$2)',[mine,ids[1]])});
+ await as(1,'editor@example.com',async()=>{
+  await db.query('select public.ensure_my_library()');
+  assert.equal((await db.query('select * from public.library_state where library_id=$1',[mine])).rows.length,0);
+  await assert.rejects(db.query('select public.save_library_state($1,1,$2)',[mine,state]),/Editor required/);
+ });
+ await as(0,'owner@example.com',async()=>{await assert.rejects(db.query('select public.ensure_my_library()'),/invitation required/)},'email');
+ await db.exec('set role anon');
+ await assert.rejects(db.query('select * from public.library_state'),/permission denied/);
+ await assert.rejects(db.query('select public.ensure_my_library()'),/permission denied/);
+ await db.exec('reset role');
+ assert.equal((await db.query("select public from storage.buckets where id='spool-models'")).rows[0].public,false);
+ } finally {await db.close()}
+});

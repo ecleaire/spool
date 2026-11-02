@@ -58,3 +58,23 @@ HOST=0.0.0.0 PORT=5173 node preview.mjs
 - ワークスペースの「印刷予約」、登録フォーム、個別編集、印刷済み／印刷予定／未定
 - デスクトップ予約表、モバイル予約カード、状態別タブ、期限間近・超過の区別
 - オフライン単体HTML、JSONによるデータ引き継ぎ、ファイル上書き競合の検出
+
+## クラウド側の追加実装（未公開）
+
+ユーザーの追加依頼で `collab/online-libraries` に実装中。GitHubへのcommit/pushやSites公開は行っていません。
+
+- `public/reservations.js` / `public/inventory.html` / `public/style.css`: 予約のローカル／共有フォルダー／HTTPS関連ファイル。
+- `tools/bambu-bridge/`: Windowsの任意導入ツール。Bambu Studio実機確認は未実施。
+- `online/`: Googleログイン、個人・共有ライブラリ、JSON移行、競合保存、非公開のオンライン添付。
+- `supabase/schema.sql`: 新規Supabaseプロジェクト用の認可と保存スキーマ。Google認証、SQL適用、実接続はユーザー設定が必要。
+- オンライン版の出力は `online-dist/`。既存 `.openai/hosting.json` は変更していません。
+
+公開前に `online/README.md` の実接続チェックを実施してください。オフラインJSON出力にオンラインStorageのファイル本体は含まれません。
+
+## ローカル統合側のオンライン公開準備
+
+- ユーザーの許可により24ファイルの差分を取り込み済み。SupabaseのSQL適用・初期メール許可・Google設定・URL設定はユーザーが実施。
+- 公開認証設定の読み取りでGoogle provider有効を確認。実アカウントでのOAuth、招待、Storage取得は未確認。
+- オンラインビルドは `online-dist/` と公開用 `out/`。既存Siteの静的配信先は `out/`。
+- サイトの `offline.html` から従来の在庫を引き続き開ける。オンラインへユーザーデータを自動転送しない。
+- ローカルでオフライン互換性、SQL権限、競合保存テストに成功。ブラウザーテストはChrome（Linux既定Chromium、任意で `SPOOL_CHROMIUM_PATH`）を使用。

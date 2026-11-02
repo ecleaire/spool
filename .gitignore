@@ -49,3 +49,7 @@ yarn-error.log*
 /SPOOL-before*.json
 /spool-backup*.json
 /user-data/
+
+# Online variant
+/online/node_modules/
+/online-dist/

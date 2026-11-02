@@ -42,3 +42,14 @@ const legacy=JSON.stringify({version:1,items:[initialItem]});assert.equal(app.ru
 const unsupported=boot({embedded:saved});unsupported.context.window.showSaveFilePicker=async()=>{const error=Error('Unavailable');error.name='SecurityError';throw error};await unsupported.run('saveDataFileAs()');assert.equal(unsupported.downloads.length,1);assert.match(unsupported.downloads[0],/^SPOOL-data-.*\.json$/);
 app.run('showBookingView(false)');assert.equal(app.get('.inventory').hidden,false);
 console.log('Passed: no network runtime, complete inline scripts, legacy cache, booking registration/edit/status/filter, JSON save/load across fresh versions, image retention, overwrite conflict and restricted-storage fallback.');
+// Related-file references survive JSON roundtrips without embedding model contents.
+const modelPath=String.raw`C:\Models\日本語の作品.3mf`,uncPath=String.raw`\\server\prints\part.stl`;
+assert.equal(app.run('validBookingFile('+JSON.stringify(modelPath)+')'),true);
+assert.equal(app.run('validBookingFile('+JSON.stringify(uncPath)+')'),true);
+for(const path of ['javascript:alert(1)','https://user:secret@example.com/part.stl',String.raw`\\?\C:\part.stl`,'C:\\part.exe','C:\\part.stl:stream'])assert.equal(app.run('validBookingFile('+JSON.stringify(path)+')'),false);
+app.run('reservations[0].files='+JSON.stringify([modelPath,uncPath]));
+assert.equal(app.run('validBookings(reservations)'),true);
+assert.equal(app.run('decodeData(serializeData()).reservations[0].files[0]'),modelPath);
+assert.ok(app.run('bookingFileMarkup(reservations[0])').includes('spool-bambu://open/?path='+encodeURIComponent(modelPath)));
+app.run('openBooking(reservations[0].id)');assert.equal(form.elements.namedItem('files').value,[modelPath,uncPath].join('\n'));
+console.log('Passed: local/UNC model references, unsafe path rejection, JSON preservation and edit prefill.');
