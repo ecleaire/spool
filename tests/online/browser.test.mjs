@@ -24,12 +24,12 @@ try{
  const lib='11111111-1111-4111-8111-111111111111',user='22222222-2222-4222-8222-222222222222';
  const claims={sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
  const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.test';
- const writes=[],uploads=[];
+ const writes=[],uploads=[];let saveFailure=false;
  await authenticated.route('https://example.supabase.co/**',async route=>{
   const req=route.request(),url=new URL(req.url());let data=[];
   if(url.pathname.endsWith('/auth/v1/logout'))data={};
   else if(url.pathname.endsWith('/rpc/ensure_my_library'))data=lib;
-  else if(url.pathname.endsWith('/rpc/save_library_state')){writes.push(req.postDataJSON());data=writes.length;}
+  else if(url.pathname.endsWith('/rpc/save_library_state')){if(saveFailure){await route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({code:'42501',message:'permission denied'})});return;}writes.push(req.postDataJSON());data=writes.length;}
   else if(url.pathname.endsWith('/libraries'))data=[{id:lib,name:'テストライブラリ',owner_id:user}];
   else if(url.pathname.endsWith('/library_state'))data={library_id:lib,revision:0,state:{items:demoItems,deleted:[],customColorPresets:[],reservations:[]}};
   else if(url.pathname.includes('/storage/v1/object/')){uploads.push(url.pathname);data={Key:url.pathname.split('/object/')[1]};}
@@ -51,7 +51,7 @@ try{
  await authenticated.locator('[data-cloud-nav="bookings"]').click();
  assert.equal(await authenticated.locator('#bookingView').isVisible(),true);
  assert.equal(await authenticated.locator('[data-cloud-nav="bookings"]').getAttribute('aria-current'),'page');
- await authenticated.locator('#addBooking').click();
+ await authenticated.locator('#addBooking').click();assert.equal(await authenticated.locator('#bookingExtraDetails').getAttribute('open'),null);assert.equal(await authenticated.locator('#bookingFileDetails').getAttribute('open'),null);await authenticated.locator('#bookingExtraDetails>summary').click();
  assert.equal(await authenticated.locator('[name=title]').getAttribute('placeholder'),'例：キーホルダー');await authenticated.locator('[name=title]').fill('試作用スタンド');await authenticated.locator('[name=creator]').fill('作者A');
  await authenticated.locator('[name=registeredDate]').fill('2026-11-03');
  await authenticated.locator('[name=registeredDate]').press('Tab');
@@ -68,7 +68,7 @@ try{
  await authenticated.locator('#bookingRandom').click();assert.equal(JSON.parse(await authenticated.locator('#bookingColor').inputValue()).preference,'random');
  assert.equal(await authenticated.locator('[data-booking-color]').count(),3);
  await authenticated.locator('[data-booking-color]').first().click();
- await authenticated.locator('#bookingFileInput').setInputFiles({name:'stand.stl',mimeType:'application/octet-stream',buffer:Buffer.from('solid stand\nendsolid stand')});
+ await authenticated.locator('#bookingFileDetails>summary').click();await authenticated.locator('#bookingFileInput').setInputFiles({name:'stand.stl',mimeType:'application/octet-stream',buffer:Buffer.from('solid stand\nendsolid stand')});
  assert.equal(await authenticated.locator('#bookingPendingFiles li').count(),1);
  await authenticated.setViewportSize({width:390,height:844});
  assert.equal(await authenticated.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -85,9 +85,13 @@ try{
  await authenticated.locator('#add').click();
  await authenticated.locator('#editorBrand').selectOption('ELEGOO');
  assert.equal(await authenticated.locator('#editorVariant option').count(),7);
- await authenticated.locator('#editorVariant').selectOption('PLA+');
+ assert.equal(await authenticated.locator('#materialDetails').getAttribute('open'),null);await authenticated.locator('#materialDetails>summary').click();await authenticated.locator('#editorVariant').selectOption('PLA+');
  assert.equal(await authenticated.locator('[name=brand]').inputValue(),'ELEGOO');assert.equal(await authenticated.locator('[name=variant]').inputValue(),'PLA+');
  await authenticated.locator('#cancel').click();
+ assert.equal(await authenticated.locator('#inventoryFilters').getAttribute('open'),null);
+ await authenticated.locator('#inventoryFilters>summary').click();await authenticated.locator('#brand').selectOption('ELEGOO');assert.equal(await authenticated.locator('#items>.filament-row').count(),1);await authenticated.locator('#brand').selectOption('');await authenticated.locator('#inventoryFilters>summary').click();
+ await authenticated.locator('[data-select]').first().check();assert.equal(await authenticated.locator('#batchActions').getAttribute('open'),'');await authenticated.locator('#clearSelection').click();
+ saveFailure=true;await authenticated.evaluate(()=>window.spoolOnlineChanged());await authenticated.locator('[data-error-category="permission"]').waitFor();assert.equal(await authenticated.locator('.error-summary details').getAttribute('open'),null);await authenticated.locator('.error-summary summary').click();await authenticated.getByText('コード: 42501',{exact:false}).waitFor();saveFailure=false;await authenticated.locator('#cloud-save').click();await authenticated.waitForFunction(()=>!document.querySelector('#cloud-error')?.textContent);
  await authenticated.locator('[data-open-tools="data"]').click();
  assert.equal(await authenticated.locator('#cloud-tools-dialog').isVisible(),true);
  assert.equal(await authenticated.locator('#cloud-export').isVisible(),true);
