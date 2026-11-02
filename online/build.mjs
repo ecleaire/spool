@@ -4,8 +4,13 @@ import path from 'node:path';
 import {build} from 'esbuild';
 import {createHash} from 'node:crypto';
 import {publicConfig} from './security.mjs';
+import {execFileSync} from 'node:child_process';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const config=publicConfig(JSON.parse(readFileSync(path.join(root,'online/config.json'),'utf8')));
+const version=JSON.parse(readFileSync(path.join(root,'package.json'),'utf8')).version;
+let sourceSha=process.env.GITHUB_SHA||'';
+if(!sourceSha)try{sourceSha=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim()}catch{}
+if(!/^[0-9a-f]{40}$/i.test(sourceSha))sourceSha='';
 let html=readFileSync(path.join(root,'dist/index.html'),'utf8');
 // The online build has isolated in-memory app state. Offline browser data is never imported implicitly.
 const memory=`const EMBEDDED_DATA={items:[],deleted:[],reservations:[],customColorPresets:[]};const storage=(()=>{const data=new Map();return {persistent:false,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)}})();`;
@@ -22,11 +27,12 @@ if(!html.includes('id="cloud-panel"')||!/<body\b[^>]*\bcloud-locked/.test(html))
 const bridge=`window.spoolBridge={snapshot:()=>structuredClone(currentOfflineState()),apply:state=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;selected.clear();reorderMode=false;render();renderBookings()},valid:validOfflineState,navigate:showBookingView,esc};`;
 html=html.replace('</body>',()=>'<script>'+bridge+'</script><script type="module" src="./online.js"></script></body>');
 html=html.replace('</head>','<link rel="stylesheet" href="./online.css"></head>');
+html=html.replace('<p id="appBuild">オフライン版</p>','<p id="appBuild">オンライン版'+(sourceSha?' · '+sourceSha.slice(0,7)+'<br><a href="https://github.com/ecleaire/spool/commit/'+sourceSha+'" target="_blank" rel="noopener noreferrer">ソースを確認 ↗</a>':'')+'</p>');
 const out=path.join(root,'online-dist');mkdirSync(out,{recursive:true});
 writeFileSync(path.join(out,'config.json'),JSON.stringify(config));
 writeFileSync(path.join(out,'online.css'),readFileSync(path.join(root,'online/style.css')));
 writeFileSync(path.join(out,'offline.html'),readFileSync(path.join(root,'dist/index.html')));
-await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true});
+await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true,define:{__SPOOL_VERSION__:JSON.stringify(version),__SPOOL_BUILD__:JSON.stringify(sourceSha)}});
 const digest=code=>'sha256-'+createHash('sha256').update(code).digest('base64');
 const bundleHash=digest(readFileSync(path.join(out,'online.js')));
 html=html.replace('src="./online.js"','src="./online.js?v='+createHash('sha256').update(bundleHash).digest('hex').slice(0,16)+'" integrity="'+bundleHash+'" crossorigin="anonymous"');
