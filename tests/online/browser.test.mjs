@@ -2,7 +2,9 @@ import {chromium} from '../../online/node_modules/playwright-core/index.mjs';
 import http from 'node:http';
 import {readFileSync,mkdirSync} from 'node:fs';
 import assert from 'node:assert/strict';
-const server=http.createServer((req,res)=>{const files={'/':'index.html','/online.js':'online.js','/online.css':'online.css','/config.json':'config.json'};const name=files[req.url];if(!name){res.writeHead(404).end();return}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html');res.end(name==='config.json'?JSON.stringify({url:'https://example.supabase.co',key:''}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});
+const basePath=process.env.SPOOL_TEST_BASE_PATH||'/';
+if(!/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(basePath))throw Error('Invalid test base path');
+const server=http.createServer((req,res)=>{const files={'':'index.html','online.js':'online.js','online.css':'online.css','config.json':'config.json','offline.html':'offline.html'};const name=req.url.startsWith(basePath)?files[req.url.slice(basePath.length).split('?')[0]]:undefined;if(!name){res.writeHead(404).end();return}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html');res.end(name==='config.json'?JSON.stringify({url:'https://example.supabase.co',key:''}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 let browser;
 try{
@@ -10,7 +12,7 @@ try{
  browser=await chromium.launch({...executablePath?{executablePath}:{channel:'chrome'},headless:true,args:process.platform==='linux'?['--no-sandbox']:[]});
  const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{localStorage.setItem('spool-inventory-v1',JSON.stringify([{id:'private-offline-data',name:'Do not upload'}]))});
- await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#cloud-config').waitFor();
+ await page.goto('http://127.0.0.1:'+server.address().port+basePath);await page.locator('#cloud-config').waitFor();
  assert.equal(await page.locator('main').isVisible(),false);
  assert.deepEqual(await page.evaluate(()=>window.spoolBridge.snapshot()),{items:[],deleted:[],customColorPresets:[],reservations:[]});
  assert.equal(await page.evaluate(()=>localStorage.getItem('spool-inventory-v1')),JSON.stringify([{id:'private-offline-data',name:'Do not upload'}]));
@@ -41,7 +43,7 @@ try{
   sessionStorage.setItem('sb-example-auth-token',JSON.stringify({access_token:token,refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user:{id:user,email:'owner@example.com'}}));
  },{token,user});
  authenticated.on('pageerror',e=>errors.push(e.message));
- await authenticated.goto('http://127.0.0.1:'+server.address().port);
+ await authenticated.goto('http://127.0.0.1:'+server.address().port+basePath);
  await authenticated.locator('#cloud-library').waitFor();
  assert.equal(await authenticated.locator('main').isVisible(),true);
  await authenticated.evaluate(()=>window.spoolOnlineChanged());
