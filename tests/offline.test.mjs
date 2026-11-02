@@ -103,3 +103,5 @@ ergonomic.run('openBooking(reservations[0].id)');assert.equal(JSON.parse(ergonom
 ergonomic.get('#bookingNoPreference').onclick();ergonomicForm.data={...ergonomicForm.data,creator:'',desiredColor:ergonomic.get('#bookingColor').value};await ergonomicForm.onsubmit({target:ergonomicForm,preventDefault(){}});assert.equal(ergonomic.run('reservations[0].creator'),'');assert.equal(ergonomic.run('reservations[0].colorPreference'),'none');
 ergonomic.run('openBooking(reservations[0].id)');assert.equal(JSON.parse(ergonomic.get('#bookingColor').value).preference,'none');
 console.log('Passed: duration formats, fifteen-minute shortcuts, bounds, validation reset, optional creator, no preference/random persistence and translucent detection.');
+
+assert.equal(app.run('valid({...items[0],image:"data:image/svg+xml;base64,AAAA"})'),false);assert.equal(app.run('valid({...items[0],image:"data:image/png;base64,AAAA\\" onerror=alert(1)"})'),false);

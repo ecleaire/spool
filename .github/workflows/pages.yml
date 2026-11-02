@@ -31,6 +31,8 @@ jobs:
           cache: npm
           cache-dependency-path: online/package-lock.json
       - run: npm ci --prefix online
+      - name: Reject known high-risk dependency vulnerabilities
+        run: npm audit --prefix online --audit-level=high
       - name: Build and verify offline compatibility
         run: |
           node build-offline.mjs
@@ -39,6 +41,8 @@ jobs:
         run: npm --prefix online test
       - name: Build public files
         run: node online/build.mjs
+      - name: Verify browser security policy and bundle integrity
+        run: node tests/online/hardening.test.mjs
       - name: Verify application under the Pages URL path
         env:
           SPOOL_TEST_BASE_PATH: /spool/

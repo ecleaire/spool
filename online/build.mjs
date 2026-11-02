@@ -1,8 +1,11 @@
-import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,readdirSync,lstatSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {build} from 'esbuild';
+import {createHash} from 'node:crypto';
+import {publicConfig} from './security.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const config=publicConfig(JSON.parse(readFileSync(path.join(root,'online/config.json'),'utf8')));
 let html=readFileSync(path.join(root,'dist/index.html'),'utf8');
 // The online build has isolated in-memory app state. Offline browser data is never imported implicitly.
 const memory=`const EMBEDDED_DATA={items:[],deleted:[],reservations:[],customColorPresets:[]};const storage=(()=>{const data=new Map();return {persistent:false,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)}})();`;
@@ -20,12 +23,23 @@ const bridge=`window.spoolBridge={snapshot:()=>structuredClone(currentOfflineSta
 html=html.replace('</body>',()=>'<script>'+bridge+'</script><script type="module" src="./online.js"></script></body>');
 html=html.replace('</head>','<link rel="stylesheet" href="./online.css"></head>');
 const out=path.join(root,'online-dist');mkdirSync(out,{recursive:true});
-writeFileSync(path.join(out,'index.html'),html);
-writeFileSync(path.join(out,'config.json'),readFileSync(path.join(root,'online/config.json')));
+writeFileSync(path.join(out,'config.json'),JSON.stringify(config));
 writeFileSync(path.join(out,'online.css'),readFileSync(path.join(root,'online/style.css')));
 writeFileSync(path.join(out,'offline.html'),readFileSync(path.join(root,'dist/index.html')));
 await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true});
+const digest=code=>'sha256-'+createHash('sha256').update(code).digest('base64');
+const bundleHash=digest(readFileSync(path.join(out,'online.js')));
+html=html.replace('src="./online.js"','src="./online.js?v='+createHash('sha256').update(bundleHash).digest('hex').slice(0,16)+'" integrity="'+bundleHash+'" crossorigin="anonymous"');
+const inlineHashes=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('application/json')).map(x=>digest(x[2].replace(/\r\n?/g,'\n')));
+const policy=["default-src 'none'",'script-src '+[...inlineHashes,bundleHash].map(x=>"'"+x+"'").join(' '),"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data: blob:","font-src 'self'","connect-src 'self' "+config.url+' '+config.url.replace('https:','wss:'),"object-src 'none'","base-uri 'none'","form-action 'self'","frame-src 'none'","worker-src 'none'"].join('; ');
+const charset='<meta charset="UTF-8">';
+if(!html.includes(charset))throw Error('Missing character encoding marker');
+html=html.replace(charset,charset+'<meta http-equiv="Content-Security-Policy" content="'+policy+'"><meta name="referrer" content="no-referrer">');
+writeFileSync(path.join(out,'index.html'),html);
 // Hosting uses a supported static output directory; retain the standalone offline app beside it.
 const hosted=path.join(root,'out');mkdirSync(hosted,{recursive:true});
-for(const name of ['index.html','online.js','online.css','config.json','offline.html'])writeFileSync(path.join(hosted,name),readFileSync(path.join(out,name)));
+const publicFiles=['index.html','online.js','online.css','config.json','offline.html'];
+if(lstatSync(hosted).isSymbolicLink())throw Error('Public output must be a regular directory');
+if(readdirSync(hosted).some(name=>!publicFiles.includes(name)||!lstatSync(path.join(hosted,name)).isFile()))throw Error('Unexpected files in public output; review them before publication');
+for(const name of publicFiles)writeFileSync(path.join(hosted,name),readFileSync(path.join(out,name)));
 console.log('Built online-dist (separate from offline dist). Public connection config included; no service secrets.');
