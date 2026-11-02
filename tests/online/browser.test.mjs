@@ -15,7 +15,7 @@ try{
  assert.deepEqual(await page.evaluate(()=>window.spoolBridge.snapshot()),{items:[],deleted:[],customColorPresets:[],reservations:[]});
  assert.equal(await page.evaluate(()=>localStorage.getItem('spool-inventory-v1')),JSON.stringify([{id:'private-offline-data',name:'Do not upload'}]));
  await page.locator('[name=url]').fill('https://example.supabase.co');await page.locator('[name=key]').fill('sb_secret_never-use');await page.locator('#cloud-config button').click();
- await page.getByText('秘密キーは使用できません').waitFor();assert.equal(await page.locator('main').isVisible(),false);
+ await page.locator('.error-summary>p').filter({hasText:'秘密キーは使用できません'}).waitFor();assert.equal(await page.locator('main').isVisible(),false);
  assert.deepEqual(errors,[]);
  // A mocked authenticated transport tests UI wiring; it is not a live OAuth check.
  const authenticated=await browser.newPage({viewport:{width:1440,height:1000}});
