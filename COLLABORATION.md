@@ -1,0 +1,60 @@
+# SPOOL 共同作業メモ
+
+## 共通の作業対象
+
+- リポジトリ: https://github.com/ecleaire/spool
+- ローカル統合チャット: `01a19604-7c0d-7391-8c97-52f8989696c2`
+- クラウド環境確認チャット: `01a19bad-ca0a-7327-992a-1869d2997089`（spoolをセットアップ）
+- ローカル作業場所: `C:/Users/echo0/Documents/ChatGPT/創作/spool-manager`
+- クラウド側のチェックアウト: `/workspace/spool`
+
+両環境のフォルダーは別物です。GitHubを介して同じソースを取得します。
+Gitへの同期はソースのみです。ブラウザー内の在庫・画像・予約などのユーザーデータは、JSONで別管理します。
+
+## セットアップ
+
+```sh
+node --version
+node build-offline.mjs
+node tests/offline.test.mjs
+```
+
+Node.js 22以降が必要です。npm installは不要です。
+開発用HTTPプレビューは `node preview.mjs`。既定は127.0.0.1:48371です。
+クラウド環境で必要な場合のみ、その環境のルールに従ってHOST・PORTを指定してください。
+
+```sh
+HOST=0.0.0.0 PORT=5173 node preview.mjs
+```
+
+通常のローカル利用は、生成した単体HTMLをブラウザーで開くだけです。
+
+## ファイルの担当
+
+ローカル統合側が、以下のUIとライブラリを仕上げています。
+
+- `public/inventory.html` / `public/style.css`: ワークスペース・保存導線・予約の表／カード
+- `public/reservations.js`: 予約の表示・絞り込み・期限表示・登録／編集
+- `public/app.js` / `public/elegoo-library.js`: ELEGOOの商品・色・画像の選択
+- `public/offline.js`: JSON保存・復元・単体HTMLの書き出し
+
+初期取り込み後、クラウド側はセットアップ確認とレビューから開始します。
+変更が必要な場合は `collab/cloud-setup` 等のブランチにし、同じファイルの並行編集を避けます。
+修正内容・確認したテスト・未確認点を共有し、統合側でmainへの反映と公開を行います。
+
+## 公開と配布
+
+- 既存の公開先: https://spool-filament-studio.echo0607chiaki.chatgpt.site/
+- 既存Site: `appgprj_6ae6eac9628481918eb60b8004f36986`
+- Siteの新規作成や共有範囲の変更は不要です。
+- Sites向けの保存・公開はローカル統合側が担当します。認証用の値はGitに置きません。
+- `.openai/hosting.json` は既存Siteの識別子です。別のSiteの識別子へ置き換えないでください。
+
+## 現在含まれる機能
+
+- 商品画像付きのフィラメント在庫、残量記録、検索・絞り込み、一括追加／削除と復元
+- HEX直接入力、商品別の色プリセット、Bambu Lab公式色
+- ELEGOO PLA／Matte／Silk／Translucent、4系統46色、商品画像と公式販売ページ
+- ワークスペースの「印刷予約」、登録フォーム、個別編集、印刷済み／印刷予定／未定
+- デスクトップ予約表、モバイル予約カード、状態別タブ、期限間近・超過の区別
+- オフライン単体HTML、JSONによるデータ引き継ぎ、ファイル上書き競合の検出

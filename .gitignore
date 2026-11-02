@@ -43,3 +43,9 @@ yarn-error.log*
 
 # OS metadata
 .DS_Store
+
+# Personal inventory and exported backups
+/SPOOL-data*.json
+/SPOOL-before*.json
+/spool-backup*.json
+/user-data/

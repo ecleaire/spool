@@ -1,1 +1,13 @@
-{"name":"spool-offline","private":true,"type":"module","scripts":{"build":"node build-offline.mjs","test":"node tests/offline.test.mjs"}}
+{
+  "name": "spool-offline",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build-offline.mjs",
+    "test": "node tests/offline.test.mjs",
+    "dev": "node preview.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
