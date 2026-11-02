@@ -10,7 +10,12 @@ html=html.replace(/<script>\s*\/\/ A downloaded copy[\s\S]*?<\/script>/,()=>'<sc
 if(!html.includes(memory))throw Error('Missing bootstrap marker');
 html=html.replace('function queueOfflineSave(){','function queueOfflineSave(){window.spoolOnlineChanged?.();return;');
 html=html.replace('restoreFileLink();','/* Online state is loaded only after authenticated membership checks. */');
-html=html.replace('<body>','<body class="cloud-locked"><section id="cloud-panel" aria-label="オンラインライブラリ"></section>');
+html=html.replace(/<body\b([^>]*)>/i,(_,attributes)=>{
+ const hasClass=/\bclass\s*=\s*(["'])(.*?)\1/i.test(attributes);
+ const attrs=hasClass?attributes.replace(/\bclass\s*=\s*(["'])(.*?)\1/i,(_match,quote,classes)=>'class='+quote+classes+' cloud-locked'+quote):attributes+' class="cloud-locked"';
+ return '<body'+attrs+'><section id="cloud-panel" aria-label="オンラインライブラリ"></section>';
+});
+if(!html.includes('id="cloud-panel"')||!/<body\b[^>]*\bcloud-locked/.test(html))throw Error('Online shell and login protection were not inserted');
 const bridge=`window.spoolBridge={snapshot:()=>structuredClone(currentOfflineState()),apply:state=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;selected.clear();reorderMode=false;render();renderBookings()},valid:validOfflineState,navigate:showBookingView,esc};`;
 html=html.replace('</body>',()=>'<script>'+bridge+'</script><script type="module" src="./online.js"></script></body>');
 html=html.replace('</head>','<link rel="stylesheet" href="./online.css"></head>');
