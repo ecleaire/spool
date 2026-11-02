@@ -1,5 +1,9 @@
 # SPOOL オフライン版
 
+オンライン版: https://ecleaire.github.io/spool/
+
+オンライン公開と更新は [GitHub Pagesの手順](online/GITHUB-PAGES.md) を参照してください。
+
 フィラメント在庫・商品画像・色プリセットと、印刷予約表を扱う単体HTMLです。
 外部フォント・JavaScript・サーバー・ログインは不要です。
 

@@ -1,5 +1,9 @@
 # SPOOL 共同作業メモ
 
+## 最新の公開経路
+
+ユーザーの指定により、公開先は GitHub Pages (`https://ecleaire.github.io/spool/`)。main への通常pushで、テスト・ビルドを通した `out/` が自動公開される。公開設定は `.github/workflows/pages.yml`、認証の戻り先は `online/GITHUB-PAGES.md` を参照。旧Sites版は保持しており、通常更新の公開先には使わない。以降の旧公開準備・未公開の記載は過去の経緯。
+
 ## 共通の作業対象
 
 - リポジトリ: https://github.com/ecleaire/spool

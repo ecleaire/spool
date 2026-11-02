@@ -1,5 +1,12 @@
 # SPOOL 共同作業のルール
 
+## 現在の公開先：GitHub Pages
+
+- ユーザーの明示依頼で公開先を `https://ecleaire.github.io/spool/` へ移行。既存リポジトリ `ecleaire/spool` を使う。
+- main を更新すると `.github/workflows/pages.yml` がテスト・ビルド・`/spool/` 配下のブラウザー確認後に `out/` のみを公開する。GitHub Actions の build/deploy 成功と公開URLの表示を確認する。
+- 新しい公開方法は `online/GITHUB-PAGES.md` を参照。公開用キーだけを配布し、Supabaseの権限・非公開添付を維持する。
+- 旧Sites版は移行確認用に保持する。通常の更新で旧Sitesへ自動公開しない。以下のSites手順は旧版を明示的に更新する場合だけ適用する。
+
 ## 目的と構成
 
 - ユーザーの追加依頼によりオンライン版を併設。Googleログイン・個人／共有ライブラリ・非公開添付は `online/` と `supabase/`。接続設定・検証範囲は `online/README.md` を参照。
