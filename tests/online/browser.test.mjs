@@ -1,6 +1,6 @@
 import {chromium} from '../../online/node_modules/playwright-core/index.mjs';
 import http from 'node:http';
-import {readFileSync} from 'node:fs';
+import {readFileSync,mkdirSync} from 'node:fs';
 import assert from 'node:assert/strict';
 const server=http.createServer((req,res)=>{const files={'/':'index.html','/online.js':'online.js','/online.css':'online.css','/config.json':'config.json'};const name=files[req.url];if(!name){res.writeHead(404).end();return}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html');res.end(name==='config.json'?JSON.stringify({url:'https://example.supabase.co',key:''}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -18,18 +18,21 @@ try{
  await page.getByText('秘密キーは使用できません').waitFor();assert.equal(await page.locator('main').isVisible(),false);
  assert.deepEqual(errors,[]);
  // A mocked authenticated transport tests UI wiring; it is not a live OAuth check.
- const authenticated=await browser.newPage();
+ const authenticated=await browser.newPage({viewport:{width:1440,height:1000}});
+ const demoItems=[{id:'demo-pine',name:'PLA Matte',brand:'Bambu Lab',material:'PLA',variant:'PLA Matte',colorName:'ダークグリーン',color:'#68724D',remaining:740,capacity:1000,diameter:'1.75',location:'ドライボックス A',image:''},{id:'demo-sand',name:'PLA Basic',brand:'Bambu Lab',material:'PLA',variant:'PLA Basic',colorName:'ベージュ',color:'#F7E6DE',remaining:180,capacity:1000,diameter:'1.75',location:'ドライボックス A',image:''},{id:'demo-blue',name:'PLA+',brand:'ELEGOO',material:'PLA',variant:'PLA+',colorName:'スカイブルー',color:'#56B7E6',remaining:1000,capacity:1000,diameter:'1.75',location:'シェルフ 01',image:''}];
+ const screenshots=process.env.SPOOL_SCREENSHOT_DIR;if(screenshots)mkdirSync(screenshots,{recursive:true});
  const lib='11111111-1111-4111-8111-111111111111',user='22222222-2222-4222-8222-222222222222';
  const claims={sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
  const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.test';
- const writes=[];
+ const writes=[],uploads=[];
  await authenticated.route('https://example.supabase.co/**',async route=>{
   const req=route.request(),url=new URL(req.url());let data=[];
   if(url.pathname.endsWith('/auth/v1/logout'))data={};
   else if(url.pathname.endsWith('/rpc/ensure_my_library'))data=lib;
-  else if(url.pathname.endsWith('/rpc/save_library_state')){writes.push(req.postDataJSON());data=1;}
+  else if(url.pathname.endsWith('/rpc/save_library_state')){writes.push(req.postDataJSON());data=writes.length;}
   else if(url.pathname.endsWith('/libraries'))data=[{id:lib,name:'テストライブラリ',owner_id:user}];
-  else if(url.pathname.endsWith('/library_state'))data={library_id:lib,revision:0,state:{items:[],deleted:[],customColorPresets:[],reservations:[]}};
+  else if(url.pathname.endsWith('/library_state'))data={library_id:lib,revision:0,state:{items:demoItems,deleted:[],customColorPresets:[],reservations:[]}};
+  else if(url.pathname.includes('/storage/v1/object/')){uploads.push(url.pathname);data={Key:url.pathname.split('/object/')[1]};}
   else if(url.pathname.endsWith('/library_members'))data=url.searchParams.get('select')==='role'?{role:'owner'}:[{user_id:user,role:'owner'}];
   await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(data)});
  });
@@ -44,10 +47,39 @@ try{
  await authenticated.evaluate(()=>window.spoolOnlineChanged());
  await authenticated.waitForFunction(()=>document.querySelector('#cloud-save-status')?.textContent==='オンライン保存済み');
  assert.equal(writes.length,1);assert.equal(writes[0].lib,lib);assert.equal(writes[0].expected_revision,0);
+ if(screenshots)await authenticated.screenshot({path:screenshots+'/SPOOL-desktop.png',fullPage:true});
  await authenticated.locator('[data-cloud-nav="bookings"]').click();
  assert.equal(await authenticated.locator('#bookingView').isVisible(),true);
  assert.equal(await authenticated.locator('[data-cloud-nav="bookings"]').getAttribute('aria-current'),'page');
+ await authenticated.locator('#addBooking').click();
+ await authenticated.locator('[name=title]').fill('試作用スタンド');
+ await authenticated.locator('[name=registeredDate]').fill('2026-11-03');
+ await authenticated.locator('[name=registeredDate]').press('Tab');
+ assert.equal(await authenticated.locator('[name=weekday]').inputValue(),'火');
+ await authenticated.locator('[name=className]').selectOption('');
+ await authenticated.locator('#bookingDeadlineUnknown').check();
+ assert.equal(await authenticated.locator('[name=deadline]').isDisabled(),true);
+ await authenticated.locator('[name=printDuration]').fill('1:30');
+ assert.equal(await authenticated.locator('[data-booking-color]').count(),3);
+ await authenticated.locator('[data-booking-color]').first().click();
+ await authenticated.locator('#bookingFileInput').setInputFiles({name:'stand.stl',mimeType:'application/octet-stream',buffer:Buffer.from('solid stand\nendsolid stand')});
+ assert.equal(await authenticated.locator('#bookingPendingFiles li').count(),1);
+ await authenticated.setViewportSize({width:390,height:844});
+ assert.equal(await authenticated.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ if(screenshots)await authenticated.screenshot({path:screenshots+'/SPOOL-booking-mobile.png',fullPage:true});
+ await authenticated.locator('#saveBookingButton').click();
+ await authenticated.locator('#bookingDialog').waitFor({state:'hidden'});
+ await authenticated.waitForFunction(()=>document.querySelector('#cloud-save-status')?.textContent==='オンライン保存済み');
+ const savedBooking=writes.at(-1).next_state.reservations[0];
+ assert.equal(savedBooking.deadline,'');assert.equal(savedBooking.className,'');assert.equal(savedBooking.weekday,'火');assert.equal(savedBooking.printMinutes,90);assert.equal(savedBooking.attachments[0].name,'stand.stl');assert.equal(savedBooking.attachments[0].kind,'online');assert.equal(uploads.length,1);
+ await authenticated.setViewportSize({width:1440,height:1000});
  await authenticated.locator('[data-cloud-nav="inventory"]').click();
+ await authenticated.locator('#add').click();
+ await authenticated.locator('#editorBrand').selectOption('ELEGOO');
+ assert.equal(await authenticated.locator('#editorVariant option').count(),7);
+ await authenticated.locator('#editorVariant').selectOption('PLA+');
+ assert.equal(await authenticated.locator('[name=brand]').inputValue(),'ELEGOO');assert.equal(await authenticated.locator('[name=variant]').inputValue(),'PLA+');
+ await authenticated.locator('#cancel').click();
  await authenticated.locator('[data-open-tools="data"]').click();
  assert.equal(await authenticated.locator('#cloud-tools-dialog').isVisible(),true);
  assert.equal(await authenticated.locator('#cloud-export').isVisible(),true);
