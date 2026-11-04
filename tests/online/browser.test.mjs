@@ -45,7 +45,7 @@ try{
  });
  await authenticated.addInitScript(({token,user,projectUrl})=>{
   sessionStorage.setItem('spool-online-config',JSON.stringify({url:projectUrl,key:'sb_publishable_test'}));
-  sessionStorage.setItem('spool-auth-'+new URL(projectUrl).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user:{id:user,email:'owner@example.com'}}));
+  if(!sessionStorage.getItem('spool-auth-'+new URL(projectUrl).hostname.split('.')[0]))sessionStorage.setItem('spool-auth-'+new URL(projectUrl).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user:{id:user,email:'owner@example.com'}}));
  },{token,user,projectUrl});
  authenticated.on('pageerror',e=>errors.push(e.message));
  await authenticated.goto('http://127.0.0.1:'+server.address().port+basePath);
