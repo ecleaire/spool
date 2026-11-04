@@ -15,7 +15,7 @@ try{
   await page.evaluate(seed=>localStorage.setItem('spool-inventory-v1',JSON.stringify([seed])),seed);await page.reload();
   await page.locator('[data-edit="qa-stock"]').first().click();
   await page.locator('#inventoryStatus').selectOption('planned');
-  const tags=page.locator('[data-tag-suggestions="form"]');
+  await page.locator('#filamentTagDetails summary').click();const tags=page.locator('[data-tag-suggestions="form"]');
   assert.equal(await page.locator('#locationSuggestions option[value="棚 A"]').count(),1);
   await page.locator('#form [name=capacity]').fill('1000');await page.locator('#form [name=remaining]').fill('1000');
   await page.locator('[data-spool-capacity="990"]').click();assert.equal(await page.locator('#form [name=remaining]').inputValue(),'990');
@@ -32,12 +32,12 @@ try{
   await page.locator('[data-tab=planned]').click();assert.equal(await page.locator('[data-row-id="qa-stock"] .purchase-badge').first().textContent(),'購入予定');assert.equal(await page.locator('[data-use="qa-stock"]').isDisabled(),true);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   if(screenshots)await page.screenshot({path:screenshots+'/purchase-list-'+width+'.png'});
-  await page.locator('[data-edit="qa-stock"]').first().click();assert.equal(await tags.getByRole('button',{name:'#よく使う',exact:true}).getAttribute('aria-pressed'),'true');
+  await page.locator('[data-edit="qa-stock"]').first().click();await page.locator('#filamentTagDetails summary').click();assert.equal(await tags.getByRole('button',{name:'#よく使う',exact:true}).getAttribute('aria-pressed'),'true');
   await page.locator('#inventoryStatus').selectOption('owned');await page.locator('#form button.primary[type=submit]').click();await page.locator('[data-tab=all]').click();assert.equal(await page.locator('#statCount').textContent(),'1');assert.equal(await page.locator('#statWeight').textContent(),'0.80');
   await page.locator('#add').click();await page.locator('#editorProduct').selectOption('bambu-basic');await page.locator('#inventoryStatus').selectOption('planned');await page.locator('#form button.primary[type=submit]').click();
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1')).filter(x=>x.inventoryStatus==='planned').length),1);
   await page.locator(width<761?'#showBookings':'#navBookings').click();await page.locator('#addBooking').click();await page.locator('#bookingForm [name=title]').fill('QA予約');await page.locator('#bookingNoPreference').click();await page.locator('#bookingDeadlineUnknown').check();
-  const bookingTags=page.locator('[data-tag-suggestions="bookingForm"]');await bookingTags.getByRole('button',{name:'#ノーマル',exact:true}).click();await page.locator('#saveBookingButton').click();assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1-reservations'))[0].tags[0]),'ノーマル');
-  assert.deepEqual(errors,[]);await page.close();console.log('PASS '+width+'px: purchase registration/edit/restore, stock exclusion, tag toggles/custom tags and reservation tags.');
+  await page.locator('#bookingTagDetails summary').click();const bookingTags=page.locator('[data-tag-suggestions="bookingForm"]');await bookingTags.getByRole('button',{name:'#ノーマル',exact:true}).click();await page.locator('#saveBookingButton').click();assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1-reservations'))[0].tags[0]),'ノーマル');
+  await page.locator(width<761?'#showInventory':'#navInventory').click();await page.locator('#add').click();await page.locator('#editorProduct').selectOption('bbamboo-silk');assert.equal(await page.locator('#form [name=brand]').inputValue(),'B.BAMBOO');assert.equal(await page.locator('#form [name=colorName]').inputValue(),'ホワイト');assert.equal(await page.locator('#form [name=capacity]').inputValue(),'1000');await page.locator('#saveAndContinue').click();await page.waitForFunction(()=>document.querySelector('#editor').open&&document.querySelector('#editor').scrollTop===0&&document.querySelector('#form').scrollTop===0);await page.locator('#editorProduct').selectOption('bbamboo-glow');assert.equal(await page.locator('#form [name=colorName]').inputValue(),'蓄光ブルー');assert.equal(await page.locator('#form [name=capacity]').inputValue(),'1000');assert.ok((await page.locator('#imageStatus').textContent()).includes('ユーザー提供'));await page.locator('#cancel').click();assert.deepEqual(errors,[]);await page.close();console.log('PASS '+width+'px: purchase registration/edit/restore, stock exclusion, tag toggles/custom tags and reservation tags.');
  }
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}

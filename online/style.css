@@ -126,3 +126,12 @@ body{background:var(--bg)}body .content{padding-top:40px;padding-bottom:36px}#cl
 #cloud-library-more[aria-expanded=true]{background:#dcebdc}
 #cloud-panel:has(#cloud-library-details[open]){position:relative}
 @media(min-width:761px){body:not(.cloud-locked) .cloud-topbar{min-height:64px}body:not(.cloud-locked) .cloud-navigation button{height:44px}body:not(.cloud-locked) .cloud-context{min-height:56px;padding-block:5px}body:not(.cloud-locked) .cloud-library-picker small{display:none}.cloud-library-details>#cloud-manage-sharing{margin:0 24px 12px;min-height:44px}.cloud-library-details .cloud-current-library{margin:0 24px 12px;padding:12px}}
+
+/* Pin only navigation; the library selector and save tools scroll with the page. */
+body:not(.cloud-locked) #cloud-panel{position:relative;padding-top:64px;backdrop-filter:none}
+body:not(.cloud-locked) .cloud-topbar{position:fixed;z-index:45;top:0;left:0;right:0;width:100%;max-width:none;height:64px;min-height:64px;box-sizing:border-box;background:#183e31;box-shadow:0 1px 0 #ffffff12}
+body:not(.cloud-locked) .cloud-context .cloud-role{display:none}
+body:not(.cloud-locked) .cloud-context-actions>#cloud-create-shared,body:not(.cloud-locked) .cloud-context-actions>[data-open-tools]{display:none}
+.cloud-library-details[open]>.mobile-library-actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px}
+.cloud-library-details .mobile-library-actions button{min-height:44px;padding:8px 12px;border:1px solid #d3dfd6;border-radius:8px;background:#fff;color:#355f47}
+@media(max-width:760px){body:not(.cloud-locked) #cloud-panel{padding-top:52px}body:not(.cloud-locked) .cloud-topbar{height:52px;min-height:52px}.cloud-library-details[open]>.mobile-library-actions{padding:10px 12px}}
