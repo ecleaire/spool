@@ -110,7 +110,13 @@ try{
  assert.equal(await authenticated.locator('.product h3 img').count(),0);assert.equal(await authenticated.evaluate(()=>window.__spoolUnexpectedScript),false);
  managedConfigFixture=true;const tampered=await browser.newPage();await tampered.addInitScript(()=>sessionStorage.setItem('spool-online-config',JSON.stringify({url:'https://attacker.supabase.co',key:'sb_publishable_attacker'})));await tampered.goto('http://127.0.0.1:'+server.address().port+basePath);await tampered.locator('#cloud-login').waitFor();assert.equal(await tampered.locator('#cloud-config-reset').count(),0);assert.equal(await tampered.evaluate(()=>sessionStorage.getItem('spool-online-config')),null);await tampered.close();
  const framed=await browser.newPage();await framed.setContent('<iframe src="http://127.0.0.1:'+server.address().port+basePath+'"></iframe>');await framed.frameLocator('iframe').getByText('SPOOLを直接開いてください').waitFor();assert.equal(await framed.frameLocator('iframe').locator('#cloud-login').count(),0);await framed.close();
- await authenticated.locator('[aria-label="アカウントメニュー"]').click();
+ await authenticated.locator('#cloud-account-open').click();
+ assert.equal(await authenticated.locator('#cloud-account-dialog').evaluate(el=>el.open),true);
+ await authenticated.locator('#cloud-account-dialog [data-open-tools]').click();
+ assert.equal(await authenticated.locator('#cloud-account-dialog').evaluate(el=>el.open),false);
+ assert.equal(await authenticated.locator('#cloud-tools-dialog').evaluate(el=>el.open),true);
+ await authenticated.locator('[data-close-cloud-tools]').click();
+ await authenticated.locator('#cloud-account-open').click();
  assert.equal(await authenticated.locator('#cloud-logout').isVisible(),true);
  await authenticated.locator('#cloud-logout').click();
  await authenticated.locator('#cloud-login').waitFor({timeout:5000}).catch(async error=>{console.log(await authenticated.locator('#cloud-panel').innerText(),errors);throw error});assert.equal(await authenticated.locator('main').isVisible(),false);
