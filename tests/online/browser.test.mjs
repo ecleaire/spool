@@ -96,7 +96,7 @@ try{
  await authenticated.locator('#inventoryFilters>summary').click();await authenticated.locator('#brand').selectOption('ELEGOO');assert.equal(await authenticated.locator('#items>.filament-row').count(),1);await authenticated.locator('#brand').selectOption('');await authenticated.locator('#inventoryFilters>summary').click();
  await authenticated.locator('[data-select]').first().check();assert.equal(await authenticated.locator('#batchActions').getAttribute('open'),'');await authenticated.locator('#clearSelection').click();
  saveFailure=true;await authenticated.evaluate(()=>window.spoolOnlineChanged());await authenticated.locator('[data-error-category="permission"]').waitFor();assert.equal(await authenticated.locator('.error-summary details').getAttribute('open'),null);await authenticated.locator('.error-summary summary').click();await authenticated.getByText('コード: 42501',{exact:false}).waitFor();saveFailure=false;await authenticated.locator('#cloud-save').click();await authenticated.waitForFunction(()=>!document.querySelector('#cloud-error')?.textContent);
- await authenticated.locator('[data-open-tools="data"]').click();
+ await authenticated.locator('.cloud-context [data-open-tools="data"]').click();
  assert.equal(await authenticated.locator('#cloud-tools-dialog').isVisible(),true);
  assert.equal(await authenticated.locator('#cloud-export').isVisible(),true);
  await authenticated.locator('[data-close-cloud-tools]').click();
