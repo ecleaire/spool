@@ -13,6 +13,7 @@ try{
   const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto('http://127.0.0.1:'+server.address().port);
   await page.evaluate(seed=>localStorage.setItem('spool-inventory-v1',JSON.stringify([seed])),seed);await page.reload();
+  await page.locator('#inventoryFilters>summary').click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);if(width<761)assert.ok(await page.locator('#inventoryFilters select').first().evaluate(x=>x.getBoundingClientRect().width)>200);await page.locator('#inventoryFilters>summary').click();
   await page.locator('[data-edit="qa-stock"]').first().click();
   assert.equal(await page.locator('#editor').evaluate(x=>x.scrollWidth>x.clientWidth),false);assert.ok(await page.locator('#editor .dialog-actions').evaluate(x=>x.getBoundingClientRect().height)<(width<761?140:90));assert.equal(await page.evaluate(()=>!!(document.querySelector('.editor-fields').compareDocumentPosition(document.querySelector('.editor-visual'))&Node.DOCUMENT_POSITION_FOLLOWING)),true);await page.locator('#inventoryStatus').selectOption('planned');
   await page.locator('#filamentTagDetails summary').click();const tags=page.locator('[data-tag-suggestions="form"]');
