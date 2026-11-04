@@ -28,3 +28,47 @@ const durationInput=$('#bookingForm').elements.namedItem('printDuration');durati
 
 $('#manualFilamentEntry').onclick=()=>{$('#editorProduct').value='';$('#productInfoDetails').open=true;$('#colorInfoDetails').open=true;$('#productAutofillStatus').textContent='商品名・ブランド・カラーを入力してください。入力済みの内容も変更できます。';$('#form').elements.namedItem('name').focus?.();};
 $('#imageDrop').addEventListener('keydown',event=>{if(event.target===$('#imageDrop')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();$('#photo').click();}});
+
+// The foreground search panel uses the same fields and result sets as the list.
+let foregroundSearchState={mode:'inventory',tab:'results',fields:null};
+function activeSearchInput(){return $(foregroundSearchState.mode==='bookings'?'#bookingSearch':'#search')}
+function refreshSearchPanel(){
+ if(!$('#searchDialog').open)return;
+ const bookings=foregroundSearchState.mode==='bookings',records=bookings?searchBookingResults:searchItemResults;
+ const filters=bookings?['#bookingClass','#bookingTagFilter']:['#brand','#material','#variantFilter','#locationFilter','#tagFilter'];
+ const count=filters.filter(id=>$(id).value).length;
+ $('#foregroundResultCount').textContent=String(records.length);$('#foregroundFilterCount').textContent=count?String(count):'';
+ $('#clearSearchFilters').hidden=!count;$('#clearSearchQuery').hidden=!activeSearchInput().value;
+ const scope=bookings?($('#bookingStatusFilter').value||'すべての予約'):({all:'すべてのフィラメント',low:'残量が少ない',empty:'使い切り',planned:'購入予定'}[tab]||'フィラメント');
+ $('#searchResultHint').textContent=scope+' · '+records.length+'件'+(records.length>12?'（先頭12件を表示）':'');
+ $('#foregroundResults').innerHTML=records.length?records.slice(0,12).map((item,index)=>bookings?
+  '<button type="button" class="search-result" data-search-result="'+index+'"><i class="search-booking-color '+(item.colorPreference==='none'?'swatch-no-preference':swatchClass({translucent:item.colorTranslucent,name:item.desiredColor}))+'" style="'+swatchStyle(item,item.color)+'"></i><span class="search-result-copy"><strong>'+esc(item.title)+'</strong><small>'+esc(item.desiredColor)+' · '+esc(bookingStatus(item))+'</small>'+tagsMarkup((item.tags||[]).slice(0,3))+'</span><span class="search-result-meta">'+esc(item.deadline?displayDate(item.deadline):'期限未定')+'</span><span aria-hidden="true">↗</span></button>':
+  '<button type="button" class="search-result" data-search-result="'+index+'"><img src="'+esc(item.image||spool(item.color))+'" alt=""><span class="search-result-copy"><strong>'+esc(item.name)+'</strong><small>'+esc(item.brand)+' · '+esc(item.colorName)+'</small>'+tagsMarkup((item.tags||[]).slice(0,3))+'</span><span class="search-result-meta">'+(isPlanned(item)?'購入予定':item.remaining.toLocaleString()+' g')+'</span><span aria-hidden="true">↗</span></button>').join(''):'<div class="search-panel-empty">一致する項目がありません。<small>キーワードや絞り込み条件を変更してください。</small></div>';
+ $('#foregroundResults').querySelectorAll('[data-search-result]').forEach(button=>button.onclick=()=>{
+  const item=records[Number(button.dataset.searchResult)];closeSearchPanel();
+  if(!bookings){openFilamentDetails(item.id);return;}
+  const row=$$('[data-booking-id]').find(node=>node.dataset.bookingId===item.id&&node.getBoundingClientRect().width>0);
+  if(row){row.scrollIntoView({block:'center'});row.classList.add('search-result-highlight');setTimeout(()=>row.classList.remove('search-result-highlight'),2200)}
+ });
+}
+function setSearchPanelTab(value){foregroundSearchState.tab=value;for(const [id,tabValue]of [['#searchQueryTab','results'],['#searchFiltersTab','filters']]){const active=value===tabValue;$(id).setAttribute('aria-selected',String(active));$(id).tabIndex=active?0:-1}$('#searchResultsPanel').hidden=value!=='results';$('#searchFiltersPanel').hidden=value!=='filters'}
+function restoreSearchFields(){const saved=foregroundSearchState.fields;if(!saved)return;saved.parent.insertBefore(saved.node,saved.next?.parentNode===saved.parent?saved.next:null);foregroundSearchState.fields=null}
+function closeSearchPanel(){$('#searchDialog').close();restoreSearchFields()}
+function openSearchPanel(mode){
+ if($('#searchDialog').open)return;
+ foregroundSearchState.mode=mode;const bookings=mode==='bookings',fields=$(bookings?'#bookingFilters .filter-fields':'#inventoryFilters .filter-fields');
+ foregroundSearchState.fields={node:fields,parent:fields.parentNode,next:fields.nextSibling};$('#foregroundFilters').append(fields);
+ $('#searchPanelScope').textContent=bookings?'印刷予約':'フィラメント';$('#foregroundSearch').value=activeSearchInput().value;
+ $('#foregroundSearch').placeholder=bookings?'作品名・希望色・タグで検索':'名前・カラー・タグで検索';setSearchPanelTab('results');$('#searchDialog').showModal();refreshSearchPanel();$('#foregroundSearch').focus();$('#foregroundSearch').select();
+}
+function applyForegroundQuery(){activeSearchInput().value=$('#foregroundSearch').value;foregroundSearchState.mode==='bookings'?renderBookings():render()}
+$('#foregroundSearch').oninput=applyForegroundQuery;
+$('#clearSearchQuery').onclick=()=>{$('#foregroundSearch').value='';applyForegroundQuery();$('#foregroundSearch').focus()};
+$('#clearSearchFilters').onclick=()=>{for(const id of foregroundSearchState.mode==='bookings'?['#bookingClass','#bookingTagFilter']:['#brand','#material','#variantFilter','#locationFilter','#tagFilter'])$(id).value='';foregroundSearchState.mode==='bookings'?renderBookings():render()};
+$('#searchQueryTab').onclick=()=>setSearchPanelTab('results');$('#searchFiltersTab').onclick=()=>setSearchPanelTab('filters');
+for(const [id,other,value]of [['#searchQueryTab','#searchFiltersTab','filters'],['#searchFiltersTab','#searchQueryTab','results']])$(id).addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();setSearchPanelTab(value);$(other).focus()}});
+$('#closeSearchPanel').onclick=closeSearchPanel;$('#searchDialog').addEventListener('close',()=>{if(!$('#searchDialog').open)restoreSearchFields()});
+$('#searchDialog').addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeSearchPanel()}});
+$('#applySearchPanel').onclick=()=>{const target=foregroundSearchState.mode==='bookings'?'#bookingView':'.inventory';closeSearchPanel();$(target).scrollIntoView({block:'start'})};
+for(const [id,mode]of [['#search','inventory'],['#bookingSearch','bookings']]){$(id).addEventListener('click',()=>openSearchPanel(mode));$(id).addEventListener('keydown',event=>{if(event.key==='Enter'||event.key==='ArrowDown'){event.preventDefault();openSearchPanel(mode)}})}
+window.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'&&!document.body.classList.contains('cloud-locked')&&!document.querySelector('dialog[open]')){event.preventDefault();openSearchPanel(bookingsShowing?'bookings':'inventory')}});
