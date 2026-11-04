@@ -62,3 +62,5 @@ body{background:var(--bg);color:var(--ink);font-size:14px}main .content{max-widt
  .simple-workspace .color-preset span,.simple-workspace .color-preset small{font-size:clamp(11px,.7vw,14px)}.simple-workspace .dialog-actions button{min-height:46px}
 }
 @media(min-width:761px) and (max-width:1000px){.simple-workspace #editor .editor-layout{grid-template-columns:1fr}.simple-workspace .editor-visual{position:static}.simple-workspace .page-title{flex-wrap:wrap}}
+
+.autofill-details>summary{flex-wrap:wrap;gap:8px}.autofill-details>summary>small{font-size:12px;color:#75866c;overflow-wrap:anywhere;font-weight:400;min-width:0;flex:1}.autofill-details>summary>span{font-weight:600}.autofill-details>summary>i{width:20px;height:20px;border-radius:50%;border:1px solid #c8d7bd;flex-shrink:0}.autofill-details[open]>summary>small{display:none}.autofill-details .fields{padding:16px}.autofill-details .disclosure{margin:0}

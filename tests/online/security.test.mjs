@@ -85,9 +85,12 @@ test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history
  await as(0,'owner@example.com',async()=>{await db.query("select public.grant_spool_admin('editor@example.com')");});
  await as(1,'editor@example.com',async()=>{assert.equal((await scalar('select public.spool_is_admin() as yes')).yes,true);await db.query("select public.grant_spool_admin('nextadmin@example.com')");assert.equal((await db.query('select * from public.library_state where library_id=$1',[mine])).rows.length,0);});
  assert.equal((await db.query("select * from public.spool_admins where email='nextadmin@example.com'")).rows.length,1);
+ await db.exec(readFileSync(new URL('../../supabase/shared-libraries.sql',import.meta.url),'utf8'));let team;
+ await as(0,'owner@example.com',async()=>{team=(await scalar("select public.create_shared_library('共同作業') as id")).id;assert.notEqual(team,mine);const created=(await db.query('select * from public.libraries where id=$1',[team])).rows[0];assert.equal(created.personal,false);assert.equal(created.owner_id,ids[0]);assert.equal((await db.query('select * from public.library_members where library_id=$1',[team])).rows[0].role,'owner');assert.deepEqual((await db.query('select state from public.library_state where library_id=$1',[team])).rows[0].state,state);await assert.rejects(db.query("select public.create_shared_library('   ')"),/Invalid library name/);});
+ await as(1,'editor@example.com',async()=>{assert.equal((await db.query('select * from public.library_state where library_id=$1',[team])).rows.length,0);});
  await db.exec('set role anon');
  await assert.rejects(db.query('select * from public.library_state'),/permission denied/);
- await assert.rejects(db.query('select public.ensure_my_library()'),/permission denied/);await assert.rejects(db.query("select public.allow_spool_account('bad@example.com')"),/permission denied/);await assert.rejects(db.query("select public.grant_spool_admin('bad@example.com')"),/permission denied/);
+ await assert.rejects(db.query('select public.ensure_my_library()'),/permission denied/);await assert.rejects(db.query("select public.allow_spool_account('bad@example.com')"),/permission denied/);await assert.rejects(db.query("select public.grant_spool_admin('bad@example.com')"),/permission denied/);await assert.rejects(db.query("select public.create_shared_library('bad')"),/permission denied/);
  await db.exec('reset role');
  assert.equal((await db.query("select public from storage.buckets where id='spool-models'")).rows[0].public,false);
  } finally {await db.close()}
