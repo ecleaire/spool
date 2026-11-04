@@ -8,7 +8,7 @@ const panel=document.querySelector('#cloud-panel'),bridge=window.spoolBridge,esc
 const releaseVersion=__SPOOL_VERSION__,releaseBuild=__SPOOL_BUILD__;
 const empty=()=>({items:[],deleted:[],customColorPresets:[],reservations:[]});
 let isAdmin=false;
-let client,session,libraries=[],library,role,loading=false,uploading=false,timer,errorText='',errorInfo=null,authEpoch=0,configuredOrigin=null,managedConfig=false;
+let client,session,libraries=[],library,role,loading=false,accountLoading=false,uploading=false,timer,errorText='',errorInfo=null,authEpoch=0,configuredOrigin=null,managedConfig=false;
 const sync=new LibrarySync(async(lib,revision,state)=>{
  const {data,error}=await client.rpc('save_library_state',{lib,expected_revision:revision,next_state:state});if(error)throw error;return data;
 },()=>{const el=document.querySelector('#cloud-save-status');if(el){el.dataset.state=sync.conflict?'conflict':sync.busy?'busy':sync.dirty?'dirty':'saved';el.textContent=sync.conflict?'変更が競合しています':sync.busy?'オンライン保存中…':sync.dirty?'未保存の変更があります':'オンライン保存済み';}});
@@ -26,8 +26,8 @@ function render(){
  if(!client){markup+=`<p>Googleログインと招待されたライブラリで、在庫と予約を共有します。</p><form id="cloud-config"><label>SupabaseプロジェクトURL<input type="url" name="url" placeholder="https://xxxx.supabase.co" value="https://mtfmamufpaqpwsuiccoz.supabase.co" required></label><label>公開用Publishableキー<input name="key" required autocomplete="off"></label><button>接続設定を保存</button></form><p>公開用キーだけを使用してください。secret / service_roleキーは入力しないでください。設定はこのタブに保存します。</p>`;
  panel.innerHTML=markup; document.querySelector('#cloud-config').onsubmit=event=>{event.preventDefault();const data=new FormData(event.target);try{configure(String(data.get('url')),String(data.get('key')));sessionStorage.setItem('spool-online-config',JSON.stringify({url:String(data.get('url')),key:String(data.get('key'))}));start()}catch(e){fail(e)}};return;}
  if(!session){markup+='<div class="cloud-welcome"><div class="welcome-heading"><span class="cloud-kicker">SHARE YOUR NEXT PRINT</span><h1>素材が整う。<br>つくるが、はじまる。</h1><p>素材の管理から印刷の依頼まで、仲間と一緒に。</p></div><dl class="welcome-pillars" aria-label="SPOOLの意味"><div><dt><span>S</span>hare</dt><dd>仲間とつながる</dd></div><div><dt><span>P</span>rint</dt><dd>アイデアをかたちに</dd></div><div><dt><span>O</span>rganize</dt><dd>在庫を見やすく管理</dd></div><div><dt><span>O</span>rder</dt><dd>印刷の予定を整える</dd></div><div><dt><span>L</span>ibrary</dt><dd>素材の情報をひとまとめに</dd></div></dl><div class="welcome-actions"><button id="cloud-login" class="cloud-primary"><span class="google-g" aria-hidden="true">G</span>Googleでログイン<span aria-hidden="true">→</span></button><a href="./offline.html" class="welcome-offline">オフライン版・以前の在庫を開く ↗</a>'+(managedConfig?'':'<button id="cloud-config-reset" class="cloud-text-button">接続設定を変更</button>')+'</div><p class="welcome-login-note">招待されたGoogleアカウントでログインしてください。</p><details class="spool-version welcome-version" aria-label="バージョン情報"><summary>v'+esc(releaseVersion)+'</summary><p>オンライン版'+(releaseBuild?' · '+esc(releaseBuild.slice(0,7)):'')+'</p></details></div>';panel.innerHTML=markup;document.querySelector('#cloud-login').onclick=async()=>{const {error}=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,scopes:'openid email profile'}});if(error)fail(error)};if(document.querySelector('#cloud-config-reset'))document.querySelector('#cloud-config-reset').onclick=()=>{sessionStorage.removeItem('spool-online-config');location.reload()};return;}
- const logout=async()=>{if(uploading){fail(Error('ファイルの保存が終わるまでお待ちください。'));return}if(sync.dirty&&!confirm('未保存の変更があります。JSONで退避してからログアウトしてください。変更を破棄してログアウトしますか？'))return;authEpoch++;lock();clearTimeout(timer);sync.reset(null);bridge.apply(empty());library=null;await client.auth.signOut();session=null;render()};
- if(!library){markup+='<p>ライブラリを読み込めませんでした。招待されたメールアドレスか確認してください。</p><button id="cloud-retry">再試行</button>';panel.innerHTML=markup;document.querySelector('#cloud-retry').onclick=()=>loadAccount();bindAccount(logout);return;}
+ const logout=async()=>{if(uploading){fail(Error('ファイルの保存が終わるまでお待ちください。'));return}if(sync.dirty&&!confirm('未保存の変更があります。JSONで退避してからログアウトしてください。変更を破棄してログアウトしますか？'))return;authEpoch++;accountLoading=false;loading=false;lock();clearTimeout(timer);sync.reset(null);bridge.apply(empty());library=null;await client.auth.signOut();session=null;render()};
+ if(!library){markup+=accountLoading?'<p id="cloud-loading" role="status" aria-live="polite">ライブラリを読み込んでいます…</p>':'<p>ライブラリを読み込めませんでした。上のエラー内容を確認して再試行してください。</p><button id="cloud-retry">再試行</button>';panel.innerHTML=markup;const retry=document.querySelector('#cloud-retry');if(retry)retry.onclick=()=>loadAccount();bindAccount(logout);return;}
  markup+=`<div class="cloud-context"><label class="cloud-library-picker"><span class="library-picker-icon" aria-hidden="true">◈</span><span><small>ライブラリ</small><select id="cloud-library" aria-label="ライブラリ">${libraryPickerOptions()}</select></span></label><span class="cloud-role">${role==='viewer'?'閲覧のみ':role==='owner'?'所有者':'共同編集'}</span><span id="cloud-save-status" class="cloud-sync-state" role="status"></span><div class="cloud-context-actions"><button id="cloud-save" class="cloud-save-button" ${role==='viewer'?'disabled':''}>↥ <span>保存</span></button><button type="button" id="cloud-create-shared" class="cloud-tool-button">＋ 共有用</button><button data-open-tools="data" class="cloud-tool-button">管理</button></div></div>`;
  const activeLibrary=libraries.find(x=>x.id===library);if(activeLibrary&&activeLibrary.personal===false)markup+='<div class="shared-inventory-controls"><span>ライブラリを合体表示</span><label>追加するライブラリ<select id="cloud-share-source">'+libraries.filter(x=>x.owner_id===session.user.id&&x.id!==library).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('')+'</select></label><button type="button" id="cloud-link-personal" '+(role==='viewer'?'disabled':'')+'>自分のフィラメントを共有する</button><button type="button" id="cloud-refresh-shared">共有表示を更新</button><span id="cloud-shared-status" role="status"></span></div>';
  markup+='<dialog id="cloud-tools-dialog" class="cloud-tools-dialog"><div class="cloud-dialog-head"><div><small>WORKSPACE SETTINGS</small><h2>ライブラリの管理</h2></div><button type="button" data-close-cloud-tools aria-label="管理画面を閉じる">×</button></div><div class="cloud-dialog-body"><section class="cloud-data-section"><h3>データとバックアップ</h3><p>変更は自動でオンラインに保存されます。大切なデータはJSONでも保管できます。</p><div class="cloud-data-actions"><button id="cloud-export">↓ JSONで退避</button><button id="cloud-reload">↻ 最新を読み込む</button></div></section>';
@@ -76,8 +76,41 @@ function configure(url,key){
  const config=publicConfig({url,key},configuredOrigin);sessionStorage.removeItem('sb-'+new URL(config.url).hostname.split('.')[0]+'-auth-token');client=createClient(config.url,config.key,{auth:{flowType:'pkce',storage:sessionStorage,storageKey:authStorageKey(config.url),persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 }
 
-async function start(){client.auth.onAuthStateChange((event,s)=>{if(event==='SIGNED_OUT'){session=null;isAdmin=false;authEpoch++;lock();sync.reset(null);bridge.apply(empty());library=null;render()}else if(s&&(!session||session.user.id!==s.user.id)){session=s;setTimeout(()=>loadAccount().catch(fail),0);}else session=s;});const {data,error}=await client.auth.getSession();if(error)fail(error);if(!session&&data.session){session=data.session;await loadAccount()}else render();}
-async function loadAccount(){const epoch=++authEpoch;isAdmin=false;lock();library=null;sync.reset(null);bridge.apply(empty());try{const {data,error}=await client.rpc('ensure_my_library');if(error)throw error;const result=await client.from('libraries').select('*').order('created_at');if(result.error)throw result.error;if(epoch!==authEpoch)return;libraries=result.data;const admin=await client.rpc('spool_is_admin');if(epoch!==authEpoch)return;isAdmin=!admin.error&&admin.data===true;await loadLibrary(data)}catch(error){if(epoch===authEpoch){fail(error);render()}}}
+// Auth callbacks must return before Supabase requests start (the auth lock is held).
+function scheduleAccountLoad(){
+ const epoch=++authEpoch,userId=session.user.id;
+ accountLoading=true;loading=false;errorText='';errorInfo=null;lock();render();
+ setTimeout(()=>{if(epoch===authEpoch&&session?.user.id===userId)loadAccount().catch(fail)},0);
+}
+async function start(){
+ const initialEpoch=authEpoch;
+ client.auth.onAuthStateChange((event,s)=>{
+  if(event==='SIGNED_OUT'){
+   session=null;isAdmin=false;authEpoch++;accountLoading=false;loading=false;
+   lock();clearTimeout(timer);sync.reset(null);bridge.apply(empty());library=null;libraries=[];errorText='';errorInfo=null;render();
+  }else if(s&&(!session||session.user.id!==s.user.id)){
+   session=s;library=null;scheduleAccountLoad();
+  }else session=s;
+ });
+ const {data,error}=await client.auth.getSession();
+ if(error)fail(error);
+ if(!session&&data.session&&initialEpoch===authEpoch){session=data.session;scheduleAccountLoad()}
+ else render();
+}
+async function loadAccount(){
+ if(!session)return;
+ const epoch=++authEpoch;
+ accountLoading=true;isAdmin=false;lock();library=null;libraries=[];errorText='';errorInfo=null;
+ clearTimeout(timer);sync.reset(null);bridge.apply(empty());render();
+ try{
+  const {data,error}=await client.rpc('ensure_my_library');if(epoch!==authEpoch)return;if(error)throw error;
+  const result=await client.from('libraries').select('*').order('created_at');if(epoch!==authEpoch)return;if(result.error)throw result.error;
+  libraries=result.data;
+  const admin=await client.rpc('spool_is_admin');if(epoch!==authEpoch)return;
+  isAdmin=!admin.error&&admin.data===true;await loadLibrary(data);
+ }catch(error){if(epoch===authEpoch)fail(error)}
+ finally{if(epoch===authEpoch){accountLoading=false;if(!library)render()}}
+}
 async function loadLibrary(id,force=false){
  if(loading||sync.busy||uploading)return;
  if(sync.dirty&&!confirm('未保存の変更があります。JSONで退避してから読み直してください。変更を破棄しますか？')){render();return;}
@@ -85,7 +118,7 @@ async function loadLibrary(id,force=false){
  try {const [{data,error},membership]=await Promise.all([client.from('library_state').select('*').eq('library_id',id).single(),client.from('library_members').select('role').eq('library_id',id).eq('user_id',session.user.id).single()]);if(error)throw error;if(membership.error)throw membership.error;if(epoch!==authEpoch)return;
  bridge.apply(data.state);library=id;role=membership.data.role;sync.reset(id,data.revision);await refreshSharedInventory(id);if(epoch!==authEpoch)return;errorText='';errorInfo=null;render();document.body.classList.remove('cloud-locked');document.body.classList.toggle('cloud-viewer',role==='viewer');
  for(const selector of ['#add','#addBooking','#openLibrary','#emptyAddBooking','#undoDelete','#bulkAdd','#bulkDelete','#toggleReorder'])document.querySelector(selector).disabled=role==='viewer';
- }catch(error){if(epoch===authEpoch){fail(error);render()}}finally{loading=false}
+ }catch(error){if(epoch===authEpoch){fail(error);render()}}finally{if(epoch===authEpoch)loading=false}
 }
 async function loadMembers(){const lib=library;const members=await client.from('library_members').select('*').eq('library_id',lib);const invites=await client.from('library_invitations').select('*').eq('library_id',lib);if(lib!==library)return;if(members.error)throw members.error;if(invites.error)throw invites.error;
  const list=document.querySelector('#cloud-members'),pending=document.querySelector('#cloud-invites');if(!list||!pending)return;
