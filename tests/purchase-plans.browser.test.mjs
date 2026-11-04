@@ -14,7 +14,7 @@ try{
   await page.goto('http://127.0.0.1:'+server.address().port);
   await page.evaluate(seed=>localStorage.setItem('spool-inventory-v1',JSON.stringify([seed])),seed);await page.reload();
   await page.locator('[data-edit="qa-stock"]').first().click();
-  await page.locator('#inventoryStatus').selectOption('planned');
+  assert.equal(await page.locator('#editor').evaluate(x=>x.scrollWidth>x.clientWidth),false);assert.ok(await page.locator('#editor .dialog-actions').evaluate(x=>x.getBoundingClientRect().height)<(width<761?140:90));assert.equal(await page.evaluate(()=>!!(document.querySelector('.editor-fields').compareDocumentPosition(document.querySelector('.editor-visual'))&Node.DOCUMENT_POSITION_FOLLOWING)),true);await page.locator('#inventoryStatus').selectOption('planned');
   await page.locator('#filamentTagDetails summary').click();const tags=page.locator('[data-tag-suggestions="form"]');
   assert.equal(await page.locator('#locationSuggestions option[value="棚 A"]').count(),1);
   await page.locator('#form [name=capacity]').fill('1000');await page.locator('#form [name=remaining]').fill('1000');
