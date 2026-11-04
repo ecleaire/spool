@@ -135,3 +135,14 @@ body:not(.cloud-locked) .cloud-context-actions>#cloud-create-shared,body:not(.cl
 .cloud-library-details[open]>.mobile-library-actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px}
 .cloud-library-details .mobile-library-actions button{min-height:44px;padding:8px 12px;border:1px solid #d3dfd6;border-radius:8px;background:#fff;color:#355f47}
 @media(max-width:760px){body:not(.cloud-locked) #cloud-panel{padding-top:52px}body:not(.cloud-locked) .cloud-topbar{height:52px;min-height:52px}.cloud-library-details[open]>.mobile-library-actions{padding:10px 12px}}
+
+body.simple-workspace .cloud-dialog-body :is(label,summary,button,input,select){font-size:16px;color:#2a4935}
+body.simple-workspace .cloud-dialog-body :is(p,small,li,.account-role){font-size:14px;color:#425b49;line-height:1.65}
+body.simple-workspace .account-identity #account-handle{font-size:15px;color:#3e6147}
+body.simple-workspace :is(.editor-save-destination,.cloud-current-library small,.cloud-participants li,.shared-inventory-controls,.shared-inventory-controls label){font-size:14px;color:#3d5945}
+body.simple-workspace .cloud-library-picker #cloud-library{font-size:16px;color:#234d35}
+body.simple-workspace .cloud-navigation button{font-size:15px}
+body.simple-workspace .cloud-context-actions>#cloud-save{font-size:14px;color:#294e33}
+@media(min-width:761px){body.simple-workspace .cloud-dialog-body :is(p,small,li){font-size:15px}}
+@media(max-width:760px){body.simple-workspace .cloud-navigation button{font-size:14px}body.simple-workspace .cloud-library-picker #cloud-library{font-size:15px}}
+@media(max-width:760px){body.simple-workspace .cloud-context .cloud-sync-state{font-size:0;line-height:0;min-width:13px}body.simple-workspace .cloud-library-picker small{display:none}}

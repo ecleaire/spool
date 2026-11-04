@@ -654,3 +654,53 @@ body.simple-workspace .booking-card .booking-card-metrics strong{font-size:18px;
 body.simple-workspace .booking-card .booking-card-footer{margin-top:0;padding-top:10px}
 body.simple-workspace .booking-card .booking-color-label{font-size:14px;color:#3e6048}
 body.simple-workspace .cloud-topbar #cloud-account-open .account-trigger-name,body.simple-workspace .cloud-topbar #cloud-account-open>span:last-child{color:#eef4e4}
+
+/* Readable inventory, compact field-local choices and clear dialog controls. */
+body.simple-workspace{font-size:16px;color:#203e30}
+body.simple-workspace :is(input,select,textarea){font-size:16px;color:#203e30}
+body.simple-workspace :is(input,textarea)::placeholder{color:#56685c;opacity:1}
+body.simple-workspace :is(label,.disclosure>summary,.stat-label,.filter-field>span){font-size:16px;color:#304c39}
+body.simple-workspace :is(small,.place,.color-name,.field-feedback,.library-note,.help-details,.search-panel-footer small){color:#435b4b;font-size:14px;line-height:1.6}
+body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:15px;color:#24452f;padding:4px 9px;line-height:1.5}
+body.simple-workspace button.item-tag{border:1px solid #ccd9c7;min-height:32px;font-family:inherit;cursor:pointer;font-weight:600}
+body.simple-workspace button.item-tag:hover{background:#dbe9d5;border-color:#6e8c60}
+body.simple-workspace :is(.tag-suggestions button,.color-preset span,.color-name,.place){font-size:15px;color:#304f3a}
+body.simple-workspace :is(.brand-name,.library-brand-label){font-size:13px;color:#435b4b}
+body.simple-workspace :is(#editor,#bookingDialog) :is(label,.disclosure>summary){font-size:17px;color:#294733}
+body.simple-workspace :is(#editor,#bookingDialog) :is(small,#imageStatus,#productAutofillStatus,.field-feedback){font-size:14px;color:#435b4b}
+body.simple-workspace .product-photo,body.simple-workspace .product-title{border:0;background:transparent;padding:0;margin:0;box-shadow:none;text-align:left;color:inherit;font:inherit;min-width:0;line-height:inherit;cursor:pointer}
+body.simple-workspace .product-photo{flex:none;border-radius:12px;align-self:flex-start}
+body.simple-workspace .product-photo .product-image{display:block;margin:0}
+body.simple-workspace .product-title{display:block;width:100%}
+body.simple-workspace .grid-mode .product-photo{width:100%}
+body.simple-workspace .grid-mode .product-title{flex-basis:100%}
+body.simple-workspace .product-title:hover h3{text-decoration:underline;text-underline-offset:4px}
+body.simple-workspace #filamentDetails .dialog-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 16px;align-items:start}
+body.simple-workspace #filamentDetailsTitle{grid-column:1;grid-row:1;min-width:0;overflow-wrap:anywhere;margin:0}
+body.simple-workspace #closeFilamentDetails{grid-column:2;grid-row:1;justify-self:end;min-width:42px;min-height:42px;margin:0}
+body.simple-workspace #filamentDetails .editor-save-destination{grid-column:1/-1;grid-row:2;margin:0;width:100%;font-size:14px}
+body.simple-workspace .weight-field{position:relative}
+body.simple-workspace #weightCandidates{position:absolute;z-index:15;inset:auto 0 auto 0;top:100%;margin:6px 0 0;padding:12px;background:#fff;border:1px solid #aabca0;border-radius:12px;box-shadow:0 8px 24px #1b38252b;display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:max-content;max-width:min(390px,100%)}
+body.simple-workspace #weightCandidates[hidden]{display:none}
+body.simple-workspace #weightCandidates.above{top:auto;bottom:100%;margin:0 0 6px}
+body.simple-workspace #weightCandidates>span{width:100%;font-size:14px;font-weight:600;color:#314b37}
+body.simple-workspace #weightCandidates>div{display:flex;flex-wrap:wrap;gap:8px}
+body.simple-workspace #weightCandidates button{font-size:15px;min-height:40px;padding:7px 11px;color:#294b34}
+body.simple-workspace #weightCandidates button[hidden]{display:none}
+body.simple-workspace .automatic-tags:empty{display:none}
+body.simple-workspace .automatic-tags .tag-list{margin-bottom:6px}
+body.simple-workspace .active-inventory-filters{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 14px}
+body.simple-workspace .active-inventory-filters[hidden]{display:none}
+body.simple-workspace .active-inventory-filters button{font-size:14px;min-height:36px;background:#edf3e7;color:#2a4b34;border:1px solid #c7d6bc;padding:6px 11px;border-radius:20px;display:inline-flex;gap:10px;align-items:center}
+body.simple-workspace .active-inventory-filters .clear-all-filters{background:transparent;border-color:transparent;text-decoration:underline}
+@media(max-width:760px){body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag{font-size:14px}body.simple-workspace .active-inventory-filters{padding-inline:12px}body.simple-workspace #filamentDetails .dialog-head{gap:10px}}
+body.simple-workspace .product .color-name{font-size:15px;color:#304f3a}
+body.simple-workspace .product h3{font-size:clamp(18px,1.15vw,22px);color:#183e30;line-height:1.45}
+body.simple-workspace :is(.actions button,.shop-link,.tabs button,.booking-status-tabs button,.tag-suggestions button){font-size:15px;color:#2d4c39}
+body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:clamp(16px,1vw,18px);color:#334f3e}
+body.simple-workspace .inventory .tabs button{font-size:15px;color:#294c36}
+body.simple-workspace .inventory .toolbar :is(input,select,button),body.simple-workspace .inventory .filter-disclosure>summary{font-size:15px;color:#294c36}
+body.simple-workspace :is(.table-label,.table-footer,.batch-disclosure>summary,.reorder-hint){font-size:15px;color:#344f3e}
+body.simple-workspace .active-inventory-filters{grid-column:1/-1}
+body.simple-workspace #filamentDetails .item-tag{font-size:14px;color:#294b35}
+@media(max-width:760px){body.simple-workspace .inventory .tabs button{font-size:14px}body.simple-workspace .inventory .toolbar input{font-size:16px}}

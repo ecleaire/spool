@@ -130,7 +130,7 @@ async function loadLibrary(id,force=false){
  if(sync.dirty&&!confirm('未保存の変更があります。JSONで退避してから読み直してください。変更を破棄しますか？')){render();return;}
  const epoch=authEpoch;loading=true;lock();clearTimeout(timer);
  try {const [{data,error},membership]=await Promise.all([client.from('library_state').select('*').eq('library_id',id).single(),client.from('library_members').select('role').eq('library_id',id).eq('user_id',session.user.id).single()]);if(error)throw error;if(membership.error)throw membership.error;if(epoch!==authEpoch)return;
- bridge.apply(data.state);library=id;role=membership.data.role;sync.reset(id,data.revision);await refreshSharedInventory(id);if(epoch!==authEpoch)return;errorText='';errorInfo=null;render();document.body.classList.remove('cloud-locked');document.body.classList.toggle('cloud-viewer',role==='viewer');
+ const linked=bridge.apply(data.state);library=id;role=membership.data.role;sync.reset(id,data.revision);if(linked&&role!=='viewer')window.spoolOnlineChanged();await refreshSharedInventory(id);if(epoch!==authEpoch)return;errorText='';errorInfo=null;render();document.body.classList.remove('cloud-locked');document.body.classList.toggle('cloud-viewer',role==='viewer');
  for(const selector of ['#add','#addBooking','#openLibrary','#emptyAddBooking','#undoDelete','#bulkAdd','#bulkDelete','#toggleReorder'])document.querySelector(selector).disabled=role==='viewer';
  void sharing.refresh().catch(error=>{if(epoch===authEpoch)fail(error)});
  }catch(error){if(epoch===authEpoch){fail(error);render()}}finally{if(epoch===authEpoch)loading=false}
