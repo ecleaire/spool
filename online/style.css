@@ -74,3 +74,5 @@ body{background:var(--bg)}body .content{padding-top:40px;padding-bottom:36px}#cl
 .library-name-settings{padding:18px;border:1px solid #dfe8d4;border-radius:12px;margin:0 0 20px;background:#fafcf6}.library-name-settings p{font-size:16px;color:#4c6b3e;overflow-wrap:anywhere}.library-name-settings button{min-height:44px}.library-rename-feedback{flex-basis:100%;font-size:13px;color:#50743d;margin:4px 0;line-height:1.8}
 
 .shared-inventory-controls label{display:flex;align-items:center;gap:8px;font-size:12px;flex-wrap:wrap}.shared-inventory-controls select{min-height:42px;max-width:300px;padding:8px 12px;border:1px solid #cbdcbd;border-radius:8px;background:white;color:#48663b;font-size:14px}@media(max-width:760px){.shared-inventory-controls label{width:100%}.shared-inventory-controls select{flex:1;min-width:0;font-size:16px}}
+
+#cloud-shared-form button[type=submit]{background:#193e31;color:#fff;border-color:#193e31;font-weight:600}#cloud-shared-form button[type=submit]:hover{background:#2a553b}#cloud-shared-form button[type=submit]:disabled{opacity:.65}
