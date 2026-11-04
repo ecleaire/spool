@@ -26,7 +26,8 @@ html=html.replace(/<body\b([^>]*)>/i,(_,attributes)=>{
 if(!html.includes('id="cloud-panel"')||!/<body\b[^>]*\bcloud-locked/.test(html))throw Error('Online shell and login protection were not inserted');
 const bridge=`window.spoolBridge={snapshot:()=>structuredClone(currentOfflineState()),apply:state=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;selected.clear();reorderMode=false;render();renderBookings()},valid:validOfflineState,navigate:showBookingView,esc};`;
 html=html.replace('</body>',()=>'<script>'+bridge+'</script><script type="module" src="./online.js"></script></body>');
-html=html.replace('</head>','<link rel="stylesheet" href="./online.css"></head>');
+const styleVersion=createHash('sha256').update(readFileSync(path.join(root,'online/style.css'))).digest('hex').slice(0,16);
+html=html.replace('</head>','<link rel="stylesheet" href="./online.css?v='+styleVersion+'"></head>');
 html=html.replace('<p id="appBuild">オフライン版</p>','<p id="appBuild">オンライン版'+(sourceSha?' · '+sourceSha.slice(0,7)+'<br><a href="https://github.com/ecleaire/spool/commit/'+sourceSha+'" target="_blank" rel="noopener noreferrer">ソースを確認 ↗</a>':'')+'</p>');
 const out=path.join(root,'online-dist');mkdirSync(out,{recursive:true});
 writeFileSync(path.join(out,'config.json'),JSON.stringify(config));
