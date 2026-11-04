@@ -36,7 +36,39 @@ function valid(x){return x&&(x.inventoryStatus===undefined||['owned','planned'].
 if(!Array.isArray(items)||!items.every(valid))items=structuredClone(EMBEDDED_DATA.items||seed);
 const initialAmazonLinkUpdates=enrichAmazonLinks(items);const addedInitialAmazonLinks=initialAmazonLinkUpdates!==items;items=initialAmazonLinkUpdates;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function spool(color){const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 180"><defs><linearGradient id="r"><stop stop-color="#c8cec8"/><stop offset=".4" stop-color="#f0f0e8"/><stop offset="1" stop-color="#afb7ad"/></linearGradient><linearGradient id="f"><stop stop-color="${color}"/><stop offset=".45" stop-color="${color}"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient><pattern id="lines" width="3" height="3" patternUnits="userSpaceOnUse"><path d="M0 0V3" stroke="#fff" opacity=".19"/></pattern><filter id="s"><feGaussianBlur stdDeviation="5"/></filter></defs><ellipse cx="112" cy="155" rx="65" ry="9" fill="#32422b" opacity=".12" filter="url(#s)"/><g transform="rotate(-13 110 90)"><ellipse cx="83" cy="85" rx="43" ry="64" fill="#b5bcb1"/><rect x="83" y="28" width="61" height="115" fill="url(#f)"/><rect x="83" y="28" width="61" height="115" fill="url(#lines)"/><ellipse cx="146" cy="85" rx="43" ry="64" fill="url(#r)"/><ellipse cx="146" cy="85" rx="35" ry="54" fill="#dce1d5" stroke="#b8c0b2"/><ellipse cx="146" cy="85" rx="27" ry="44" fill="${color}"/><ellipse cx="146" cy="85" rx="22" ry="37" fill="none" stroke="#fff" opacity=".14" stroke-width="9"/><ellipse cx="146" cy="85" rx="15" ry="24" fill="#d7ddcf"/><ellipse cx="146" cy="85" rx="9" ry="15" fill="#566050"/><ellipse cx="149" cy="83" rx="5" ry="12" fill="#333b30"/><path d="M129 44l9 11M165 119l-8-11M121 107l13-5M172 66l-12 4" stroke="#f7f7ef" stroke-width="8" stroke-linecap="round"/></g></svg>`;return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}
+function spool(color){
+ const tint=normalizeHex(color)||'#8CBEB0';
+ const windings=Array.from({length:10},(_,i)=>'<ellipse cx="'+(111+i*7.3)+'" cy="'+(143+i*.8)+'" rx="64" ry="101" fill="none" stroke="#122438" stroke-opacity=".3" stroke-width="3.4"/><ellipse cx="'+(113+i*7.3)+'" cy="'+(142+i*.8)+'" rx="64" ry="100" fill="none" stroke="#fff" stroke-opacity=".36" stroke-width="2"/>').join('');
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 300"><defs>
+ <linearGradient id="back" x1="0" y1="0" x2="1" y2=".5"><stop stop-color="#b2bdcf"/><stop offset=".26" stop-color="#657183"/><stop offset="1" stop-color="#323c4c"/></linearGradient>
+ <linearGradient id="silver" x1=".15" y1="0" x2=".8" y2="1"><stop stop-color="#fff"/><stop offset=".32" stop-color="#e8ecf3"/><stop offset=".7" stop-color="#b8c0cf"/><stop offset="1" stop-color="#f1f3f8"/></linearGradient>
+ <linearGradient id="hub" x1="0" y1="0" x2="1" y2=".7"><stop stop-color="#fff"/><stop offset=".5" stop-color="#c9d1df"/><stop offset="1" stop-color="#8b95a6"/></linearGradient>
+ <linearGradient id="bore" x1="0" y1="0" x2="1" y2=".4"><stop stop-color="#26323f"/><stop offset=".5" stop-color="#414d5e"/><stop offset="1" stop-color="#7c8798"/></linearGradient>
+ <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff" stop-opacity=".24"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#112139" stop-opacity=".3"/></linearGradient>
+ <radialGradient id="shadow"><stop stop-color="#172432" stop-opacity=".25"/><stop offset="1" stop-color="#172432" stop-opacity="0"/></radialGradient>
+ </defs><ellipse cx="161" cy="280" rx="133" ry="16" fill="url(#shadow)"/>
+ <g transform="rotate(8 160 150)">
+ <ellipse cx="105" cy="142" rx="75" ry="119" fill="url(#back)" stroke="#344152" stroke-width="4"/>
+ <ellipse cx="105" cy="142" rx="69" ry="112" fill="none" stroke="#c6ceda" stroke-opacity=".45" stroke-width="4"/>
+ <path d="M53 72 Q68 44 87 34" fill="none" stroke="#dce5f4" stroke-width="9" stroke-linecap="butt" opacity=".8"/>
+ <path d="M111 42 L184 50 A64 101 0 0 1 184 252 L111 244 A64 101 0 0 1 111 42Z" fill="${tint}" stroke="#273b50" stroke-opacity=".45" stroke-width="3"/>
+ ${windings}
+ <path d="M111 42 L184 50 A64 101 0 0 1 184 252 L111 244 A64 101 0 0 1 111 42Z" fill="url(#shade)"/>
+ <ellipse cx="198" cy="153" rx="86" ry="121" fill="#8490a3" stroke="#344152" stroke-width="4"/>
+ <ellipse cx="201" cy="151" rx="82" ry="117" fill="url(#silver)" stroke="#f8faff" stroke-width="3"/>
+ <ellipse cx="201" cy="151" rx="72" ry="105" fill="none" stroke="#929dad" stroke-width="2.5"/>
+ <ellipse cx="201" cy="151" rx="62" ry="92" fill="${tint}" stroke="#34465a" stroke-opacity=".5" stroke-width="4"/>
+ <ellipse cx="201" cy="151" rx="60" ry="89" fill="url(#shade)"/>
+ <path d="M161 91L178 114M232 89L218 113M162 211L179 188M235 209L218 188" fill="none" stroke="#7c8799" stroke-opacity=".65" stroke-width="18" stroke-linecap="round"/>
+ <path d="M160 88L177 111M231 86L217 110M161 208L178 185M234 206L217 185" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round"/>
+ <ellipse cx="201" cy="151" rx="32" ry="47" fill="url(#hub)" stroke="#7f8b9e" stroke-width="2.5"/>
+ <ellipse cx="201" cy="151" rx="24" ry="36" fill="url(#bore)" stroke="#f7faff" stroke-width="3"/>
+ <path d="M191 120C173 134 174 169 190 182C196 169 199 137 191 120Z" fill="#26313e" opacity=".75"/>
+ <path d="M157 65C177 36 210 30 230 46" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+ </g></svg>`;
+ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200)}
 function save(next){next=enrichAmazonLinks(next);try{storage.setItem(KEY,JSON.stringify(next));items=next;render();if(typeof queueOfflineSave==='function')queueOfflineSave();return true}catch{toast('保存容量が不足しています。画像を減らすかバックアップしてください。');return false}}
 function sortFilaments(data,mode){const index=new Map(items.map((x,i)=>[x.id,i])),compare=(a,b)=>String(a||'').localeCompare(String(b||''),'ja',{numeric:true,sensitivity:'base'});return [...data].sort((a,b)=>{switch(mode){case 'manual':return (a.manualOrder??-1)-(b.manualOrder??-1);case 'name':return compare(a.name,b.name);case 'name-desc':return compare(b.name,a.name);case 'brand':return compare(a.brand,b.brand)||compare(a.name,b.name);case 'material':return compare(a.material,b.material)||compare(variantOf(a),variantOf(b));case 'remaining':return a.remaining-b.remaining;case 'remaining-desc':return b.remaining-a.remaining;case 'ratio':return a.remaining/a.capacity-b.remaining/b.capacity;case 'color':return compare(a.colorName,b.colorName);case 'location':return compare(a.location,b.location);default:return index.get(a.id)-index.get(b.id)}})}
