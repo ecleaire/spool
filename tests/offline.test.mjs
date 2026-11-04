@@ -119,3 +119,19 @@ console.log('Passed: duration formats, fifteen-minute shortcuts, bounds, validat
 assert.equal(app.run('valid({...items[0],image:"data:image/svg+xml;base64,AAAA"})'),false);assert.equal(app.run('valid({...items[0],image:"data:image/png;base64,AAAA\\" onerror=alert(1)"})'),false);
 
 const tagTest=boot();assert.equal(tagTest.run('JSON.stringify(parseTags("教室, #試作、教室"))'),'["教室","試作"]');assert.equal(tagTest.run('validTags(["a".repeat(31)])'),false);assert.equal(tagTest.run('tagsMarkup(["<img src=x>"]).includes("<img")'),false);
+
+// Purchase plans survive file transfer without being counted as available stock.
+const planItem={...initialItem,id:'plan_test',inventoryStatus:'planned',tags:['よく使う','独自タグ']};
+const plans=boot({cached:[['spool-inventory-v1',JSON.stringify([initialItem,planItem])]]});
+assert.equal(plans.run('valid({...items[0],inventoryStatus:"unknown"})'),false);
+assert.equal(plans.get('#statCount').textContent,1);
+assert.equal(plans.get('#statWeight').textContent,'0.80');
+plans.run('setTab("planned")');assert.ok(plans.get('#items').innerHTML.includes('購入予定'));assert.ok(!plans.get('#items').innerHTML.includes('data-row-id="spool_test"'));
+plans.run('openUsage("plan_test")');assert.ok(plans.get('#toast').textContent.includes('購入予定'));assert.ok(!plans.get('#usage').open);
+assert.equal(plans.run('bookingColors(null).flatMap(x=>x[1]).length'),1);
+const planFile=fakeFile();plans.context.window.showSaveFilePicker=async()=>planFile;await plans.run('saveDataFileAs()');
+const restoredPlan=boot({embedded:JSON.parse(planFile.read())});assert.equal(restoredPlan.run('items[1].inventoryStatus'),'planned');assert.equal(restoredPlan.run('items[1].tags.join(",")'),'よく使う,独自タグ');
+restoredPlan.run('save(items.map(x=>({...x,inventoryStatus:"owned"})))');assert.equal(restoredPlan.get('#statCount').textContent,2);assert.equal(restoredPlan.get('#statWeight').textContent,'1.60');
+plans.run('save([{...items[1],remaining:0}]);setTab("empty")');assert.ok(!plans.get('#items').innerHTML.includes('data-row-id="plan_test"'));
+assert.ok(plans.run('DEFAULT_TAGS.includes("よく使う")'));
+console.log('Passed: purchase-plan stock exclusion, usage guard, filters, JSON/tag retention, conversion and legacy compatibility.');
