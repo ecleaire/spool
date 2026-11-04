@@ -76,15 +76,18 @@ test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history
  // Account-only grants require a separately provisioned administrator, never library ownership alone.
  await db.exec(readFileSync(new URL('../../supabase/account-management.sql',import.meta.url),'utf8'));
  await db.exec(readFileSync(new URL('../../supabase/account-management.sql',import.meta.url),'utf8'));
- await as(0,'owner@example.com',async()=>{assert.equal((await scalar('select public.spool_is_admin() as yes')).yes,false);await assert.rejects(db.query("select public.allow_spool_account('new@example.com')"),/Administrator required/);await assert.rejects(db.query("insert into public.spool_admins values('owner@example.com')"),/permission denied/);});
+ await as(0,'owner@example.com',async()=>{assert.equal((await scalar('select public.spool_is_admin() as yes')).yes,false);await assert.rejects(db.query("select public.allow_spool_account('new@example.com')"),/Administrator required/);await assert.rejects(db.query("insert into public.spool_admins values('owner@example.com')"),/permission denied/);await assert.rejects(db.query("select public.grant_spool_admin('owner@example.com')"),/Administrator required/);});
  await db.query("insert into public.spool_admins values('owner@example.com')");
  await as(0,'owner@example.com',async()=>{assert.equal((await scalar('select public.spool_is_admin() as yes')).yes,true);await db.query("select public.allow_spool_account(' New@Example.com ')");await db.query("select public.allow_spool_account('new@example.com')");await assert.rejects(db.query("select public.allow_spool_account(null)"),/Invalid email/);await assert.rejects(db.query("select public.allow_spool_account('not-an-email')"),/Invalid email/);});
  assert.equal((await db.query("select * from public.spool_users where email='new@example.com'")).rows.length,1);assert.equal((await db.query("select * from public.library_invitations where email='new@example.com'")).rows.length,0);
  await as(1,'editor@example.com',async()=>{await assert.rejects(db.query("select public.allow_spool_account('bad@example.com')"),/Administrator required/);await assert.rejects(db.query('select * from public.spool_admins'),/permission denied/);});
  await as(0,'owner@example.com',async()=>{await assert.rejects(db.query("select public.allow_spool_account('bad@example.com')"),/Administrator required/)},'email');
+ await as(0,'owner@example.com',async()=>{await db.query("select public.grant_spool_admin('editor@example.com')");});
+ await as(1,'editor@example.com',async()=>{assert.equal((await scalar('select public.spool_is_admin() as yes')).yes,true);await db.query("select public.grant_spool_admin('nextadmin@example.com')");assert.equal((await db.query('select * from public.library_state where library_id=$1',[mine])).rows.length,0);});
+ assert.equal((await db.query("select * from public.spool_admins where email='nextadmin@example.com'")).rows.length,1);
  await db.exec('set role anon');
  await assert.rejects(db.query('select * from public.library_state'),/permission denied/);
- await assert.rejects(db.query('select public.ensure_my_library()'),/permission denied/);await assert.rejects(db.query("select public.allow_spool_account('bad@example.com')"),/permission denied/);
+ await assert.rejects(db.query('select public.ensure_my_library()'),/permission denied/);await assert.rejects(db.query("select public.allow_spool_account('bad@example.com')"),/permission denied/);await assert.rejects(db.query("select public.grant_spool_admin('bad@example.com')"),/permission denied/);
  await db.exec('reset role');
  assert.equal((await db.query("select public from storage.buckets where id='spool-models'")).rows[0].public,false);
  } finally {await db.close()}

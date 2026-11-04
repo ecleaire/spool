@@ -19,6 +19,17 @@ begin
  insert into public.spool_users(email) values(target_email) on conflict do nothing;
 end;
 $$;
+create or replace function public.grant_spool_admin(target_email text) returns void
+language plpgsql security definer set search_path='' as $$
+begin
+ if not public.spool_is_admin() then raise exception 'Administrator required' using errcode='42501'; end if;
+ target_email:=lower(trim(coalesce(target_email,'')));
+ perform public.allow_spool_account(target_email);
+ insert into public.spool_admins(email) values(target_email) on conflict do nothing;
+end;
+$$;
+revoke execute on function public.grant_spool_admin(text) from public,anon;
+grant execute on function public.grant_spool_admin(text) to authenticated;
 revoke execute on function public.spool_is_admin(),public.allow_spool_account(text) from public,anon;
 grant execute on function public.spool_is_admin(),public.allow_spool_account(text) to authenticated;
 commit;
