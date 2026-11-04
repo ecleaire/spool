@@ -157,6 +157,8 @@ body{background:var(--bg);color:var(--ink);font-size:14px}main .content{max-widt
 
 @media(max-width:760px){.simple-workspace .inventory .toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;padding:12px}.simple-workspace .inventory .toolbar>.search{grid-column:1/-1;grid-row:1;min-width:0;width:100%;margin:0}.simple-workspace .inventory .toolbar>#sort{grid-column:1;grid-row:2;width:100%;min-width:0;max-width:none;font-size:12px;padding-inline:6px}.simple-workspace .inventory .toolbar>.filter-disclosure{grid-column:2;grid-row:2;min-width:0;margin:0}.simple-workspace .inventory .filter-disclosure>summary{font-size:11px;padding:8px;min-height:44px;gap:4px}.simple-workspace .inventory .toolbar>.view-switch{grid-column:3;grid-row:2;display:flex;margin:0}.simple-workspace .inventory .view-switch button{height:44px;width:36px;min-width:36px}.simple-workspace .inventory .tabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:100%;scrollbar-width:thin;padding-block:8px;gap:4px}.simple-workspace .inventory .tabs button{flex:none;white-space:nowrap;padding:8px;font-size:11px}.simple-workspace .inventory .section-top{min-width:0;overflow:hidden}.simple-workspace .inventory .filter-fields{max-width:calc(100vw - 48px);box-sizing:border-box}}
 
+@media(max-width:760px){.simple-workspace .inventory .toolbar>.filter-disclosure[open]{grid-column:1/-1;grid-row:3}.simple-workspace .inventory .filter-disclosure[open]>summary{width:100%}.simple-workspace .inventory .filter-fields{width:100%;max-width:100%;min-width:0}}
+
 </style></head>
 <body class="simple-workspace">
 <aside aria-label="ワークスペース">
