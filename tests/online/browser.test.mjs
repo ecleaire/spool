@@ -35,6 +35,8 @@ try{
   if(url.pathname.endsWith('/auth/v1/user')){if(req.method()==='PUT'){profileWrites.push(req.postDataJSON());profileMetadata={...profileMetadata,...req.postDataJSON().data};}data={id:user,email:'owner@example.com',user_metadata:profileMetadata};}
   else if(url.pathname.endsWith('/auth/v1/logout'))data={};
   else if(url.pathname.endsWith('/rpc/create_shared_library')){sharedCreated=true;data=sharedLib;}
+  else if(url.pathname.endsWith('/rpc/get_shared_filaments'))data=[];
+  else if(url.pathname.endsWith('/rpc/my_filaments_shared'))data=false;
   else if(url.pathname.endsWith('/rpc/spool_is_admin'))data=adminFixture;
   else if(url.pathname.endsWith('/rpc/grant_spool_admin')||url.pathname.endsWith('/rpc/allow_spool_account')||url.pathname.endsWith('/rpc/invite_library_member')){accountAdds.push({path:url.pathname,...req.postDataJSON()});data=null;}
   else if(url.pathname.endsWith('/rpc/ensure_my_library'))data=lib;
@@ -77,7 +79,7 @@ try{
  await authenticated.locator('#bookingRandom').click();assert.equal(JSON.parse(await authenticated.locator('#bookingColor').inputValue()).preference,'random');
  assert.equal(await authenticated.locator('[data-booking-color]').count(),3);
  await authenticated.locator('[data-booking-color]').first().click();
- await authenticated.locator('#bookingFileDetails>summary').click();await authenticated.locator('#bookingFileInput').setInputFiles({name:'stand.stl',mimeType:'application/octet-stream',buffer:Buffer.from('solid stand\nendsolid stand')});
+ await authenticated.locator('#bookingForm [name=tags]').fill('授業, 急ぎ');await authenticated.locator('#bookingFileDetails>summary').click();await authenticated.locator('#bookingFileInput').setInputFiles({name:'stand.stl',mimeType:'application/octet-stream',buffer:Buffer.from('solid stand\nendsolid stand')});
  assert.equal(await authenticated.locator('#bookingPendingFiles li').count(),1);
  await authenticated.setViewportSize({width:390,height:844});
  assert.equal(await authenticated.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -88,14 +90,14 @@ try{
  await authenticated.locator('#bookingDialog').waitFor({state:'hidden'});
  await authenticated.waitForFunction(()=>document.querySelector('#cloud-save-status')?.textContent==='オンライン保存済み');
  const savedBooking=writes.at(-1).next_state.reservations[0];
- assert.equal(savedBooking.creator,'作者A');assert.equal(savedBooking.deadline,'');assert.equal(savedBooking.className,'');assert.equal(savedBooking.weekday,'火');assert.equal(savedBooking.printMinutes,90);assert.equal(savedBooking.attachments[0].name,'stand.stl');assert.equal(savedBooking.attachments[0].kind,'online');assert.equal(uploads.length,1);
+ assert.deepEqual(savedBooking.tags,['授業','急ぎ']);assert.equal(savedBooking.creator,'作者A');assert.equal(savedBooking.deadline,'');assert.equal(savedBooking.className,'');assert.equal(savedBooking.weekday,'火');assert.equal(savedBooking.printMinutes,90);assert.equal(savedBooking.attachments[0].name,'stand.stl');assert.equal(savedBooking.attachments[0].kind,'online');assert.equal(uploads.length,1);
  await authenticated.setViewportSize({width:1440,height:1000});
  await authenticated.locator('[data-cloud-nav="inventory"]').click();
  await authenticated.locator('#add').click();
  await authenticated.locator('#editorProduct').selectOption('bambu-matte');
  assert.equal(await authenticated.locator('#editorBrand').inputValue(),'Bambu Lab');assert.equal(await authenticated.locator('[name=name]').inputValue(),'PLA Matte');assert.equal(await authenticated.locator('[name=capacity]').inputValue(),'1000');assert.equal(await authenticated.locator('#presetDetails').evaluate(el=>el.open),true);assert.equal(await authenticated.locator('#colorPresets [data-color-preset]').count(),25);
  await authenticated.locator('#colorPresets [data-color-preset]').nth(1).click();const selectedColor=await authenticated.locator('[name=colorName]').inputValue();assert.ok(selectedColor);
- assert.equal(await authenticated.locator('#productInfoDetails').evaluate(el=>el.open),false);assert.equal(await authenticated.locator('#colorInfoDetails').evaluate(el=>el.open),false);await authenticated.locator('#productInfoDetails>summary').click();await authenticated.locator('#colorInfoDetails>summary').click();await authenticated.locator('[name=name]').fill('カスタム商品');await authenticated.locator('[name=colorName]').fill('調整した色');await authenticated.locator('[name=remaining]').fill('640');assert.equal(await authenticated.locator('#editorProduct').inputValue(),'');assert.equal(await authenticated.locator('[name=name]').inputValue(),'カスタム商品');assert.equal(await authenticated.locator('[name=colorName]').inputValue(),'調整した色');assert.equal(await authenticated.locator('[name=remaining]').inputValue(),'640');
+ assert.equal(await authenticated.locator('#productInfoDetails').evaluate(el=>el.open),false);assert.equal(await authenticated.locator('#colorInfoDetails').evaluate(el=>el.open),false);await authenticated.locator('#productInfoDetails>summary').click();await authenticated.locator('#colorInfoDetails>summary').click();await authenticated.locator('#form [name=tags]').fill('教室, 試作');await authenticated.locator('[name=name]').fill('カスタム商品');await authenticated.locator('[name=colorName]').fill('調整した色');await authenticated.locator('[name=remaining]').fill('640');assert.equal(await authenticated.locator('#editorProduct').inputValue(),'');assert.equal(await authenticated.locator('[name=name]').inputValue(),'カスタム商品');assert.equal(await authenticated.locator('[name=colorName]').inputValue(),'調整した色');assert.equal(await authenticated.locator('[name=remaining]').inputValue(),'640');
  await authenticated.locator('#editorBrand').selectOption('ELEGOO');
  assert.equal(await authenticated.locator('#editorVariant option').count(),7);
  assert.equal(await authenticated.locator('#materialDetails').getAttribute('open'),null);await authenticated.locator('#materialDetails>summary').click();await authenticated.locator('#editorVariant').selectOption('PLA+');

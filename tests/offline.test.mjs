@@ -117,3 +117,5 @@ ergonomic.run('openBooking(reservations[0].id)');assert.equal(JSON.parse(ergonom
 console.log('Passed: duration formats, fifteen-minute shortcuts, bounds, validation reset, optional creator, no preference/random persistence and translucent detection.');
 
 assert.equal(app.run('valid({...items[0],image:"data:image/svg+xml;base64,AAAA"})'),false);assert.equal(app.run('valid({...items[0],image:"data:image/png;base64,AAAA\\" onerror=alert(1)"})'),false);
+
+const tagTest=boot();assert.equal(tagTest.run('JSON.stringify(parseTags("教室, #試作、教室"))'),'["教室","試作"]');assert.equal(tagTest.run('validTags(["a".repeat(31)])'),false);assert.equal(tagTest.run('tagsMarkup(["<img src=x>"]).includes("<img")'),false);

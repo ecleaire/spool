@@ -1,3 +1,4 @@
+import {mergedInventory,withoutSharedItems} from '../../online/aggregation.mjs';
 import assert from 'node:assert/strict';
 import {profileOf,profileUpdate,validAvatar} from '../../online/profile.mjs';
 assert.equal(profileOf({email:'user@example.com',user_metadata:{full_name:'Google Name'}}).name,'Google Name');
@@ -8,3 +9,5 @@ assert.throws(()=>profileUpdate('','abc',''),/表示名/);assert.throws(()=>prof
 assert.throws(()=>profileUpdate('名前','','data:image/svg+xml;base64,AAAA'),/画像/);assert.equal(validAvatar('data:image/jpeg;base64,AAAA'),true);assert.equal(validAvatar('data:image/jpeg;base64,AAAA'+String.fromCharCode(34)),false);
 assert.deepEqual(Object.keys(profileUpdate('名前','user_123','')).sort(),['spool_avatar','spool_display_name','spool_handle']);
 console.log('PASS: editable profile validation, Google defaults, safe embedded icons and auth-field separation.');
+
+const own=[{id:'a',remaining:200}],combined=mergedInventory(own,[{source_id:'lib-a',source_name:'他の人',item:{id:'a',remaining:800,tags:['共有']}}]);assert.equal(combined.length,2);assert.notEqual(combined[0].id,combined[1].id);assert.deepEqual(withoutSharedItems({items:combined,reservations:[]}).items,own);
