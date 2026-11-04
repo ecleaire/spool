@@ -173,3 +173,7 @@ body.simple-workspace .cloud-welcome :is(.welcome-login-note,.welcome-offline-li
 body.simple-workspace .error-summary :is(strong,p,summary,pre){font-size:16px;line-height:1.65}
 @media(max-width:760px){body.simple-workspace .cloud-topbar .cloud-navigation button{font-size:15px;padding-inline:5px;gap:3px}body.simple-workspace .cloud-context .cloud-sync-state{font-size:0;line-height:0}body.simple-workspace .cloud-context-actions #cloud-save{font-size:15px;padding-inline:7px}}
 body.simple-workspace #cloud-account-dialog #cloud-logout{font-size:16px;color:#943626;min-height:44px}
+body.simple-workspace .cloud-dialog-body :is(input,select,textarea){border-color:#829780;background:#fff;color:#173a29}
+body.simple-workspace .cloud-dialog-body :is(.account-library,.profile-editor,.account-more){border-color:#a5b79a}
+body.simple-workspace .cloud-topbar .cloud-navigation button.is-active{box-shadow:inset 0 -3px 0 #2c6036;background:#e2edcc;color:#1d4029;font-weight:750}
+body.simple-workspace .cloud-context-actions #cloud-save,body.simple-workspace #cloud-library-more{border-color:#829780;color:#23482e}

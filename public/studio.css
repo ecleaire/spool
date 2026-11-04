@@ -794,3 +794,32 @@ body.simple-workspace #searchDialog #foregroundResults .search-result-meta{font-
 body.simple-workspace #bookingView .print-state{font-size:16px;font-weight:600;color:#284b32;line-height:1.55}
 body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) :is(.item-tag,.booking-color-label,.booking-edit,.booking-card-weekday,.booking-quality-label,small){font-size:16px;color:#34513c;line-height:1.6}
 body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) .booking-edit{min-height:44px}
+
+/* Stronger boundaries and state contrast complement the readable type scale. */
+body.simple-workspace{--line:#bdcbbb;--muted:#354f3d}
+body.simple-workspace :is(#editor,#bookingDialog,#dataDialog,#usage,#bulkDialog) :is(input:not([type=color]):not([type=checkbox]):not([type=hidden]),select,textarea){border:1px solid #829780;background:#fff;color:#173a29;box-shadow:inset 0 1px 2px #183c2905}
+body.simple-workspace :is(input,textarea)::placeholder{color:#4b6251;opacity:1}
+body.simple-workspace .inventory .toolbar :is(.search,select),body.simple-workspace #bookingView .booking-tools :is(.search,select){border-color:#829780;background:#fff}
+body.simple-workspace #searchDialog .search-panel-input{border-color:#829780;background:#fff}
+body.simple-workspace #searchDialog #foregroundSearch{color:#173a29;font-weight:550}
+body.simple-workspace :is(.filament-row,.booking-card,.search-result){border-color:#b5c5b0}
+body.simple-workspace :is(.filament-row .actions>button,.filament-row .actions .shop-link,.booking-card .booking-edit){border:1px solid #829780;color:#21472d;background:#fff;font-weight:600}
+body.simple-workspace .filament-row .actions .shop-links .shop-link{text-decoration:underline;text-underline-offset:3px;color:#21472d}
+body.simple-workspace :is(.filament-row .actions>button,.booking-edit):not(:disabled):hover{background:#dfebd7;border-color:#3e6b3f}
+body.simple-workspace .inventory .tabs button.selected{background:#dceacc;color:#173a24;box-shadow:inset 0 -3px 0 #35683e;font-weight:750}
+body.simple-workspace :is(.inventory .view-switch button.selected,.color-preset.is-current){border-color:#35683e;box-shadow:0 0 0 2px #35683e;background:#edf4e7}
+body.simple-workspace #editor .color-preset{border-color:#a5b69c}
+body.simple-workspace #editor .color-preset.is-current{border-color:#35683e;box-shadow:inset 0 0 0 2px #35683e}
+body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{border:1px solid #91a886;background:#e2edd8;color:#1f412a;font-weight:650}
+body.simple-workspace #bookingView .print-state.planned{background:#deebd3;color:#23482c;border:1px solid #8ca67c}
+body.simple-workspace #bookingView .print-state.printed{background:#e1eee5;color:#24513a;border:1px solid #8fae9c}
+body.simple-workspace #bookingView .print-state.undecided{background:#eceef1;color:#394653;border:1px solid #a3acb7}
+body.simple-workspace #bookingView .booking-card.soon{border-top-color:#976519}
+body.simple-workspace #bookingView .booking-card.overdue{border-top-color:#a43b2b}
+body.simple-workspace :is(.row-select,input[type=checkbox]){accent-color:#285b37}
+body.simple-workspace .row-select{width:20px;height:20px}
+body.simple-workspace .disclosure>summary{font-weight:600}
+body.simple-workspace .disclosure>summary::after{color:#345a3c;font-weight:700}
+body.simple-workspace button:disabled{opacity:.65}
+body.simple-workspace :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #245d36;outline-offset:3px;box-shadow:0 0 0 5px #fff}
+@media(prefers-reduced-motion:reduce){body.simple-workspace *,body.simple-workspace *::before,body.simple-workspace *::after{scroll-behavior:auto;transition:none}}
