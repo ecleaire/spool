@@ -61,7 +61,7 @@ function showBookingView(show){
   $('#navInventory').classList.toggle('active',!show);$('#navBookings').classList.toggle('active',show);
   for(const [id,active]of [['#navInventory',!show],['#navBookings',show]])active?$(id).setAttribute('aria-current','page'):$(id).removeAttribute('aria-current');
   $('.page-title h1').innerHTML=(show?'印刷予約':'フィラメント')+'<span class="heading-dot">.</span>';
-  $('.page-title .eyebrow').textContent=show?'PRINT SCHEDULE':'YOUR MATERIAL LIBRARY';
+  $('.page-title .eyebrow').textContent=show?'PRINT QUEUE':'MATERIAL LIBRARY';
   $('.page-title p').textContent=show?'作品・希望色・期限を整理して、次の印刷へ。':'素材も、色も、残量も。あなたのコレクションをひと目で。';
   $('header strong').textContent=show?'印刷予約':'フィラメント';if(show)renderBookings();
 }
