@@ -129,7 +129,7 @@ try{
  await authenticated.locator('[data-open-tools="accounts"]').click();assert.equal(await authenticated.locator('#account-mode option[value=allow]').count(),0);await authenticated.locator('[data-close-cloud-tools]').click();memberRole='viewer';await authenticated.reload();await authenticated.locator('#cloud-library').waitFor();await authenticated.locator('#cloud-account-open').click();assert.equal(await authenticated.locator('[data-open-tools="accounts"]').count(),0);adminFixture=true;memberRole='owner';await authenticated.reload();await authenticated.locator('#cloud-library').waitFor();
  await authenticated.locator('#cloud-account-open').click();
  assert.equal(await authenticated.locator('#cloud-account-dialog').evaluate(el=>el.open),true);
- await authenticated.locator('#cloud-account-dialog [data-open-tools]').click();
+ await authenticated.locator('#cloud-account-dialog [data-open-tools="data"]').click();
  assert.equal(await authenticated.locator('#cloud-account-dialog').evaluate(el=>el.open),false);
  assert.equal(await authenticated.locator('#cloud-tools-dialog').evaluate(el=>el.open),true);
  await authenticated.locator('[data-close-cloud-tools]').click();
