@@ -28,16 +28,18 @@ try{
  const lib='11111111-1111-4111-8111-111111111111',user='22222222-2222-4222-8222-222222222222';
  const claims={sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
  const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.test';
- const writes=[],uploads=[];let saveFailure=false;
+ const accountAdds=[],writes=[],uploads=[];let saveFailure=false,adminFixture=true,memberRole='owner';
  await authenticated.route(projectUrl+'/**',async route=>{
   const req=route.request(),url=new URL(req.url());let data=[];
   if(url.pathname.endsWith('/auth/v1/logout'))data={};
+  else if(url.pathname.endsWith('/rpc/spool_is_admin'))data=adminFixture;
+  else if(url.pathname.endsWith('/rpc/allow_spool_account')||url.pathname.endsWith('/rpc/invite_library_member')){accountAdds.push({path:url.pathname,...req.postDataJSON()});data=null;}
   else if(url.pathname.endsWith('/rpc/ensure_my_library'))data=lib;
   else if(url.pathname.endsWith('/rpc/save_library_state')){if(saveFailure){await route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({code:'42501',message:'permission denied'})});return;}writes.push(req.postDataJSON());data=writes.length;}
-  else if(url.pathname.endsWith('/libraries'))data=[{id:lib,name:'テストライブラリ',owner_id:user}];
+  else if(url.pathname.endsWith('/libraries'))data=[{id:lib,name:'テストライブラリ',owner_id:memberRole==='viewer'?'33333333-3333-4333-8333-333333333333':user}];
   else if(url.pathname.endsWith('/library_state'))data={library_id:lib,revision:0,state:{items:demoItems,deleted:[],customColorPresets:[],reservations:[]}};
   else if(url.pathname.includes('/storage/v1/object/')){uploads.push(url.pathname);data={Key:url.pathname.split('/object/')[1]};}
-  else if(url.pathname.endsWith('/library_members'))data=url.searchParams.get('select')==='role'?{role:'owner'}:[{user_id:user,role:'owner'}];
+  else if(url.pathname.endsWith('/library_members'))data=url.searchParams.get('select')==='role'?{role:memberRole}:[{user_id:user,role:memberRole}];
   await route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(data)});
  });
  await authenticated.addInitScript(({token,user,projectUrl})=>{
@@ -120,6 +122,11 @@ try{
  assert.equal(await authenticated.locator('#editor').evaluate(el=>el.scrollWidth<=el.clientWidth),true);await authenticated.locator('#saveAndContinue').click();assert.equal(await authenticated.locator('#editor').evaluate(el=>el.open),true);assert.equal(await authenticated.locator('[name=remaining]').inputValue(),String(source.capacity));assert.equal(await authenticated.locator('[name=copies]').inputValue(),'1');
  await authenticated.waitForFunction(()=>document.querySelector('#cloud-save-status')?.textContent==='オンライン保存済み');const continued=await authenticated.evaluate(()=>window.spoolBridge.snapshot().items);assert.equal(continued.length,countBefore+1);assert.equal(continued.find(x=>x.id===source.id).remaining,source.remaining);assert.equal(continued.find(x=>x.name==='続けて登録テスト').remaining,640);
  await authenticated.locator('#editorProduct').selectOption('bambu-basic');await authenticated.locator('#presetSearch').fill('000000');assert.equal(await authenticated.locator('#colorPresets [data-color-preset]').count(),1);await authenticated.locator('#colorPresets [data-color-preset]').click();assert.equal(await authenticated.locator('[name=color]').inputValue(),'#000000');await authenticated.locator('#presetSearch').fill('存在しない色');assert.equal(await authenticated.locator('#colorPresets [data-color-preset]').count(),0);await authenticated.locator('#presetSearch').fill('');assert.equal(await authenticated.locator('#colorPresets [data-color-preset]').count(),30);await authenticated.locator('#cancel').click();
+ await authenticated.locator('#cloud-account-open').click();await authenticated.locator('[data-open-tools="accounts"]').click();assert.equal(await authenticated.locator('[data-tool-section="accounts"]').evaluate(el=>el.open),true);assert.equal(await authenticated.locator('#account-share-options').isVisible(),false);
+ await authenticated.locator('#cloud-add-account [name=email]').fill('New@Example.com');await authenticated.locator('#cloud-add-account button[type=submit]').click();await authenticated.locator('#account-add-result').filter({hasText:'の利用を許可しました'}).waitFor();assert.equal(accountAdds.at(-1).target_email,'new@example.com');assert.equal(accountAdds.at(-1).lib,undefined);
+ await authenticated.locator('#account-mode').selectOption('share');assert.equal(await authenticated.locator('#account-share-options').isVisible(),true);await authenticated.locator('#cloud-add-account [name=email]').fill('viewer@example.com');await authenticated.locator('#cloud-add-account button[type=submit]').click();await authenticated.locator('#account-add-result').filter({hasText:'共有招待を登録しました'}).waitFor();assert.equal(accountAdds.at(-1).lib,lib);assert.equal(accountAdds.at(-1).member_role,'viewer');await authenticated.locator('[data-close-cloud-tools]').click();
+ adminFixture=false;memberRole='owner';await authenticated.reload();await authenticated.locator('#cloud-library').waitFor();await authenticated.locator('#cloud-account-open').click();assert.equal(await authenticated.locator('[data-open-tools="accounts"]').count(),1); // A library owner can share but cannot grant account-only access.
+ await authenticated.locator('[data-open-tools="accounts"]').click();assert.equal(await authenticated.locator('#account-mode option[value=allow]').count(),0);await authenticated.locator('[data-close-cloud-tools]').click();memberRole='viewer';await authenticated.reload();await authenticated.locator('#cloud-library').waitFor();await authenticated.locator('#cloud-account-open').click();assert.equal(await authenticated.locator('[data-open-tools="accounts"]').count(),0);adminFixture=true;memberRole='owner';await authenticated.reload();await authenticated.locator('#cloud-library').waitFor();
  await authenticated.locator('#cloud-account-open').click();
  assert.equal(await authenticated.locator('#cloud-account-dialog').evaluate(el=>el.open),true);
  await authenticated.locator('#cloud-account-dialog [data-open-tools]').click();
