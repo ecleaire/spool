@@ -146,3 +146,14 @@ body.simple-workspace .cloud-context-actions>#cloud-save{font-size:14px;color:#2
 @media(min-width:761px){body.simple-workspace .cloud-dialog-body :is(p,small,li){font-size:15px}}
 @media(max-width:760px){body.simple-workspace .cloud-navigation button{font-size:14px}body.simple-workspace .cloud-library-picker #cloud-library{font-size:15px}}
 @media(max-width:760px){body.simple-workspace .cloud-context .cloud-sync-state{font-size:0;line-height:0;min-width:13px}body.simple-workspace .cloud-library-picker small{display:none}}
+
+body.simple-workspace .cloud-dialog-body :is(label,summary,input,select,button){font-size:17px;color:#193e2b;line-height:1.55}
+body.simple-workspace .cloud-dialog-body :is(p,small,li,.account-role){font-size:16px;color:#34513d;line-height:1.65}
+body.simple-workspace .account-identity #account-name{font-size:21px;color:#183c2a}
+body.simple-workspace .account-identity #account-handle{font-size:16px;color:#34513d}
+body.simple-workspace :is(.cloud-welcome .welcome-heading>p,.welcome-pillars dd,.welcome-login-note){font-size:clamp(16px,1vw,19px);color:#3b563f}
+body.simple-workspace .cloud-welcome :is(.welcome-offline-link,.welcome-secondary-actions a){font-size:16px;color:#34513d}
+body.simple-workspace .cloud-navigation button{font-size:16px}
+body.simple-workspace .cloud-topbar .cloud-navigation button:not(.is-active){color:#e1ebd9}
+body.simple-workspace .cloud-context .cloud-sync-state{color:#38573e}
+@media(max-width:760px){body.simple-workspace .cloud-navigation button{font-size:14px}body.simple-workspace .cloud-context .cloud-sync-state{font-size:0}}

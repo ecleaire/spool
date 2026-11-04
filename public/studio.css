@@ -704,3 +704,45 @@ body.simple-workspace :is(.table-label,.table-footer,.batch-disclosure>summary,.
 body.simple-workspace .active-inventory-filters{grid-column:1/-1}
 body.simple-workspace #filamentDetails .item-tag{font-size:14px;color:#294b35}
 @media(max-width:760px){body.simple-workspace .inventory .tabs button{font-size:14px}body.simple-workspace .inventory .toolbar input{font-size:16px}}
+
+/* Consistent reading sizes across inventory, booking and entry screens. */
+body.simple-workspace{--reading-text:#183c2a;--reading-secondary:#34513d;--reading-hint:#465d4b;font-size:17px;color:var(--reading-text)}
+body.simple-workspace :is(input,select,textarea){color:var(--reading-text);font-size:17px;line-height:1.55}
+body.simple-workspace :is(input,textarea)::placeholder{color:var(--reading-hint);opacity:1}
+body.simple-workspace .product h3{font-size:clamp(20px,1.3vw,24px);font-weight:650;color:var(--reading-text)}
+body.simple-workspace .product :is(.brand-name,.color-name),body.simple-workspace .filament-row .place{font-size:16px;color:var(--reading-secondary);line-height:1.6}
+body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:16px;font-weight:600;color:#21442d;background:#e7efdf}
+body.simple-workspace .inventory .tabs button,body.simple-workspace .inventory .toolbar :is(input,select,button),body.simple-workspace .inventory .filter-disclosure>summary{font-size:16px;color:var(--reading-text)}
+body.simple-workspace :is(.table-label,.table-footer,.batch-disclosure>summary,.filter-field>span,.reorder-hint){font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace .filament-row .actions :is(button,a){font-size:16px;color:#244a32;min-height:42px}
+body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:clamp(17px,1.1vw,20px);color:var(--reading-secondary)}
+body.simple-workspace :is(.stats,.weight,.booking-overview) small{font-size:15px;color:var(--reading-secondary)}
+body.simple-workspace :is(#editor,#bookingDialog,#usage,#bulkDialog) :is(label,.disclosure>summary){font-size:18px;color:var(--reading-text);line-height:1.55}
+body.simple-workspace :is(#editor,#bookingDialog,#usage,#bulkDialog) :is(input,select,textarea){font-size:18px;color:var(--reading-text)}
+body.simple-workspace :is(#editor,#bookingDialog) :is(small,.field-feedback,#productAutofillStatus,#imageStatus,#presetNotice,.help-details,#presetContext,.preset-search-result){font-size:16px;color:var(--reading-secondary);line-height:1.65}
+body.simple-workspace #editor :is(.color-preset span,.tag-suggestions button,#openLibrary,.library-products small,.library-note,.selected-color-preview){font-size:16px;color:var(--reading-text)}
+body.simple-workspace #editor :is(.filament-save-summary,#weightCandidates>span),body.simple-workspace #bookingDialog :is(.booking-file-drop small,.booking-color-choice small){font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #editor .color-preset span{font-weight:550;line-height:1.5}
+body.simple-workspace #editor .color-presets{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+body.simple-workspace #bookingView :is(.booking-status-tabs button,th,td,.booking-card-top,.booking-card-footer small,.booking-row-details>summary,.booking-color-label){font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #bookingView :is(.work-title,.booking-card h3){font-size:21px;color:var(--reading-text)}
+body.simple-workspace #bookingView .booking-card-metrics>div>span{font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #bookingView .booking-card-metrics strong{font-size:20px;color:var(--reading-text)}
+body.simple-workspace #searchDialog :is(.search-result-copy small,.search-panel-footer small,.search-panel-head small){font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #searchDialog .search-result-copy strong{font-size:19px;color:var(--reading-text)}
+body.simple-workspace #filamentDetails :is(p,dt,dd,a){font-size:17px;color:var(--reading-text);line-height:1.7}
+body.simple-workspace #filamentDetails .item-tag{font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #477c46;outline-offset:3px}
+@media(max-width:760px){
+ body.simple-workspace .inventory .tabs button{font-size:15px}
+ body.simple-workspace :is(#editor,#bookingDialog) :is(label,input,select,textarea,.disclosure>summary){font-size:17px}
+ body.simple-workspace #editor .color-presets{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
+ body.simple-workspace :is(.product .color-name,.filament-row .place){font-size:15px}
+ body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:15px}
+}
+body.simple-workspace :is(#editor,#bookingDialog) .dialog-head h2{font-size:24px;color:var(--reading-text)}
+body.simple-workspace :is(#editor,#bookingDialog) :is(.color-selection-heading h3,.form-section-heading h3){font-size:20px;color:var(--reading-text)}
+body.simple-workspace #editor .selected-color-preview>span{font-size:17px;color:var(--reading-text)}
+body.simple-workspace #editor .color-selection-heading>span{font-size:14px;color:var(--reading-secondary)}
+body.simple-workspace :is(#form,#bookingForm) .dialog-actions button:not(.primary):not(:disabled){font-size:16px;color:#2c5136;border-color:#b7c8ae}
+@media(max-width:760px){body.simple-workspace :is(#editor,#bookingDialog) .dialog-head h2{font-size:22px}}
