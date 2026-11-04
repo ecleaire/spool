@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {profileOf,profileUpdate,validAvatar} from '../../online/profile.mjs';
+assert.equal(profileOf({email:'user@example.com',user_metadata:{full_name:'Google Name'}}).name,'Google Name');
+assert.equal(profileOf({user_metadata:{spool_display_name:'自分の名前',spool_handle:'abc_123',spool_avatar:'https://attacker.invalid/a.svg'}}).avatar,'');
+assert.equal(profileOf({user_metadata:{spool_handle:'UPPER'}}).handle,'');
+assert.equal(profileUpdate(' 名前 ','@User_123','').spool_handle,'user_123');
+assert.throws(()=>profileUpdate('','abc',''),/表示名/);assert.throws(()=>profileUpdate('名前','ab',''),/表示ID/);assert.throws(()=>profileUpdate('名前','a b',''),/表示ID/);
+assert.throws(()=>profileUpdate('名前','','data:image/svg+xml;base64,AAAA'),/画像/);assert.equal(validAvatar('data:image/jpeg;base64,AAAA'),true);assert.equal(validAvatar('data:image/jpeg;base64,AAAA'+String.fromCharCode(34)),false);
+assert.deepEqual(Object.keys(profileUpdate('名前','user_123','')).sort(),['spool_avatar','spool_display_name','spool_handle']);
+console.log('PASS: editable profile validation, Google defaults, safe embedded icons and auth-field separation.');

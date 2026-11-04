@@ -28,10 +28,11 @@ try{
  const lib='11111111-1111-4111-8111-111111111111',user='22222222-2222-4222-8222-222222222222';
  const claims={sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
  const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.test';
- const accountAdds=[],writes=[],uploads=[];let saveFailure=false,adminFixture=true,memberRole='owner';
+ let profileMetadata={full_name:'テスト利用者'};const profileWrites=[],accountAdds=[],writes=[],uploads=[];let saveFailure=false,adminFixture=true,memberRole='owner';
  await authenticated.route(projectUrl+'/**',async route=>{
   const req=route.request(),url=new URL(req.url());let data=[];
-  if(url.pathname.endsWith('/auth/v1/logout'))data={};
+  if(url.pathname.endsWith('/auth/v1/user')){if(req.method()==='PUT'){profileWrites.push(req.postDataJSON());profileMetadata={...profileMetadata,...req.postDataJSON().data};}data={id:user,email:'owner@example.com',user_metadata:profileMetadata};}
+  else if(url.pathname.endsWith('/auth/v1/logout'))data={};
   else if(url.pathname.endsWith('/rpc/spool_is_admin'))data=adminFixture;
   else if(url.pathname.endsWith('/rpc/grant_spool_admin')||url.pathname.endsWith('/rpc/allow_spool_account')||url.pathname.endsWith('/rpc/invite_library_member')){accountAdds.push({path:url.pathname,...req.postDataJSON()});data=null;}
   else if(url.pathname.endsWith('/rpc/ensure_my_library'))data=lib;
@@ -138,6 +139,10 @@ try{
  await authenticated.locator('[data-close-cloud-tools]').click();
  await authenticated.locator('#cloud-account-open').click();
  assert.equal(await authenticated.locator('#cloud-logout').isVisible(),true);
+ await authenticated.locator('.profile-editor>summary').click();const inventoryBefore=await authenticated.evaluate(()=>window.spoolBridge.snapshot());
+ await authenticated.locator('#profile-form [name=displayName]').fill('利用者 <img src=x>');await authenticated.locator('#profile-form [name=handle]').fill('@New_User');
+ const png=await authenticated.evaluate(()=>{const c=document.createElement('canvas');c.width=c.height=16;c.getContext('2d').fillRect(0,0,16,16);return c.toDataURL('image/png').split(',')[1]});await authenticated.locator('#profile-photo').setInputFiles({name:'icon.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await authenticated.locator('#profile-result').filter({hasText:'保存するとアイコンを変更します'}).waitFor();await authenticated.locator('#profile-save').click();await authenticated.locator('#profile-result').filter({hasText:'プロフィールを保存しました'}).waitFor();assert.equal(await authenticated.locator('#account-name').innerText(),'利用者 <img src=x>');assert.equal(await authenticated.locator('#account-name img').count(),0);assert.equal(await authenticated.locator('.cloud-account-trigger img').count(),1);assert.equal(profileWrites.at(-1).data.spool_handle,'new_user');assert.equal(profileWrites.at(-1).email,undefined);assert.equal(profileWrites.at(-1).id,undefined);assert.deepEqual(await authenticated.evaluate(()=>window.spoolBridge.snapshot()),inventoryBefore);
+ await authenticated.reload();await authenticated.locator('#cloud-library').waitFor();await authenticated.locator('#cloud-account-open').click();assert.equal(await authenticated.locator('#account-name').innerText(),'利用者 <img src=x>');await authenticated.locator('.profile-editor>summary').click();await authenticated.locator('#profile-photo-clear').click();await authenticated.locator('#profile-save').click();await authenticated.locator('#profile-result').filter({hasText:'プロフィールを保存しました'}).waitFor();assert.equal(await authenticated.locator('.cloud-account-trigger img').count(),0);
  await authenticated.locator('#cloud-logout').click();
  await authenticated.locator('#cloud-login').waitFor({timeout:5000}).catch(async error=>{console.log(await authenticated.locator('#cloud-panel').innerText(),errors);throw error});assert.equal(await authenticated.locator('main').isVisible(),false);
  assert.deepEqual(await authenticated.evaluate(()=>window.spoolBridge.snapshot()),{items:[],deleted:[],customColorPresets:[],reservations:[]});
