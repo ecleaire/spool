@@ -191,6 +191,8 @@ body.simple-workspace .workspace-footer summary{font-size:11px}
 
 /* Online chrome stays small; library context scrolls away. */
 body.simple-workspace:not(.cloud-locked) .cloud-topbar{background:#fcfcf8;border-bottom:1px solid #dce3d5;box-shadow:inset 0 2px #244e3a;padding-inline:32px;gap:30px}
+body.simple-workspace.cloud-locked .cloud-topbar{background:#fcfcf8;border-bottom:1px solid #dce3d5;box-shadow:inset 0 2px #244e3a}
+body.simple-workspace.cloud-locked .cloud-topline,body.simple-workspace.cloud-locked .cloud-offline-link{color:#6a805c}
 body.simple-workspace .cloud-brand{color:#204b36;font-size:26px;letter-spacing:-.03em;gap:10px}
 body.simple-workspace .cloud-brand-icon{background:#edf2e6;border:1px solid #cbd9bd;color:#477044;border-radius:10px;width:35px;height:35px}
 body.simple-workspace .cloud-brand-dot{color:#b8794d}

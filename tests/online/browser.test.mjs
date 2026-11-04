@@ -15,7 +15,7 @@ try{
  browser=await chromium.launch({...executablePath?{executablePath}:{channel:'chrome'},headless:true,args:process.platform==='linux'?['--no-sandbox']:[]});
  const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{localStorage.setItem('spool-inventory-v1',JSON.stringify([{id:'private-offline-data',name:'Do not upload'}]))});
- await page.goto('http://127.0.0.1:'+server.address().port+basePath);await page.locator('#cloud-config').waitFor();
+ await page.goto('http://127.0.0.1:'+server.address().port+basePath);await page.locator('#cloud-config').waitFor();assert.ok(await page.evaluate(()=>{const lum=color=>{const v=color.match(/[0-9.]+/g).slice(0,3).map(Number).map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4});return v[0]*.2126+v[1]*.7152+v[2]*.0722};const a=lum(getComputedStyle(document.querySelector('.cloud-brand')).color),b=lum(getComputedStyle(document.querySelector('.cloud-topbar')).backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5}),'Signed-out branding must remain readable');
  assert.equal(await page.locator('main').isVisible(),false);
  assert.deepEqual(await page.evaluate(()=>window.spoolBridge.snapshot()),{items:[],deleted:[],customColorPresets:[],reservations:[]});
  assert.equal(await page.evaluate(()=>localStorage.getItem('spool-inventory-v1')),JSON.stringify([{id:'private-offline-data',name:'Do not upload'}]));
