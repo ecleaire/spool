@@ -45,6 +45,7 @@ function render(){
  document.querySelector('#cloud-upload').onchange=upload;
  sync.changed();
 }
+window.spoolNavigateBookings=()=>{bridge.navigate(true);updateCloudNavigation()};
 function updateCloudNavigation(){const bookings=!document.querySelector('#bookingView').hidden;panel.querySelectorAll('[data-cloud-nav]').forEach(button=>{const active=(button.dataset.cloudNav==='bookings')===bookings;button.classList.toggle('is-active',active);button.setAttribute('aria-current',active?'page':'false')})}
 function configure(url,key){
  const config=publicConfig({url,key},configuredOrigin);sessionStorage.removeItem('sb-'+new URL(config.url).hostname.split('.')[0]+'-auth-token');client=createClient(config.url,config.key,{auth:{flowType:'pkce',storage:sessionStorage,storageKey:authStorageKey(config.url),persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});

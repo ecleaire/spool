@@ -85,13 +85,33 @@ try{
  const savedBooking=writes.at(-1).next_state.reservations[0];
  assert.equal(savedBooking.creator,'作者A');assert.equal(savedBooking.deadline,'');assert.equal(savedBooking.className,'');assert.equal(savedBooking.weekday,'火');assert.equal(savedBooking.printMinutes,90);assert.equal(savedBooking.attachments[0].name,'stand.stl');assert.equal(savedBooking.attachments[0].kind,'online');assert.equal(uploads.length,1);
  await authenticated.setViewportSize({width:1440,height:1000});
+ // Editing guards: dismissing cancellation or Escape preserves entered values and pending files.
+ await authenticated.locator('#addBooking').click();await authenticated.locator('[name=title]').fill('入力を保持');
+ authenticated.once('dialog',dialog=>dialog.dismiss());await authenticated.locator('#cancelBooking').click();assert.equal(await authenticated.locator('#bookingDialog').isVisible(),true);assert.equal(await authenticated.locator('[name=title]').inputValue(),'入力を保持');
+ authenticated.once('dialog',dialog=>dialog.dismiss());await authenticated.keyboard.press('Escape');assert.equal(await authenticated.locator('#bookingDialog').isVisible(),true);
+ authenticated.once('dialog',dialog=>dialog.accept());await authenticated.locator('#cancelBooking').click();await authenticated.locator('#bookingDialog').waitFor({state:'hidden'});
+ await authenticated.locator('#addBooking').click();await authenticated.locator('#bookingFileDetails>summary').click();await authenticated.locator('#bookingFileInput').setInputFiles({name:'pending.stl',mimeType:'application/octet-stream',buffer:Buffer.from('solid pending')});authenticated.once('dialog',dialog=>dialog.dismiss());await authenticated.locator('#cancelBooking').click();assert.equal(await authenticated.locator('#bookingPendingFiles li').count(),1);authenticated.once('dialog',dialog=>dialog.accept());await authenticated.locator('#cancelBooking').click();
+ await authenticated.setViewportSize({width:390,height:844});
+ await authenticated.locator('[data-update-booking-status]:visible').first().selectOption('印刷済み');await authenticated.waitForFunction(()=>document.querySelector('#cloud-save-status')?.textContent==='オンライン保存済み');
+ assert.equal(writes.at(-1).next_state.reservations[0].printStatus,'印刷済み');assert.equal(writes.at(-1).next_state.reservations[0].creator,'作者A');assert.equal(writes.at(-1).next_state.reservations[0].attachments[0].name,'stand.stl');if(screenshots)await authenticated.screenshot({path:screenshots+'/SPOOL-quick-status-mobile.png',fullPage:true});
+ await authenticated.locator('[data-cloud-nav="inventory"]').click();
+ await authenticated.locator('#items .row-menu>summary').first().click();if(screenshots)await authenticated.screenshot({path:screenshots+'/SPOOL-reserve-menu-mobile.png',fullPage:true});await authenticated.locator('[data-reserve-filament]:visible').first().click();
+ assert.equal(await authenticated.locator('#bookingDialog').isVisible(),true);assert.equal(await authenticated.locator('[data-cloud-nav="bookings"]').getAttribute('aria-current'),'page');
+ const reservedColor=JSON.parse(await authenticated.locator('#bookingColor').inputValue());assert.equal(reservedColor.name,'ダークグリーン / PLA Matte (Bambu Lab)');assert.equal(reservedColor.color,'#68724D');
+ // The preselected color is a baseline, so opening and immediately closing needs no discard prompt.
+ await authenticated.locator('#cancelBooking').click();await authenticated.locator('#bookingDialog').waitFor({state:'hidden'});
+ await authenticated.locator('[data-cloud-nav="inventory"]').click();
+ await authenticated.locator('#items [data-edit]').first().click();const oldName=await authenticated.locator('#form [name=name]').inputValue();await authenticated.locator('#form [name=name]').fill('変更途中');
+ authenticated.once('dialog',dialog=>dialog.dismiss());await authenticated.locator('#cancel').click();assert.equal(await authenticated.locator('#editor').isVisible(),true);assert.equal(await authenticated.locator('#form [name=name]').inputValue(),'変更途中');
+ await authenticated.locator('#form [name=name]').fill(oldName);await authenticated.locator('#cancel').click();await authenticated.locator('#editor').waitFor({state:'hidden'});
+ await authenticated.setViewportSize({width:1440,height:1000});console.log('PASS: unsaved booking/editor cancellation protection, Escape protection, one-step status updates retaining attachments, reserve from inventory color and navigation.');
  await authenticated.locator('[data-cloud-nav="inventory"]').click();
  await authenticated.locator('#add').click();
  await authenticated.locator('#editorBrand').selectOption('ELEGOO');
  assert.equal(await authenticated.locator('#editorVariant option').count(),7);
  assert.equal(await authenticated.locator('#materialDetails').getAttribute('open'),null);await authenticated.locator('#materialDetails>summary').click();await authenticated.locator('#editorVariant').selectOption('PLA+');
  assert.equal(await authenticated.locator('[name=brand]').inputValue(),'ELEGOO');assert.equal(await authenticated.locator('[name=variant]').inputValue(),'PLA+');
- await authenticated.locator('#cancel').click();
+ authenticated.once('dialog',dialog=>dialog.accept());await authenticated.locator('#cancel').click();
  assert.equal(await authenticated.locator('#inventoryFilters').getAttribute('open'),null);
  await authenticated.locator('#inventoryFilters>summary').click();await authenticated.locator('#brand').selectOption('ELEGOO');assert.equal(await authenticated.locator('#items>.filament-row').count(),1);await authenticated.locator('#brand').selectOption('');await authenticated.locator('#inventoryFilters>summary').click();
  await authenticated.locator('[data-select]').first().check();assert.equal(await authenticated.locator('#batchActions').getAttribute('open'),'');await authenticated.locator('#clearSelection').click();
