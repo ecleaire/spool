@@ -113,6 +113,7 @@ async function start(){
 }
 async function loadAccount(){
  if(!session)return;
+ bridge.displayAccount(session.user.id);
  const epoch=++authEpoch;
  accountLoading=true;isAdmin=false;lock();library=null;libraries=[];errorText='';errorInfo=null;
  clearTimeout(timer);sync.reset(null);bridge.apply(empty());render();

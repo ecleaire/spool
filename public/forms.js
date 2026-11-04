@@ -72,3 +72,27 @@ $('#searchDialog').addEventListener('keydown',event=>{if(event.key==='Escape'){e
 $('#applySearchPanel').onclick=()=>{const target=foregroundSearchState.mode==='bookings'?'#bookingView':'.inventory';closeSearchPanel();$(target).scrollIntoView({block:'start'})};
 for(const [id,mode]of [['#search','inventory'],['#bookingSearch','bookings']]){$(id).addEventListener('click',()=>openSearchPanel(mode));$(id).addEventListener('keydown',event=>{if(event.key==='Enter'||event.key==='ArrowDown'){event.preventDefault();openSearchPanel(mode)}})}
 window.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'&&!document.body.classList.contains('cloud-locked')&&!document.querySelector('dialog[open]')){event.preventDefault();openSearchPanel(bookingsShowing?'bookings':'inventory')}});
+
+// Display preferences are separate from stock, backups and authentication tokens.
+const DISPLAY_KEY='spool-display-v1';
+let displayAccount=document.body.classList.contains('cloud-locked')?null:'offline',restoringDisplay=false;
+function displayStorageKey(){return displayAccount?DISPLAY_KEY+':'+displayAccount:null}
+function saveDisplayPreferences(){
+ if(restoringDisplay||!displayStorageKey())return;
+ try{localStorage.setItem(displayStorageKey(),JSON.stringify({version:1,view,sort:$('#sort').value,bookingSort:$('#bookingSort').value,inventoryFilters:$('#inventoryFilters').open,bookingFilters:$('#bookingFilters').open}))}catch{}
+}
+function restoreDisplayPreferences(account){
+ displayAccount=account;restoringDisplay=true;
+ let saved={};try{const value=JSON.parse(localStorage.getItem(displayStorageKey())||'null');if(value?.version===1)saved=value}catch{}
+ for(const [id,key,fallback] of [['#sort','sort','manual'],['#bookingSort','bookingSort','deadline']]){
+  const field=$(id),allowed=[...(field.options||[])].map(option=>option.value);field.value=allowed.includes(saved[key])?saved[key]:fallback;
+ }
+ for(const id of ['inventoryFilters','bookingFilters'])$('#'+id).open=saved[id]===true;
+ changeView(['list','split','grid'].includes(saved.view)?saved.view:'list');renderBookings();restoringDisplay=false;
+}
+for(const id of ['#listView','#splitView','#gridView','#toggleReorder'])$(id).addEventListener('click',saveDisplayPreferences);
+for(const id of ['#sort','#bookingSort'])$(id).addEventListener('change',saveDisplayPreferences);
+for(const id of ['#inventoryFilters','#bookingFilters'])$(id).addEventListener('toggle',saveDisplayPreferences);
+if(displayAccount)restoreDisplayPreferences(displayAccount);
+
+$('#finishReorder').onclick=()=>{reorderMode=false;render()};

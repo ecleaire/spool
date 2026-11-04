@@ -24,7 +24,7 @@ html=html.replace(/<body\b([^>]*)>/i,(_,attributes)=>{
  return '<body'+attrs+'><section id="cloud-panel" aria-label="オンラインライブラリ"></section>';
 });
 if(!html.includes('id="cloud-panel"')||!/<body\b[^>]*\bcloud-locked/.test(html))throw Error('Online shell and login protection were not inserted');
-const bridge=`window.spoolBridge={snapshot:()=>structuredClone(currentOfflineState()),apply:state=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;selected.clear();reorderMode=false;render();renderBookings()},valid:validOfflineState,navigate:showBookingView,selected:()=>[...selected],repaint:render,esc};`;
+const bridge=`window.spoolBridge={displayAccount:restoreDisplayPreferences,snapshot:()=>structuredClone(currentOfflineState()),apply:state=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;selected.clear();reorderMode=false;render();renderBookings()},valid:validOfflineState,navigate:showBookingView,selected:()=>[...selected],repaint:render,esc};`;
 html=html.replace('</body>',()=>'<script>'+bridge+'</script><script type="module" src="./online.js"></script></body>');
 const styleVersion=createHash('sha256').update(readFileSync(path.join(root,'online/style.css'))).digest('hex').slice(0,16);
 html=html.replace('</head>','<link rel="stylesheet" href="./online.css?v='+styleVersion+'"></head>');
