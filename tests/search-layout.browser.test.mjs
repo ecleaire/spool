@@ -7,7 +7,7 @@ const html=fs.readFileSync(new URL('../dist/index.html',import.meta.url));
 const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/html;charset=utf-8');res.end(html)});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
-const stock=['Matte A','Silk B','Plain C','Literal D'].map((name,i)=>({id:'search-'+i,name,brand:'Bambu Lab',material:'PLA',variant:'PLA Basic',colorName:['白','青','黒','緑'][i],color:['#FFFFFF','#2255AA','#000000','#287A45'][i],remaining:800,capacity:1000,diameter:'1.75',location:['棚 A','棚 B','','none'][i],tags:[['マット','授業'],['シルク'],[],['none','<script>bad</script>']][i],image:''}));
+const stock=['Matte A','Silk B','Plain C','Literal D'].map((name,i)=>({id:'search-'+i,name,brand:'Bambu Lab',material:'PLA',variant:'PLA Basic',colorName:['白','青','黒','緑'][i],color:['#FFFFFF','#2255AA','#000000','#287A45'][i],remaining:800,capacity:1000,diameter:'1.75',location:['棚 A','棚 B','','none'][i],amazonUrl:'https://www.amazon.co.jp/dp/B012345678',shopUrl:'https://jp.elegoo.com/products/pla-translucent',tags:[['マット','授業'],['シルク'],[],['none','<script>bad</script>']][i],image:''}));
 const bookings=['予約マット','予約タグなし'].map((title,i)=>({id:'booking-search-'+i,title,registeredDate:'2026-11-05',deadline:'2026-11-09',weekday:'木',className:'A2',desiredColor:'白',color:'#FFFFFF',printStatus:'印刷予定',printMinutes:90,tags:i?[]:['マット']}));
 const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)fs.mkdirSync(shots,{recursive:true});
 try{
@@ -19,6 +19,10 @@ try{
   assert.equal(await page.locator('#items').evaluate(x=>getComputedStyle(x).gridTemplateColumns.split(' ').length),width>1000?2:1);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.equal(await page.locator('.filament-row').first().evaluate(x=>x.scrollWidth<=x.clientWidth),true);
+  const row=page.locator('#items .filament-row').first();
+  const pairs=await row.evaluate(el=>{const links=[...el.querySelectorAll('.shop-link')].map(x=>x.getBoundingClientRect()),use=el.querySelector('[data-use]').getBoundingClientRect(),edit=el.querySelector('[data-edit]').getBoundingClientRect();return {links:Math.abs(links[0].top-links[1].top),buttons:Math.abs(use.top-edit.top)}});assert.ok(pairs.links<2&&pairs.buttons<2,'Paired links and buttons stay in the same row at '+width);
+  for(const mode of ['list','grid','split']){await page.locator('#'+mode+'View').click();const pos=await row.evaluate(el=>{const r=el.getBoundingClientRect(),c=el.querySelector('.row-select').getBoundingClientRect();return {x:c.left-r.left,y:c.top-r.top}});assert.ok(pos.x>=10&&pos.x<=14&&pos.y>=10&&pos.y<=14,'Corner checkbox in '+mode+' at '+width);}
+  if(shots&&width===390)await page.screenshot({path:shots+'/paired-actions-390.png',fullPage:true,animations:'disabled'});
   if(shots&&width===1440)await page.screenshot({path:shots+'/two-columns-1440.png',fullPage:true,animations:'disabled'});
   await page.locator('#inventoryFilters>summary').click();
   await page.locator('#locationFilter').selectOption('v:棚 A');await page.locator('#tagFilter').selectOption('v:マット');assert.equal(await page.locator('#items .filament-row').count(),1);assert.equal(await page.locator('#filterCount').textContent(),'2');

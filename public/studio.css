@@ -528,3 +528,129 @@ body.simple-workspace .grid-mode .reorder-controls [draggable]{margin-right:auto
 }
 
 body.simple-workspace .grid-mode>.empty-state{grid-column:1/-1}
+/* Keep paired actions together in horizontal cards. */
+body.simple-workspace .filament-row>.row-select{top:12px;left:12px}
+.shop-links{display:contents}
+body.simple-workspace .split-mode .actions .shop-links{display:inline-flex;flex:0 0 auto;align-items:center;gap:8px;max-width:100%;min-width:0;white-space:nowrap}
+body.simple-workspace .split-mode .actions .shop-link{flex:0 0 auto;margin:0}
+body.simple-workspace .split-mode .actions>button{flex:0 0 auto}
+@media(max-width:760px){body.simple-workspace .split-mode .actions .shop-links{flex-basis:100%;order:-1;justify-content:flex-end}}
+/* Readable type, calm spacing and a consistent green masthead. */
+body.simple-workspace{font-size:16px;--ink:#193b30;--muted:#465e51}
+body.simple-workspace .brand-name,body.simple-workspace .product .color-name,body.simple-workspace .place{color:#465e50;font-size:14px}
+body.simple-workspace .product h3{font-size:clamp(18px,1.2vw,23px)}
+body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag,body.simple-workspace .booking-card .item-tag{font-size:14px;padding:4px 8px;line-height:1.5;color:#34503d;background:#edf2e8}
+body.simple-workspace .search input,body.simple-workspace .toolbar select,body.simple-workspace .booking-tools select{font-size:16px}
+body.simple-workspace .tabs button,body.simple-workspace .booking-status-tabs button,body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{font-size:14px}
+body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:16px;color:#415b4d}
+body.simple-workspace .table-label,body.simple-workspace .table-footer,body.simple-workspace .batch-disclosure>summary,body.simple-workspace .filter-field>span{font-size:14px;color:#4d6253}
+body.simple-workspace .weight-number{font-size:24px}body.simple-workspace .weight-number small{font-size:13px;color:#4b6454}
+body.simple-workspace #editor .fields label,body.simple-workspace #bookingDialog label{font-size:15px;color:#36523f}
+body.simple-workspace #editor .fields input,body.simple-workspace #editor .fields select,body.simple-workspace #editor .fields textarea,body.simple-workspace #bookingDialog input,body.simple-workspace #bookingDialog select{font-size:16px}
+body.simple-workspace #editor small,body.simple-workspace #bookingDialog small,body.simple-workspace .field-feedback,body.simple-workspace .search-result-hint{font-size:13px;color:#526a55}
+body.simple-workspace .tag-suggestions button{font-size:14px;min-height:36px;padding:6px 10px}
+body.simple-workspace .page-actions>.primary{min-height:56px;padding:14px 24px;font-size:17px;font-weight:700;border-radius:11px}
+body.simple-workspace .stock-location{margin:16px 0}.stock-location label{display:grid;gap:8px;font-size:15px;color:#36523f}.stock-location input{font-size:16px;min-height:46px;width:100%}
+body.simple-workspace #stockDetails>.fields{padding:16px;gap:16px}body.simple-workspace #filamentExtras{display:grid;grid-template-columns:1fr 1fr;gap:16px}body.simple-workspace #filamentExtras .full{grid-column:1/-1}
+body.simple-workspace #advancedProductFields:empty{display:none}body.simple-workspace #advancedProductFields{padding:0 16px}
+body.simple-workspace #colorPresets{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;max-height:300px;padding:2px}
+body.simple-workspace #colorPresets .color-preset{width:100%;min-height:88px;height:auto;padding:12px 8px;gap:8px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+body.simple-workspace #colorPresets .color-preset i{width:34px;height:34px;flex:none}
+body.simple-workspace #colorPresets .color-preset span{font-size:14px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere;line-break:strict;color:#34563e}
+body.simple-workspace #colorPresets .color-preset small,body.simple-workspace #colorInfoHex{display:none}
+body.simple-workspace .color-selection-panel{padding:16px}body.simple-workspace .selected-color-preview{margin-bottom:10px;padding:10px 12px}body.simple-workspace .preset-search{margin:10px 0}
+/* Material is a derived tag, not another inventory column. */
+@media(min-width:1101px){body.simple-workspace .table-label,body.simple-workspace #items:not(.grid-mode):not(.split-mode)>.filament-row{grid-template-columns:minmax(280px,2.7fr) 1.2fr .8fr 170px}}
+@media(min-width:761px) and (max-width:1100px){body.simple-workspace .table-label,body.simple-workspace #items:not(.grid-mode):not(.split-mode)>.filament-row{grid-template-columns:minmax(220px,2fr) 1fr 150px}body.simple-workspace .table-label>span:nth-child(3){display:none}}
+/* An expanded filter is a full-width panel instead of an empty left column. */
+body.simple-workspace .inventory #inventoryFilters[open]{flex-basis:100%;order:10;margin:4px 0 0;width:100%}
+body.simple-workspace .inventory #inventoryFilters .filter-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;padding:16px;background:#f6f8f2}
+body.simple-workspace .inventory #inventoryFilters .filter-field{grid-column:auto;min-width:0}
+body.simple-workspace .inventory #inventoryFilters select{width:100%;max-width:none;min-height:46px;font-size:15px}
+body.simple-workspace .inventory #inventoryFilters .filter-fields>button{align-self:end;min-height:46px;font-size:14px}
+@media(min-width:1280px){body.simple-workspace .inventory:has(#inventoryFilters[open]){grid-template-columns:minmax(0,1fr)}body.simple-workspace .inventory:has(#inventoryFilters[open])>.section-top{grid-column:1;grid-row:1}body.simple-workspace .inventory:has(#inventoryFilters[open])>.toolbar{grid-column:1;grid-row:2}}
+/* Inventory search results are image cards; booking results remain compact rows. */
+body.simple-workspace #foregroundResults.filament-search-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px 20px 20px}
+body.simple-workspace .filament-search-cards .search-result{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:start;gap:8px 14px;position:relative;padding:16px;border:1px solid #dbe3d4;border-radius:12px;min-height:132px;box-shadow:0 2px 6px #26492d05}
+body.simple-workspace .filament-search-cards .search-result>img{grid-column:1;grid-row:1/3;width:80px;height:96px;padding:4px}
+body.simple-workspace .filament-search-cards .search-result-copy{grid-column:2;grid-row:1;min-width:0}
+body.simple-workspace .filament-search-cards .search-result-copy strong{font-size:17px}.filament-search-cards .search-result-copy small{font-size:14px}
+body.simple-workspace .filament-search-cards .search-result-meta{grid-column:2;grid-row:2;font-size:15px;font-weight:600;align-self:end}
+body.simple-workspace .filament-search-cards .search-result>span:last-child{display:none}
+body.simple-workspace .filament-search-cards>.search-panel-empty{grid-column:1/-1}
+body.simple-workspace .booking-overview-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 22px;border-bottom:1px solid #e1e7db}
+body.simple-workspace .booking-overview-header .booking-title{padding:0;border:0;min-width:0;display:block}
+body.simple-workspace .booking-overview-header .booking-title>div{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+body.simple-workspace .booking-overview-header h2,body.simple-workspace .booking-overview-header #bookingCount{margin:0}body.simple-workspace #bookingCount{font-size:14px;color:#4d6655}
+body.simple-workspace .booking-overview-header .booking-status-tabs{padding:0;margin:0;display:flex;flex-wrap:wrap;gap:7px;border:0}
+body.simple-workspace .booking-status-tabs button{min-height:42px;padding:9px 12px;color:#425e49}.booking-overview-header .booking-sort-hint{display:none}
+body.simple-workspace .cloud-topbar,body.simple-workspace:not(.cloud-locked) .cloud-topbar,body.simple-workspace.cloud-locked .cloud-topbar{background:#183e31;border-color:#2e5142;box-shadow:0 1px 0 #ffffff16}
+body.simple-workspace .cloud-topbar .cloud-brand{color:#f2f6e9}body.simple-workspace .cloud-topbar .cloud-brand-icon{color:#d7e6bc;border-color:#7f9677;background:#254b3a}
+body.simple-workspace .cloud-topbar .cloud-brand>small,body.simple-workspace .cloud-topline,body.simple-workspace .cloud-offline-link{color:#ccdcbf}
+body.simple-workspace .cloud-topbar .cloud-navigation button{font-size:15px;color:#e0ead5}body.simple-workspace .cloud-topbar .cloud-navigation button.is-active{background:#e4edcb;color:#214633}
+body.simple-workspace .cloud-topbar .cloud-account-trigger{color:#eef4e4;border-color:#84997a;background:#254b3b}body.simple-workspace .cloud-topbar .cloud-avatar{color:#f1f5e8;border-color:#aabf94;background:#365b41}
+@media(max-width:760px){
+ body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag,body.simple-workspace .booking-card .item-tag{font-size:13px;padding:3px 7px}
+ body.simple-workspace .product h3{font-size:17px}body.simple-workspace .product .color-name,body.simple-workspace .place{font-size:13px}body.simple-workspace .brand-name{font-size:12px}
+ body.simple-workspace .inventory .tabs button{font-size:13px;padding:9px 8px}body.simple-workspace .inventory .view-switch button{width:36px;min-width:36px}
+ body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{font-size:13px}
+ body.simple-workspace .page-actions>.primary{min-height:54px;padding:14px 16px;font-size:16px}
+ body.simple-workspace .booking-overview-header{padding:16px;gap:12px}body.simple-workspace .booking-overview-header .booking-status-tabs{width:100%;gap:6px}body.simple-workspace .booking-status-tabs button{font-size:13px;padding:8px 6px}
+ body.simple-workspace #foregroundResults.filament-search-cards{grid-template-columns:minmax(0,1fr);padding:10px 12px 14px}
+ body.simple-workspace .inventory #inventoryFilters .filter-fields{grid-template-columns:minmax(0,1fr);padding:12px}
+ body.simple-workspace .cloud-topbar .cloud-navigation button{font-size:13px}
+}
+/* Account actions have distinct purposes and fewer decorative panels. */
+body.simple-workspace #cloud-account-dialog{width:min(680px,calc(100vw - 24px));max-height:90dvh;padding:0;color:#254633}
+body.simple-workspace #cloud-account-dialog .cloud-dialog-head{padding:18px 22px;position:sticky;top:0;background:#fff;z-index:2}
+body.simple-workspace #cloud-account-dialog .cloud-dialog-body{padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+body.simple-workspace #cloud-account-dialog .account-identity{margin:0;padding:0 0 16px;border:0;border-bottom:1px solid #dce5d8;border-radius:0;background:none;gap:16px}
+body.simple-workspace #cloud-account-dialog .account-identity>.cloud-avatar{width:64px;height:64px;font-size:25px}
+body.simple-workspace #account-name{font-size:22px}body.simple-workspace #account-handle,body.simple-workspace #cloud-account-dialog p{font-size:14px;color:#4b6654;overflow-wrap:anywhere}
+body.simple-workspace #cloud-account-dialog .profile-editor{margin:0;border:1px solid #d2decc;border-radius:10px;background:#f8faf5}
+body.simple-workspace #cloud-account-dialog .profile-editor>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;font-size:16px;font-weight:600;cursor:pointer;color:#2e553b}
+body.simple-workspace #cloud-account-dialog .profile-editor>summary>span{font-size:13px;font-weight:400;color:#536d58}
+body.simple-workspace #profile-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px}body.simple-workspace #profile-form label{font-size:15px}body.simple-workspace #profile-form input{font-size:16px;min-height:46px;width:100%}
+body.simple-workspace #profile-form>p,body.simple-workspace #profile-form>.profile-photo-row,body.simple-workspace #profile-result{grid-column:1/-1;margin:0}
+body.simple-workspace #cloud-account-dialog .account-library{margin:0;padding:16px;border-radius:10px;background:#f6f8f1}.account-library h3{font-size:18px}
+body.simple-workspace #cloud-account-dialog .account-manage,body.simple-workspace #cloud-account-dialog .account-add-entry{min-height:48px;font-size:15px;margin:0;padding:12px 16px}
+body.simple-workspace #cloud-account-dialog .account-more{border:1px solid #e0e6d9;border-radius:8px;padding:0 14px}body.simple-workspace .account-more>summary{padding:12px 0;font-size:14px;cursor:pointer}.account-more .account-version{display:block;font-size:13px;color:#53694f;padding-bottom:12px}
+body.simple-workspace #cloud-account-dialog .account-session{margin:0;padding-top:16px;gap:12px;border-top:1px solid #dfe7d8}.account-session>span{font-size:13px;color:#4d6554}
+@media(max-width:600px){body.simple-workspace #profile-form{grid-template-columns:minmax(0,1fr)}body.simple-workspace #cloud-account-dialog .profile-editor>summary{flex-wrap:wrap}body.simple-workspace #cloud-account-dialog .cloud-dialog-body{padding:16px}body.simple-workspace #cloud-account-dialog .account-session{flex-wrap:wrap}}
+body.simple-workspace #editor[data-entry-mode=start]{width:min(760px,calc(100vw - 24px))}
+body.simple-workspace #editor[data-entry-mode=start] .editor-layout{display:block;min-height:0;padding:22px}
+body.simple-workspace #editor[data-entry-mode=start] .editor-fields>:not(.product-autofill),body.simple-workspace #editor[data-entry-mode=start] .editor-visual,body.simple-workspace #editor[data-entry-mode=start] .filament-workflow,body.simple-workspace #editor[data-entry-mode=start] .filament-entry-note{display:none}
+body.simple-workspace #editor .manual-entry-button{display:none}
+body.simple-workspace #editor[data-entry-mode=start] #productAutofillStatus{font-size:14px;color:#45634a;margin-bottom:0}
+body.simple-workspace #editor .product-autofill{margin-bottom:16px;padding:16px;background:#f4f8ef}
+body.simple-workspace #editor #editorProduct{min-height:50px;font-size:16px}
+body.simple-workspace #bookingExtraDetails .booking-quality{margin:0}
+@media(max-width:760px){body.simple-workspace #editor[data-entry-mode=start]{width:100vw}body.simple-workspace #editor[data-entry-mode=start] .editor-layout{padding:16px}}
+body.simple-workspace #bookingImportPick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:140px;border:2px dashed #90ac87;border-radius:12px;background:#f4f8ee;color:#294e37;padding:20px;text-align:center;font-size:16px}
+body.simple-workspace #bookingImportPick:before{content:'↥';font-size:27px;line-height:1}
+body.simple-workspace #bookingImportPick strong{font-size:18px}body.simple-workspace #bookingImportPick small{font-size:14px;color:#425d45}
+body.simple-workspace #bookingImportPick.is-drag-over{background:#e4efda;border-color:#315f3a;box-shadow:0 0 0 3px #a7c49355}
+body.simple-workspace #bookingDialog label{font-size:16px;color:#2c4936}body.simple-workspace #bookingDialog small,body.simple-workspace #bookingDialog .field-feedback,body.simple-workspace #bookingDialog .booking-color-choice small{font-size:14px;color:#425d49}
+body.simple-workspace #bookingDialog .form-section-heading h3{font-size:18px;color:#2c5039}body.simple-workspace #bookingDialog .disclosure>summary{font-size:16px;color:#35543c}
+body.simple-workspace .booking-color-choice strong{font-size:15px;color:#31503b}body.simple-workspace .booking-color-choice code{display:none}
+body.simple-workspace #editor .filament-workflow{display:none}
+body.simple-workspace #editor #elegooLibrary:not([open]){display:none}
+body.simple-workspace #editor[data-entry-mode=start] #elegooLibrary[open]{display:block}
+body.simple-workspace #editor[data-entry-mode=start] .dialog-actions .primary,body.simple-workspace #editor[data-entry-mode=start] #saveAndContinue,body.simple-workspace #editor[data-entry-mode=start] .filament-save-summary{display:none}
+body.simple-workspace #editor .product-autofill{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px}
+body.simple-workspace #editor .product-autofill>label,body.simple-workspace #editor #productAutofillStatus,body.simple-workspace #editor #stockTemplateDetails{grid-column:1/-1}
+body.simple-workspace #editor #openLibrary{min-height:50px;margin:0;padding:10px 14px;font-size:14px}
+body.simple-workspace #editor #editorProduct{min-width:0;width:100%}
+body.simple-workspace #editor[data-entry-mode=auto] #presetContext{display:none}
+@media(max-width:760px){body.simple-workspace #editor .product-autofill{grid-template-columns:minmax(0,1fr)}body.simple-workspace #editor #openLibrary{grid-column:1;font-size:14px}}
+body.simple-workspace .filament-search-cards .search-result-copy small{font-size:14px;line-height:1.6;color:#4a6451}
+body.simple-workspace .search-panel-head small,body.simple-workspace .search-panel-footer small{font-size:13px;color:#4d6654}
+body.simple-workspace #editor #productAutofillStatus,body.simple-workspace #editor #imageStatus{font-size:14px;color:#49624c;line-height:1.65}
+body.simple-workspace #editor .dialog-actions button,body.simple-workspace #bookingDialog .dialog-actions button{min-height:48px;font-size:16px;padding:11px 16px}
+body.simple-workspace .booking-card h3{font-size:20px;color:#254833}
+body.simple-workspace .booking-card .booking-card-top,body.simple-workspace .booking-card .booking-card-footer small,body.simple-workspace .booking-card .booking-card-metrics>div>span,body.simple-workspace .booking-card .booking-row-details>summary{font-size:13px;color:#4a6250}
+body.simple-workspace .booking-card .booking-card-metrics{margin:12px 0;padding:12px}
+body.simple-workspace .booking-card .booking-card-metrics strong{font-size:18px;line-height:1.5}
+body.simple-workspace .booking-card .booking-card-footer{margin-top:0;padding-top:10px}
+body.simple-workspace .booking-card .booking-color-label{font-size:14px;color:#3e6048}
+body.simple-workspace .cloud-topbar #cloud-account-open .account-trigger-name,body.simple-workspace .cloud-topbar #cloud-account-open>span:last-child{color:#eef4e4}

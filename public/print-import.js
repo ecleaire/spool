@@ -43,3 +43,5 @@ const importOriginalOpenBooking=openBooking;openBooking=function(id){resetBookin
 $('#bookingDialog').addEventListener('close',()=>{if(!$('#bookingDialog').open)resetBookingImport()});
 $('#bookingPendingFiles').addEventListener('click',event=>{if(event.target.closest?.('[data-remove-booking-file]'))inspectBookingFiles(false)});
 const importOriginalBookingSubmit=$('#bookingForm').onsubmit;$('#bookingForm').onsubmit=event=>{if(bookingReading){event.preventDefault();$('#bookingError').textContent='印刷情報の読み取りが終わるまでお待ちください。';return}return importOriginalBookingSubmit(event)};
+
+$('#bookingImportPick').ondragover=event=>{event.preventDefault();$('#bookingImportPick').classList.add('is-drag-over')};$('#bookingImportPick').ondragleave=()=>$('#bookingImportPick').classList.remove('is-drag-over');$('#bookingImportPick').ondrop=event=>{event.preventDefault();$('#bookingImportPick').classList.remove('is-drag-over');stageBookingFiles(event.dataTransfer.files)};

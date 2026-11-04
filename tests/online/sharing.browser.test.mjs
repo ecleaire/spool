@@ -1,11 +1,11 @@
 import {chromium} from '../../online/node_modules/playwright-core/index.mjs';
-import http from 'node:http';import {readFileSync,mkdirSync} from 'node:fs';import assert from 'node:assert/strict';
+import http from 'node:http';import {readFileSync,mkdirSync,readdirSync} from 'node:fs';import assert from 'node:assert/strict';
 const project=JSON.parse(readFileSync(new URL('../../online/config.json',import.meta.url))).url.replace(/\/$/,'');
 const user='22222222-2222-4222-8222-222222222222',personal='11111111-1111-4111-8111-111111111111',team='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const items=['白','黒','青'].map((colorName,i)=>({id:'qa-'+i,name:'QA '+i,brand:'Bambu Lab',material:'PLA',variant:'PLA Basic',colorName,color:['#FFFFFF','#000000','#2255AA'][i],remaining:800,capacity:1000,diameter:'1.75',image:'',amazonUrl:'https://www.amazon.co.jp/dp/QA',shopUrl:'https://example.com/filament',tags:[]}));
 const libraries=[{id:personal,name:'自分の材料',personal:true,owner_id:user,color:'#2F6F56'},{id:team,name:'工作室',personal:false,owner_id:user,color:'#3456AB'}];
 const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify({sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';
-const server=http.createServer((req,res)=>{const name=req.url.split('?')[0].split('/').pop()||'index.html';if(!['index.html','online.js','online.css','config.json'].includes(name)){res.writeHead(404).end();return}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':name.endsWith('.html')?'text/html':'application/json');res.end(name==='config.json'?JSON.stringify({url:project,key:'sb_publishable_test'}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const server=http.createServer((req,res)=>{const name=req.url.split('?')[0].split('/').pop()||'index.html';if(!['index.html','online.js','online.css','config.json'].includes(name)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(name)){res.writeHead(404).end();return}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':name.endsWith('.html')?'text/html':'application/json');res.end(name==='config.json'?JSON.stringify({url:project,key:'sb_publishable_test'}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)mkdirSync(shots,{recursive:true});
 try{
