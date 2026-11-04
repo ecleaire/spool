@@ -87,6 +87,10 @@ try{
  await authenticated.setViewportSize({width:1440,height:1000});
  await authenticated.locator('[data-cloud-nav="inventory"]').click();
  await authenticated.locator('#add').click();
+ await authenticated.locator('#editorProduct').selectOption('bambu-matte');
+ assert.equal(await authenticated.locator('#editorBrand').inputValue(),'Bambu Lab');assert.equal(await authenticated.locator('[name=name]').inputValue(),'PLA Matte');assert.equal(await authenticated.locator('[name=capacity]').inputValue(),'1000');assert.equal(await authenticated.locator('#presetDetails').evaluate(el=>el.open),true);assert.equal(await authenticated.locator('#colorPresets [data-color-preset]').count(),25);
+ await authenticated.locator('#colorPresets [data-color-preset]').nth(1).click();const selectedColor=await authenticated.locator('[name=colorName]').inputValue();assert.ok(selectedColor);
+ await authenticated.locator('[name=name]').fill('カスタム商品');await authenticated.locator('[name=colorName]').fill('調整した色');await authenticated.locator('[name=remaining]').fill('640');assert.equal(await authenticated.locator('#editorProduct').inputValue(),'');assert.equal(await authenticated.locator('[name=name]').inputValue(),'カスタム商品');assert.equal(await authenticated.locator('[name=colorName]').inputValue(),'調整した色');assert.equal(await authenticated.locator('[name=remaining]').inputValue(),'640');
  await authenticated.locator('#editorBrand').selectOption('ELEGOO');
  assert.equal(await authenticated.locator('#editorVariant option').count(),7);
  assert.equal(await authenticated.locator('#materialDetails').getAttribute('open'),null);await authenticated.locator('#materialDetails>summary').click();await authenticated.locator('#editorVariant').selectOption('PLA+');
