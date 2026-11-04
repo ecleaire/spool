@@ -120,3 +120,9 @@ body{background:var(--bg)}body .content{padding-top:40px;padding-bottom:36px}#cl
  #cloud-panel:has(#cloud-library-details[open]){position:relative}
  #cloud-panel:has(.error-summary details[open]){position:relative}
 }
+
+/* Keep duplicated library details behind the settings control on every screen. */
+#cloud-library-more{display:block;min-width:44px;min-height:44px;border:1px solid #d3dfd6;border-radius:8px;background:#f3f7f2;color:#355f47;font-size:20px}
+#cloud-library-more[aria-expanded=true]{background:#dcebdc}
+#cloud-panel:has(#cloud-library-details[open]){position:relative}
+@media(min-width:761px){body:not(.cloud-locked) .cloud-topbar{min-height:64px}body:not(.cloud-locked) .cloud-navigation button{height:44px}body:not(.cloud-locked) .cloud-context{min-height:56px;padding-block:5px}body:not(.cloud-locked) .cloud-library-picker small{display:none}.cloud-library-details>#cloud-manage-sharing{margin:0 24px 12px;min-height:44px}.cloud-library-details .cloud-current-library{margin:0 24px 12px;padding:12px}}
