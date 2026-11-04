@@ -24,7 +24,7 @@ function renderBookingImport(){
  $('#bookingImportStatus').textContent='';
 }
 async function inspectBookingFiles(auto=true){
- const files=bookingPendingFiles.filter(file=>/\.(3mf|gcode)$/i.test(file.name));if(!files.length){resetBookingImport();return}
+ const files=bookingPendingFiles.filter(file=>/\.(3mf|gcode)$/i.test(file.name));if(!files.length){resetBookingImport();if(auto&&bookingPendingFiles.length){$('#bookingImportFeedback').hidden=false;$('#bookingImportFeedback').textContent='ファイルを添付しました。この形式の印刷時間や色は手動で入力してください。'}return}
  const epoch=++bookingImportEpoch,expected=bookingImportValues();bookingReading=true;$('#bookingImportFeedback').hidden=false;$('#bookingImportFeedback').textContent='印刷情報を読み取っています…';
  const rows=[],issues=[];
  for(const file of files){try{for(const row of await extractPrintMetadata(file))rows.push({...row,file})}catch(error){issues.push(file.name+'：'+(error.message||'読み取りに失敗しました。'))}}
