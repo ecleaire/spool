@@ -28,3 +28,7 @@ GitHub Pagesでは任意のHTTPセキュリティヘッダーを設定できま�
 同じecleaire.github.io配下の別プロジェクトは同一オリジンです。SPOOL専用の保存キーやCSPは、同じオリジンの別ページで既に動いている悪意のあるコードから完全に隔離するものではありません。第三者のコードを同じオリジンで動かす場合は、SPOOL専用ドメインまたは別オリジンへ分離する必要があります。
 
 GitHub・Google・Supabaseの管理者アカウントのMFA、復旧方法、権限見直しも別途必要です。サイトの変更だけで安全性を保証するものではありません。
+
+## Network recovery
+
+`network.mjs` retries eligible failed requests once. Non-idempotent creation, invitation and upload requests are excluded. CAS state saves check revision and canonical JSON state after a lost response before attempting the same expected revision again. Concurrent changes produce a conflict; account/library changes cancel retries. Read/CAS requests have bounded timeouts, while large uploads retain their normal timeout behavior. A retry does not change membership, RLS, credentials or project pinning.

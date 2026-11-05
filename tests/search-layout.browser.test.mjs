@@ -15,7 +15,7 @@ try{
   const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:'+server.address().port+(process.env.SPOOL_TEST_BASE_PATH||'/'));
   await page.evaluate(({stock,bookings})=>{localStorage.setItem('spool-inventory-v1',JSON.stringify(stock));localStorage.setItem('spool-inventory-v1-reservations',JSON.stringify(bookings))},{stock,bookings});await page.reload();
-  if(width>1000){await page.locator('#splitView').click();assert.equal(await page.locator('#splitView').getAttribute('aria-pressed'),'true')}else assert.equal(await page.locator('.view-switch').isVisible(),false);
+  if(width>1000){await page.locator('#splitView').click();assert.equal(await page.locator('#splitView').getAttribute('aria-pressed'),'true')}else assert.equal(await page.locator('#gridView').isVisible(),false);
   assert.equal(await page.locator('#items').evaluate(x=>getComputedStyle(x).gridTemplateColumns.split(' ').length),width>1000?2:1);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.equal(await page.locator('.filament-row').first().evaluate(x=>x.scrollWidth<=x.clientWidth),true);

@@ -8,6 +8,8 @@ const tests=[
  'tests/usability.browser.test.mjs',
  'tests/inventory-improvements.browser.test.mjs',
  'tests/small-screen.browser.test.mjs',
+ 'tests/color-name-wrap.browser.test.mjs',
+ 'tests/simple-view.browser.test.mjs',
 ];
 const escape=value=>String(value).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A');
 for(const file of tests){

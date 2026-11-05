@@ -90,9 +90,9 @@ function restoreDisplayPreferences(account){
   const field=$(id),allowed=[...(field.options||[])].map(option=>option.value);field.value=allowed.includes(saved[key])?saved[key]:fallback;
  }
  for(const id of ['inventoryFilters','bookingFilters'])$('#'+id).open=saved[id]===true;
- changeView(['list','split','grid'].includes(saved.view)?saved.view:'list');renderBookings();restoringDisplay=false;
+ changeView(['list','split','grid','simple'].includes(saved.view)?saved.view:'list');renderBookings();restoringDisplay=false;
 }
-for(const id of ['#listView','#splitView','#gridView','#toggleReorder'])$(id).addEventListener('click',saveDisplayPreferences);
+for(const id of ['#listView','#splitView','#gridView','#simpleView','#toggleReorder'])$(id).addEventListener('click',saveDisplayPreferences);
 for(const id of ['#sort','#bookingSort'])$(id).addEventListener('change',saveDisplayPreferences);
 for(const id of ['#inventoryFilters','#bookingFilters'])$(id).addEventListener('toggle',saveDisplayPreferences);
 if(displayAccount)restoreDisplayPreferences(displayAccount);

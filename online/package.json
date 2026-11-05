@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node ../tests/online/security.test.mjs && node ../tests/online/sync.test.mjs && node ../tests/online/errors.test.mjs && node ../tests/online/profile.test.mjs",
+    "test": "node ../tests/online/security.test.mjs && node ../tests/online/sync.test.mjs && node ../tests/online/errors.test.mjs && node ../tests/online/profile.test.mjs && node ../tests/online/network.test.mjs",
     "test:browser": "node ../tests/online/browser.test.mjs"
   },
   "dependencies": {

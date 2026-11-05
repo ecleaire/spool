@@ -30,7 +30,7 @@ try{
  const sharedLib='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';let sharedCreated=false,sharedRows=[],sharingLinks=[],sharedName='共同作業';
  const claims={sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600};
  const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.test';
- let profileMetadata={full_name:'テスト利用者'};const mergeWrites=[],profileWrites=[],accountAdds=[],writes=[],uploads=[];let saveFailure=false,adminFixture=true,memberRole='owner';
+ let profileMetadata={full_name:'テスト利用者'};const mergeWrites=[],profileWrites=[],accountAdds=[],writes=[],uploads=[];let saveFailure=false,saveNetworkFailure=true,saveAttempts=0,adminFixture=true,memberRole='owner';
  await authenticated.route(projectUrl+'/**',async route=>{
   const req=route.request(),url=new URL(req.url());let data=[];
   if(url.pathname.endsWith('/auth/v1/user')){if(req.method()==='PUT'){profileWrites.push(req.postDataJSON());profileMetadata={...profileMetadata,...req.postDataJSON().data};}data={id:user,email:'owner@example.com',user_metadata:profileMetadata};}
@@ -48,7 +48,7 @@ try{
   else if(url.pathname.endsWith('/rpc/spool_is_admin'))data=adminFixture;
   else if(url.pathname.endsWith('/rpc/grant_spool_admin')||url.pathname.endsWith('/rpc/allow_spool_account')||url.pathname.endsWith('/rpc/invite_library_member')){accountAdds.push({path:url.pathname,...req.postDataJSON()});data=null;}
   else if(url.pathname.endsWith('/rpc/ensure_my_library'))data=lib;
-  else if(url.pathname.endsWith('/rpc/save_library_state')){if(saveFailure){await route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({code:'42501',message:'permission denied'})});return;}writes.push(req.postDataJSON());data=writes.length;}
+  else if(url.pathname.endsWith('/rpc/save_library_state')){saveAttempts++;if(saveNetworkFailure){saveNetworkFailure=false;await route.abort('failed');return;}if(saveFailure){await route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({code:'42501',message:'permission denied'})});return;}writes.push(req.postDataJSON());data=writes.length;}
   else if(url.pathname.endsWith('/libraries'))data=[{id:lib,name:'テストライブラリ',personal:true,owner_id:memberRole==='viewer'?'33333333-3333-4333-8333-333333333333':user},...(sharedCreated?[{id:sharedLib,name:sharedName,owner_id:user,personal:false}]:[])];
   else if(url.pathname.endsWith('/library_state'))data={library_id:lib,revision:0,state:{items:url.searchParams.get('library_id')==='eq.'+sharedLib?[]:demoItems,deleted:[],customColorPresets:[],reservations:[]}};
   else if(url.pathname.includes('/storage/v1/object/')){uploads.push(url.pathname);data={Key:url.pathname.split('/object/')[1]};}
@@ -67,7 +67,7 @@ try{
  assert.equal(await authenticated.locator('main').isVisible(),true);
  await authenticated.evaluate(()=>window.spoolOnlineChanged());
  await authenticated.waitForFunction(()=>document.querySelector('#cloud-save-status')?.textContent==='オンライン保存済み');
- assert.equal(writes.length,1);assert.equal(writes[0].lib,lib);assert.equal(writes[0].expected_revision,0);assert.equal(writes[0].next_state.items.find(item=>item.id==='demo-blue').amazonUrl,'https://www.amazon.co.jp/dp/B0CFXTSV3C');
+ assert.equal(writes.length,1);assert.equal(saveAttempts,2);assert.equal(writes[0].lib,lib);assert.equal(writes[0].expected_revision,0);assert.equal(writes[0].next_state.items.find(item=>item.id==='demo-blue').amazonUrl,'https://www.amazon.co.jp/dp/B0CFXTSV3C');
  if(screenshots)await authenticated.screenshot({path:screenshots+'/SPOOL-desktop.png',fullPage:true});
  await authenticated.locator('[data-cloud-nav="bookings"]').click();
  assert.equal(await authenticated.locator('#bookingView').isVisible(),true);
@@ -167,7 +167,7 @@ try{
 
  await authenticated.locator('#splitView').click();
  await authenticated.setViewportSize({width:390,height:844});
- await authenticated.waitForFunction(()=>!document.querySelector('#items').classList.contains('split-mode'));assert.equal(await authenticated.locator('.view-switch').isVisible(),false);
+ await authenticated.waitForFunction(()=>!document.querySelector('#items').classList.contains('split-mode'));assert.equal(await authenticated.locator('#gridView').isVisible(),false);
  await authenticated.locator('#sort').selectOption('remaining-desc');
  await authenticated.locator('#bookingSort').selectOption('registered',{force:true});
  await authenticated.locator('#inventoryFilters>summary').click();

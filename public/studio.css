@@ -889,3 +889,20 @@ body.simple-workspace .grid-mode .actions>button,body.simple-workspace .grid-mod
 @media(max-width:760px){
  body.simple-workspace :is(#editor,#bookingDialog,#filamentDetails) .dialog-head>button,body.simple-workspace #searchDialog #closeSearchPanel{min-width:44px;min-height:44px}
 }
+
+/* Wrap at finish/color boundaries and avoid a lone trailing kana or long-vowel mark. */
+body.simple-workspace .product .color-name{display:flex;align-items:flex-start;gap:5px;min-width:0;max-width:100%}
+body.simple-workspace .product .color-name>.color-chip{flex:0 0 auto;margin-top:.4em}
+body.simple-workspace .color-name-text{min-width:0;flex:1;line-height:inherit}
+body.simple-workspace .color-name-part{display:inline-block;vertical-align:top;max-width:100%;word-break:normal;line-break:strict;overflow-wrap:anywhere;text-wrap:balance}
+
+body.simple-workspace .view-switch #simpleView{min-width:44px;width:auto;padding:0 8px;font-size:14px}
+body.simple-workspace #items.simple-mode{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;padding:16px}
+body.simple-workspace .simple-mode .filament-row{display:flex;min-height:0;padding:14px;border:1px solid #cbd8c7;border-radius:10px;min-width:0}
+body.simple-workspace .simple-mode :is(.row-select,.product-title,.tag-list,.purchase-badge,.filament-sharing-label,.shared-source-label,.variant-tag,.material,.weight,.place,.actions,.reorder-controls){display:none!important}
+body.simple-workspace .simple-mode .product{display:flex;flex-direction:column;width:100%;min-width:0;gap:12px}
+body.simple-workspace .simple-mode .product-photo{width:100%;flex:none}
+body.simple-workspace .simple-mode .product-image{width:100%;height:160px;object-fit:contain}
+body.simple-workspace .simple-mode .product>div{width:100%;min-width:0}
+body.simple-workspace .simple-mode .color-name{margin:0;font-size:17px}
+@media(max-width:1000px){body.simple-workspace #items.simple-mode{grid-template-columns:minmax(0,1fr)}body.simple-workspace .inventory .toolbar>.view-switch{display:flex;grid-column:1/-1;grid-row:3;justify-self:end;width:auto}body.simple-workspace .view-switch>#gridView,body.simple-workspace .view-switch>#splitView{display:none}body.simple-workspace .view-switch button{min-width:44px;min-height:44px}body.simple-workspace .inventory .toolbar>.filter-disclosure[open]{grid-row:4}body.simple-workspace .simple-mode .product{flex-direction:row;align-items:center;gap:16px}body.simple-workspace .simple-mode .product-photo{width:96px}body.simple-workspace .simple-mode .product-image{height:100px}body.simple-workspace .simple-mode .product>div{flex:1}}
