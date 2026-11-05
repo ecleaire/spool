@@ -47,15 +47,7 @@ jobs:
         env:
           SPOOL_TEST_BASE_PATH: /spool/
           SPOOL_CHROMIUM_PATH: /usr/bin/google-chrome
-        run: |
-          node tests/online/browser.test.mjs
-          node tests/online/auth-loading.browser.test.mjs
-          node tests/online/sharing.browser.test.mjs
-          node tests/search-layout.browser.test.mjs
-          node tests/print-import.browser.test.mjs
-          node tests/usability.browser.test.mjs
-          node tests/inventory-improvements.browser.test.mjs
-          node tests/small-screen.browser.test.mjs
+        run: node tools/run-browser-tests.mjs
       - name: Configure Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - name: Upload public files only
