@@ -49,3 +49,7 @@ library-combination.sql を追加適用すると、共有画面の「追加す�
 ## 参加者の操作権限（3.5.0）
 
 共有ライブラリの所有者は、参加者ごとに在庫・予約・添付・共有変更の操作を個別に許可できます。閲覧範囲は共通です。`supabase/member-permissions.sql` の適用が必要です。適用順序・設定方法・既存権限の維持は [MEMBER-PERMISSIONS.md](MEMBER-PERMISSIONS.md) を参照してください。共有追加権限がなくても、自分が以前共有した原本の共有停止は可能です。
+
+## 共有ライブラリごとの管理者（3.6.0）
+
+ホストが最初の管理者となり、同じ共有ライブラリの管理者が参加者の権限設定と管理者追加を行えます。一般参加者による自己昇格はできません。`supabase/library-administrators.sql` を `member-permissions.sql` の後に適用してください。SPOOL全体の管理者権限とは別です。詳しくは [MEMBER-PERMISSIONS.md](MEMBER-PERMISSIONS.md) を参照してください。

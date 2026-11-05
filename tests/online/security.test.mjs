@@ -168,7 +168,43 @@ test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history
  await as(1,'editor@example.com',async()=>{assert.equal((await scalar("select public.spool_has_permission($1,'inventory_edit') as yes",[team])).yes,false);assert.equal((await db.query('select * from public.library_state where library_id=$1',[team])).rows.length,1);await assert.rejects(writeTeam(restrictedState),/Editor required/);});
  await as(0,'owner@example.com',async()=>{await db.query("select public.set_library_member_permissions($1,$2,'editor',null)",[team,ids[1]]);assert.equal((await scalar('select jsonb_array_length(public.get_library_member_permissions($1)) as n',[team])).n,3);});
  await as(1,'editor@example.com',async()=>{assert.equal((await scalar("select public.spool_has_permission($1,'inventory_edit') as yes",[team])).yes,true);});
+ await db.exec(readFileSync(new URL('../../supabase/library-administrators.sql',import.meta.url),'utf8'));
+ await db.exec(readFileSync(new URL('../../supabase/library-administrators.sql',import.meta.url),'utf8'));
+ await as(1,'editor@example.com',async()=>{
+  assert.equal((await scalar('select public.get_my_library_permissions($1) as p',[team])).p._admin,false);
+  await assert.rejects(db.query("select public.set_library_member_access($1,$2,'editor',null,true)",[team,ids[1]]),/administrator required/);
+  await assert.rejects(db.query("select public.set_library_member_permissions($1,$2,'editor',null)",[team,ids[1]]),/administrator required/);
+  await assert.rejects(db.query('update public.library_members set is_library_admin=true where library_id=$1 and user_id=$2',[team,ids[1]]),/permission denied/);
+  await assert.rejects(db.query("select public.invite_library_member($1,'newadmin-test@example.com','viewer')",[team]),/administrator required/);
+ });
+ await as(0,'owner@example.com',async()=>{
+  assert.equal((await scalar('select public.get_my_library_permissions($1) as p',[team])).p._admin,true);
+  await db.query("select public.set_library_member_access($1,$2,'editor',null,true)",[team,ids[1]]);
+ });
+ await as(1,'editor@example.com',async()=>{
+  const flags=(await scalar('select public.get_my_library_permissions($1) as p',[team])).p;assert.equal(flags._admin,true);assert.equal(flags.inventory_edit,true);
+  await db.query("select public.set_library_member_access($1,$2,'editor',null,true)",[team,ids[3]]);
+  await assert.rejects(db.query("select public.set_library_member_access($1,$2,'editor',null,true)",[mine,ids[1]]),/administrator required/);
+  await assert.rejects(db.query("select public.set_library_member_access($1,$2,'viewer',null,false)",[team,ids[0]]),/Host permissions/);
+  await assert.rejects(db.query('select public.remove_library_member($1,$2)',[team,ids[0]]),/Host cannot/);
+  await db.query("select public.invite_library_member($1,'newadmin-test@example.com','viewer')",[team]);
+  assert.equal((await db.query('select * from public.library_invitations where library_id=$1',[team])).rows.length,1);
+  await db.query('delete from public.library_invitations where library_id=$1',[team]);
+  await db.query("select public.update_library_appearance($1,'共有管理者が変更','#226633')",[team]);
+  const profiles=(await scalar('select public.get_library_member_profiles($1) as p',[team])).p;assert.equal(profiles.find(x=>x.user_id===ids[3]).is_library_admin,true);
+ });
+ await as(3,'newviewer@example.com',async()=>{
+  assert.equal((await scalar('select public.get_my_library_permissions($1) as p',[team])).p._admin,true);
+  await db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[team,ids[1],{inventory_use:true}]);
+ });
+ await as(1,'editor@example.com',async()=>{
+  const flags=(await scalar('select public.get_my_library_permissions($1) as p',[team])).p;assert.equal(flags._admin,false);assert.equal(flags.inventory_use,true);assert.equal(flags.inventory_edit,false);
+  await assert.rejects(db.query("select public.set_library_member_access($1,$2,'editor',null,true)",[team,ids[1]]),/administrator required/);
+  await assert.rejects(db.query("select public.set_library_member_permissions($1,$2,'editor',null)",[team,ids[1]]),/administrator required/);
+ });
+ await as(3,'newviewer@example.com',async()=>{await db.query("select public.set_library_member_access($1,$2,'viewer',null,false)",[team,ids[3]]);await assert.rejects(db.query("select public.set_library_member_access($1,$2,'editor',null,true)",[team,ids[3]]),/administrator required/);});
  await db.exec('set role anon');
+ await assert.rejects(db.query("select public.set_library_member_access($1,$2,'editor',null,true)",[team,ids[1]]),/permission denied/);
  await assert.rejects(db.query('select public.get_my_library_permissions($1)',[team]),/permission denied/);
  await assert.rejects(db.query('select public.get_library_member_permissions($1)',[team]),/permission denied/);
  await assert.rejects(db.query("select public.set_library_member_permissions($1,$2,'editor',null)",[team,ids[1]]),/permission denied/);
