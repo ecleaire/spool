@@ -972,3 +972,18 @@ body.simple-workspace .inventory .view-switch>button:is(#listView,#splitView,#gr
 body.simple-workspace .inventory .filament-row .actions .shop-links:not([hidden]){display:flex;grid-column:1/-1;flex-wrap:wrap;gap:6px;min-width:0;width:100%;order:1}
 body.simple-workspace .inventory .filament-row .actions .shop-links .shop-link{display:flex;align-items:center;justify-content:center;flex:1 1 100px;width:auto;min-width:0;max-width:100%;min-height:44px;margin:0;padding:8px 6px;white-space:normal;overflow-wrap:normal;line-height:1.4;box-sizing:border-box}
 @media(max-width:1000px){body.simple-workspace .inventory .filament-row .actions{grid-column:1/-1;grid-row:auto;padding-top:10px;border-top:1px solid #e0e8dc}}
+
+/* Keep the simple view minimal until bulk selection is opened. */
+body.simple-workspace .simple-mode[data-selecting=true] .row-select{display:block!important;width:24px;height:24px}
+body.simple-workspace .simple-mode[data-selecting=true] .filament-row{padding-left:46px}
+body.simple-workspace .batch-disclosure>summary{min-height:44px;padding-block:11px;font-size:16px;color:#244b32}
+body.simple-workspace .bulk-toolbar{font-size:16px;line-height:1.5;padding:14px 18px;gap:10px;background:#f6f8f1}
+body.simple-workspace .bulk-toolbar.has-selection{background:#edf4e7}
+body.simple-workspace .bulk-toolbar .select-all{font-size:16px;min-height:44px;gap:10px;color:#244b32;font-weight:600}
+body.simple-workspace .bulk-toolbar .select-all input{width:24px;height:24px}
+body.simple-workspace .bulk-toolbar #selectionCount{font-size:16px;font-weight:700;color:#193e31;padding:6px 10px;background:#fff;border:1px solid #b9ceb1;border-radius:6px}
+body.simple-workspace #batchCount{font-size:16px;font-weight:700;color:#193e31}
+body.simple-workspace .bulk-toolbar button{min-height:44px;font-size:16px;font-weight:600;line-height:1.5;padding:10px 14px;white-space:normal;color:#244b32;background:#fff;border:1px solid #88a581;border-radius:7px}
+body.simple-workspace .bulk-toolbar button.danger{color:#8b302b;background:#fff7f4;border-color:#cba39b}
+body.simple-workspace .bulk-toolbar button:disabled{opacity:.65;cursor:default}
+@media(max-width:600px){body.simple-workspace .bulk-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;align-items:stretch}body.simple-workspace .bulk-toolbar .select-all{grid-column:1/-1}body.simple-workspace .bulk-toolbar #selectionCount{display:flex;align-items:center;justify-content:center}body.simple-workspace .bulk-toolbar :is(#bulkAdd,#bulkDelete,#cloud-share-selected){grid-column:1/-1;width:100%}body.simple-workspace .bulk-toolbar button{min-width:0}}
