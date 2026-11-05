@@ -987,3 +987,50 @@ body.simple-workspace .bulk-toolbar button{min-height:44px;font-size:16px;font-w
 body.simple-workspace .bulk-toolbar button.danger{color:#8b302b;background:#fff7f4;border-color:#cba39b}
 body.simple-workspace .bulk-toolbar button:disabled{opacity:.65;cursor:default}
 @media(max-width:600px){body.simple-workspace .bulk-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;align-items:stretch}body.simple-workspace .bulk-toolbar .select-all{grid-column:1/-1}body.simple-workspace .bulk-toolbar #selectionCount{display:flex;align-items:center;justify-content:center}body.simple-workspace .bulk-toolbar :is(#bulkAdd,#bulkDelete,#cloud-share-selected){grid-column:1/-1;width:100%}body.simple-workspace .bulk-toolbar button{min-width:0}}
+
+/* Edit a reservation's print status beside its current badge. */
+#bookingView .booking-status-trigger{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:8px 12px;cursor:pointer}
+#bookingView .booking-status-trigger:disabled{cursor:default;opacity:.7}
+#bookingView .booking-status-trigger:focus-visible,#bookingStatusDialog button:focus-visible{outline:3px solid #32694d;outline-offset:3px}
+#bookingStatusDialog{position:fixed;inset:auto;margin:0;width:300px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);box-sizing:border-box;padding:16px;border:1px solid #a8bfab;border-radius:16px;background:#fff;box-shadow:0 12px 40px #123a2933;color:#173a29;overflow:auto}
+#bookingStatusDialog::backdrop{background:transparent;backdrop-filter:none}
+#bookingStatusDialog .booking-status-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#bookingStatusTitle{font-size:19px;margin:0;color:#173a29}
+#closeBookingStatus{min-width:44px;min-height:44px;border:0;border-radius:8px;background:#f0f5ef;color:#284e37;font-size:24px}
+#bookingStatusWork{font-size:16px;line-height:1.5;color:#3c5747;margin:4px 0 14px;overflow-wrap:anywhere}
+#bookingStatusDialog .booking-status-options{display:grid;gap:8px}
+#bookingStatusDialog .booking-status-options button{display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 14px;text-align:left;font-size:17px;font-weight:600;color:#244a34;background:#fff;border:1px solid #c3d3c2;border-radius:9px}
+#bookingStatusDialog .booking-status-options button[aria-pressed=true]{background:#e2eedc;border-color:#567e59;box-shadow:inset 3px 0 #32694d}
+#bookingStatusDialog .booking-status-options button:hover{background:#eff5eb}
+#bookingStatusError{margin:10px 0 0;font-size:16px;line-height:1.5;color:#982f2b}
+#bookingStatusError:empty{display:none}
+
+/* Keep the important booking facts readable without opening details. */
+body.simple-workspace #bookingView .booking-table th{font-size:17px;color:#254936;background:#edf3e9;padding:16px;font-weight:700}
+body.simple-workspace #bookingView .booking-table th:nth-child(6),body.simple-workspace #bookingView .booking-table .booking-registered{display:table-cell}
+body.simple-workspace #bookingView .booking-table{min-width:1080px}
+body.simple-workspace #bookingView .booking-table td{padding:20px 16px;color:#193d2c;font-size:18px;line-height:1.6}
+body.simple-workspace #bookingView .booking-table .work-cell{width:28%;min-width:220px}
+body.simple-workspace #bookingView :is(.work-title,.booking-card h3){font-size:23px;font-weight:700;color:#153b29;line-height:1.5;margin:0 0 10px}
+body.simple-workspace #bookingView .booking-work-meta{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
+body.simple-workspace #bookingView .booking-work-meta .tags{margin:0}
+body.simple-workspace #bookingView .booking-color-label{font-size:17px!important;color:#284b37!important;margin:0;line-height:1.6}
+body.simple-workspace #bookingView :is(.booking-weekday,.booking-card-weekday){font-size:17px;color:#284b37;margin:0;white-space:nowrap}
+body.simple-workspace #bookingView :is(.booking-duration,.booking-deadline time,.booking-card-metrics strong){font-size:20px;font-weight:650;color:#173e2a!important;line-height:1.55}
+body.simple-workspace #bookingView :is(.booking-quality-label,.booking-deadline small){display:block;font-size:16px;color:#38533f;margin-top:4px}
+body.simple-workspace #bookingView .booking-deadline.overdue :is(time,small){color:#9b352b!important}
+body.simple-workspace #bookingView .booking-deadline.soon :is(time,small){color:#825414!important}
+body.simple-workspace #bookingView .deadline-undecided{font-size:18px;font-weight:500;color:#294a36}
+body.simple-workspace #bookingView .booking-registered time{display:grid;gap:2px;white-space:nowrap;font-size:17px;color:#294a36;font-weight:500;line-height:1.6;font-variant-numeric:tabular-nums}
+body.simple-workspace #bookingView .booking-registered-time{font-size:17px;color:#294a36;font-variant-numeric:tabular-nums}
+body.simple-workspace #bookingView .booking-status-trigger{font-size:17px;text-decoration:none}
+body.simple-workspace #bookingView .booking-edit{font-size:17px;min-height:44px;color:#234d35;border-color:#9bb29b}
+body.simple-workspace #bookingView .booking-row-details{margin-top:10px}
+body.simple-workspace #bookingView .booking-row-details>summary{font-size:16px;color:#34553f;padding:4px 0}
+body.simple-workspace #bookingView .booking-card-registration{display:grid;gap:3px;font-size:17px;color:#284b37;line-height:1.5}
+body.simple-workspace #bookingView .booking-card-registration>span{font-size:16px;color:#38533f}
+body.simple-workspace #bookingView .booking-card-registration time{display:flex;flex-wrap:wrap;gap:4px 10px;font-variant-numeric:tabular-nums}
+body.simple-workspace #bookingView .booking-card-footer{align-items:center;gap:12px;padding-top:14px;margin-top:14px;border-top:1px solid #d7e1d3}
+body.simple-workspace #bookingView .booking-card-metrics>div>span{color:#38533f;font-size:16px}
+@media(min-width:761px) and (max-width:1199px){body.simple-workspace #bookingView .booking-table-scroll{display:none}body.simple-workspace #bookingCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:16px}}
+@media(max-width:760px){body.simple-workspace #bookingView .booking-card{padding:18px}body.simple-workspace #bookingView .booking-card h3{font-size:22px}body.simple-workspace #bookingView .booking-card-top{gap:10px;margin-bottom:12px}body.simple-workspace #bookingView .booking-card-metrics{gap:10px;padding:12px;margin:16px 0}}

@@ -109,7 +109,7 @@ function applyPermissionControls(){
  for(const node of document.querySelectorAll('[data-edit]'))node.disabled=!!itemById.get(node.dataset.edit)?._sharedSource||!(can('inventory_edit')||can('inventory_delete'));
  for(const node of document.querySelectorAll('[data-use]'))node.disabled=!!itemById.get(node.dataset.use)?._sharedSource||itemById.get(node.dataset.use)?.inventoryStatus==='planned'||!(can('inventory_use')||can('inventory_edit'));
  allowed('#form button[type=submit]',can(edit.filament?'inventory_edit':'inventory_create'));allowed('#delete',can('inventory_delete'));
- allowed('[data-edit-booking]',can('bookings_edit')||can('bookings_delete'));allowed('#saveBookingButton',can(edit.booking?'bookings_edit':'bookings_create'));
+ allowed('[data-edit-booking]',can('bookings_edit')||can('bookings_delete'));allowed('[data-quick-booking-status],[data-set-booking-status]',can('bookings_edit'));allowed('#saveBookingButton',can(edit.booking?'bookings_edit':'bookings_create'));
  allowed('#deleteBooking',can('bookings_delete')&&(!booking?.attachments?.length||can('files_delete')));
  allowed('#bookingFileInput',can('files_upload')&&can('bookings_edit'));allowed('#cloud-upload',can('files_upload'));allowed('#saveColorPreset,[data-remove-preset]',can('inventory_edit'));
  const detailEdit=document.querySelector('#filamentDetailsEdit');if(detailEdit)detailEdit.hidden=!!itemById.get(detailEdit.dataset.itemId)?._sharedSource||!(can('inventory_edit')||can('inventory_delete'));
