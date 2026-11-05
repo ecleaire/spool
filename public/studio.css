@@ -838,3 +838,54 @@ body.simple-workspace .grid-mode .actions>button,body.simple-workspace .grid-mod
  body.simple-workspace .filament-row .actions .shop-links:not([hidden]){display:contents}
  body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:0;width:100%;max-width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere;line-height:1.4;margin:0;padding:8px 6px}
 }
+
+.mobile-action-label{display:none}
+@media(max-width:760px){
+ body.simple-workspace .content{padding:16px 12px 24px}
+ body.simple-workspace .page-title{display:flex;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+ body.simple-workspace .page-title .eyebrow{display:none}
+ body.simple-workspace .page-title h1{font-size:26px;line-height:1.25;margin:0}
+ body.simple-workspace .page-title .page-actions{display:flex;margin:0;gap:8px;flex:none;width:auto;min-width:0}
+ body.simple-workspace .page-actions>.primary{min-height:44px;padding:8px 14px;font-size:16px;border-radius:9px}
+ .page-actions .desktop-action-label{display:none}
+ .page-actions .mobile-action-label{display:inline}
+ body.simple-workspace :is(.stats,.booking-overview){margin-bottom:14px}
+ body.simple-workspace :is(.stats,.booking-overview) article{padding:10px 12px;min-width:0}
+ body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:13px;line-height:1.4;margin-bottom:4px}
+ body.simple-workspace :is(.stats,.booking-overview) strong{font-size:24px;line-height:1.25}
+ body.simple-workspace :is(.stats,.booking-overview) small{font-size:12px}
+ body.simple-workspace .booking-overview article:nth-child(3) strong{font-size:19px}
+ body.simple-workspace .inventory .toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px}
+ body.simple-workspace .inventory .toolbar>.search{grid-column:1/-1;grid-row:1;width:100%;min-width:0;margin:0}
+ body.simple-workspace .inventory .toolbar>#sort{grid-column:1;grid-row:2;width:100%;min-width:0;max-width:none;font-size:16px;min-height:44px}
+ body.simple-workspace .inventory .toolbar>.filter-disclosure{grid-column:2;grid-row:2;margin:0;min-width:0}
+ body.simple-workspace .inventory .toolbar>.filter-disclosure[open]{grid-column:1/-1;grid-row:3;width:100%;max-width:none}
+ body.simple-workspace .inventory .filter-fields{max-width:100%;width:100%;min-width:0}
+ body.simple-workspace .inventory .toolbar .filter-disclosure>summary{font-size:14px;min-height:44px;padding:8px}
+ body.simple-workspace .search input{font-size:16px;min-width:0;min-height:44px}
+ body.simple-workspace .inventory .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;overflow:visible;padding:10px 0}
+ body.simple-workspace .inventory .tabs button{min-height:44px;width:100%;padding:8px;font-size:14px;text-align:center;white-space:normal}
+ body.simple-workspace .inventory .tabs button span{font-size:13px}
+ body.simple-workspace .booking-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px}
+ body.simple-workspace .booking-tools>.search{grid-column:1/-1;grid-row:1;min-width:0;width:100%;margin:0}
+ body.simple-workspace .booking-tools>#bookingSort{grid-column:1;grid-row:2;width:100%;min-width:0;font-size:16px;min-height:44px}
+ body.simple-workspace .booking-tools>.filter-disclosure{grid-column:2;grid-row:2;min-width:0}
+ body.simple-workspace .booking-tools>.filter-disclosure[open]{grid-column:1/-1;grid-row:3;width:100%}
+ body.simple-workspace .booking-tools>.filter-disclosure .filter-fields{width:100%;min-width:0;max-width:100%}
+ body.simple-workspace #bookingView .booking-status-tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;scroll-padding-inline:8px;padding:0 12px 10px;max-width:100%}
+ body.simple-workspace #bookingView .booking-status-tabs button{flex:none;min-height:44px;font-size:14px;padding:8px 10px;white-space:nowrap}
+ body.simple-workspace #bookingView .booking-status-tabs button span{font-size:13px}
+ body.simple-workspace :is(#editor,#bookingDialog) .dialog-head{padding:12px 16px;gap:8px}
+ body.simple-workspace :is(#editor,#bookingDialog) .dialog-head h2{font-size:20px}
+ body.simple-workspace :is(#editor .editor-layout,.booking-form-scroll){padding:14px 16px;scroll-padding-block:16px 100px}
+ body.simple-workspace :is(#editor,#bookingDialog) :is(input,select,textarea){font-size:16px;scroll-margin-block:20px 100px}
+ body.simple-workspace :is(#editor,#bookingDialog) :is(label,.disclosure>summary){font-size:16px}
+ body.simple-workspace :is(#editor,#bookingDialog) .fields{gap:14px}
+ body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions{padding:10px 12px max(10px,env(safe-area-inset-bottom))}
+ body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions button{min-height:44px;padding:10px 12px;font-size:16px}
+ body.simple-workspace #searchDialog .search-panel-head{padding:14px}
+ body.simple-workspace #searchDialog :is(input,select){font-size:16px;min-height:44px}
+}
+@media(max-width:760px){
+ body.simple-workspace :is(#editor,#bookingDialog,#filamentDetails) .dialog-head>button,body.simple-workspace #searchDialog #closeSearchPanel{min-width:44px;min-height:44px}
+}
