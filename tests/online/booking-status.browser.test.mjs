@@ -36,7 +36,7 @@ try{
   if(process.env.SPOOL_SCREENSHOT_DIR)await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/online-booking-status-'+width+'.png'});
   await dialog.getByRole('button',{name:'印刷済み',exact:true}).click();await dialog.waitFor({state:'hidden'});await page.locator('#cloud-save-status[data-state=saved]').waitFor();assert.equal(writes.at(-1).next_state.reservations[0].printStatus,'印刷済み');assert.equal(writes.at(-1).next_state.reservations[0].registeredTime,'14:35');
   await page.reload();await page.locator('body:not(.cloud-locked)').waitFor();await page.locator('[data-cloud-nav=bookings]').click();assert.ok((await trigger.innerText()).includes('印刷済み'));
-  role='viewer';await page.reload();await page.locator('body:not(.cloud-locked)').waitFor();await page.locator('[data-cloud-nav=bookings]').click();assert.equal(await trigger.isDisabled(),true);
+  role='viewer';await page.reload();await page.locator('body:not(.cloud-locked)').waitFor();await page.locator('[data-cloud-nav=bookings]').click();assert.equal(await trigger.count(),0);assert.ok((await page.locator('[data-readonly-booking-status]:visible').innerText()).includes('印刷済み'));
   assert.deepEqual(errors,[]);await page.close();console.log('PASS online '+width+'px: top-navigation layout, registration date/time, quick status editing, cloud save/reload and viewer protection.');
  }
 }finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve))}

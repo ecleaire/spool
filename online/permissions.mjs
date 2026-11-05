@@ -1,3 +1,4 @@
+import {redactEmails} from './security.mjs';
 import {sameState} from './network.mjs';
 import {classifyError} from './errors.mjs';
 export const CAPABILITIES=[
@@ -37,7 +38,7 @@ export function createPermissionEditor({context,esc,changed}){
   document.querySelector('#cloud-panel').append(dialog);dialog.showModal();let busy=false,ready=false,supportsAdmins=false,baseline=null,request=0,serviceLimits={};
   const administrator=dialog.querySelector('#permission-admin');const controls=[...dialog.querySelectorAll('[data-permission]')],preset=dialog.querySelector('#permission-preset'),result=dialog.querySelector('#permission-result'),save=dialog.querySelector('#permission-save');
   const target=dialog.querySelector('#permission-member'),members=[...new Map([...(c.members||[]),member].filter(x=>x.role!=='owner').map(x=>[x.user_id,x])).values()];
-  const memberName=x=>x.display_name||'メンバー',memberId=x=>x.display_id?'@'+x.display_id:x.user_id;
+  const memberName=x=>redactEmails(x.display_name)||'メンバー',memberId=x=>x.display_id?'@'+x.display_id:x.user_id;
   target.innerHTML=members.map(x=>'<option value="'+esc(x.user_id)+'">'+esc(memberName(x)+' · '+memberId(x))+'</option>').join('');
   function identify(){target.value=member.user_id;dialog.querySelector('#permission-member-id').textContent='ユーザーID：'+memberId(member);save.textContent=memberName(member)+'さんの権限を保存';dialog.querySelector('#memberPermissionsTitle').textContent=memberName(member)+'さんの操作権限';}
   identify();

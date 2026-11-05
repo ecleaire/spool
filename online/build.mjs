@@ -58,11 +58,12 @@ const inlineHashes=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].f
 const policy=["default-src 'none'",'script-src '+[...inlineHashes,bundleHash].map(x=>"'"+x+"'").join(' '),"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data: blob:","font-src 'self'","connect-src 'self' "+config.url+' '+config.url.replace('https:','wss:'),"object-src 'none'","base-uri 'none'","form-action 'self'","frame-src 'none'","worker-src 'none'"].join('; ');
 const charset='<meta charset="UTF-8">';
 if(!html.includes(charset))throw Error('Missing character encoding marker');
-html=html.replace(charset,charset+'<meta http-equiv="Content-Security-Policy" content="'+policy+'"><meta name="referrer" content="no-referrer">');
+html=html.replace(charset,charset+'<link rel="icon" type="image/svg+xml" href="./favicon.svg">'+'<meta http-equiv="Content-Security-Policy" content="'+policy+'"><meta name="referrer" content="no-referrer">');
 writeFileSync(path.join(out,'index.html'),html);
 // Hosting uses a supported static output directory; retain the standalone offline app beside it.
 const hosted=path.join(root,'out');mkdirSync(hosted,{recursive:true});
-const publicFiles=['index.html','online.js','online.css','config.json','offline.html',catalogFile];
+writeFileSync(path.join(out,'favicon.svg'),readFileSync(path.join(root,'public/favicon.svg')));
+const publicFiles=['favicon.svg','index.html','online.js','online.css','config.json','offline.html',catalogFile];
 if(lstatSync(hosted).isSymbolicLink())throw Error('Public output must be a regular directory');
 if(readdirSync(hosted).some(name=>(!publicFiles.includes(name)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(name))||!lstatSync(path.join(hosted,name)).isFile()))throw Error('Unexpected files in public output; review them before publication');
 for(const name of publicFiles)writeFileSync(path.join(hosted,name),readFileSync(path.join(out,name)));

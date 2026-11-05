@@ -15,4 +15,5 @@ export function publicConfig(value,expectedOrigin){
 
 export function authStorageKey(origin){return 'spool-auth-'+new URL(origin).hostname.split('.')[0]}
 
-export function redactDiagnostic(value){return String(value).replace(/\b(?:sb_secret_|sb_publishable_)[A-Za-z0-9_-]+/g,'[キーを非表示]').replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g,'[トークンを非表示]').replace(/Bearer\s+\S+/gi,'Bearer [非表示]')}
+export function redactEmails(value){return String(value??'').replace(/[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[メール非公開]')}
+export function redactDiagnostic(value){return redactEmails(value).replace(/\b(?:sb_secret_|sb_publishable_)[A-Za-z0-9_-]+/g,'[キーを非表示]').replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g,'[トークンを非表示]').replace(/Bearer\s+\S+/gi,'Bearer [非表示]')}

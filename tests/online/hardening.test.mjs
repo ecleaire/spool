@@ -10,7 +10,7 @@ assert.throws(()=>publicConfig({url:origin,key:'sb_secret_never-use'}));
 const jwt=role=>'eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify({role,ref:'example'})).toString('base64url')+'.test';
 assert.equal(publicConfig({url:origin,key:jwt('anon')}).key,jwt('anon'));
 assert.throws(()=>publicConfig({url:origin,key:jwt('service_role')}));
-assert.equal(authStorageKey(origin),'spool-auth-example');
+assert.equal(authStorageKey(origin),'spool-auth-example');assert.equal(redactDiagnostic('member@example.com'), '[メール非公開]');
 assert.ok(!redactDiagnostic('sb_secret_example '+jwt('anon')).includes('sb_secret_example'));
 const html=readFileSync('online-dist/index.html','utf8'),bundle=readFileSync('online-dist/online.js');
 const policy=html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];
