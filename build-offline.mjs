@@ -1,7 +1,8 @@
+import {modelHelperArchive} from './tools/model-helper-archive.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 const root=fs.realpathSync(process.cwd()),publicDir=path.join(root,'public'),output=path.join(root,'dist');
-const inlineJs=name=>'<script>\n'+fs.readFileSync(path.join(publicDir,name),'utf8').replace(/<\/script/gi,'<\\/script')+'\n</script>';
+const inlineJs=name=>'<script>\n'+fs.readFileSync(path.join(publicDir,name),'utf8').replace('MODEL_HELPER_DOWNLOAD_PLACEHOLDER',JSON.stringify('data:application/zip;base64,'+modelHelperArchive().toString('base64'))).replace(/<\/script/gi,'<\\/script')+'\n</script>';
 let html=fs.readFileSync(path.join(publicDir,'inventory.html'),'utf8');
 const version=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8')).version;
 if(!/^\d+\.\d+\.\d+(?:-[a-z0-9.-]+)?$/i.test(version))throw Error('Invalid release version');
@@ -10,7 +11,7 @@ html=html.replace('<link rel="stylesheet" href="style.css">',()=>'<style>\n'+fs.
 html=html.replace('<link rel="stylesheet" href="polish.css">',()=>'<style>\n'+fs.readFileSync(path.join(publicDir,'polish.css'),'utf8')+'\n</style>');
 html=html.replace('<link rel="stylesheet" href="workspace.css">',()=>'<style>\n'+fs.readFileSync(path.join(publicDir,'workspace.css'),'utf8')+'\n</style>');
 html=html.replace('<link rel="stylesheet" href="studio.css">',()=>'<style>\n'+fs.readFileSync(path.join(publicDir,'studio.css'),'utf8')+'\n</style>');
-for(const name of ['bootstrap.js','color-presets.js','elegoo-library.js','bambu-library.js','app.js','print-metadata.js','reservations.js','offline.js','forms.js','print-import.js']){
+for(const name of ['bootstrap.js','color-presets.js','elegoo-library.js','bambu-library.js','app.js','model-files.js','print-metadata.js','reservations.js','offline.js','forms.js','print-import.js']){
  const marker='<script src="'+name+'"></script>';
  if(!html.includes(marker))throw Error('Missing script '+name);
  html=html.replace(marker,()=>inlineJs(name));
@@ -23,5 +24,5 @@ if(fs.existsSync(output)){
  fs.rmSync(output,{recursive:true});
 }
 fs.mkdirSync(output);fs.writeFileSync(path.join(output,'index.html'),html);
-const delivery=path.resolve(root,'..','deliverables');fs.mkdirSync(delivery,{recursive:true});fs.writeFileSync(path.join(delivery,'SPOOL-offline.html'),html);
+const delivery=path.resolve(root,'..','deliverables');fs.mkdirSync(delivery,{recursive:true});fs.writeFileSync(path.join(delivery,'SPOOL-offline.html'),html);fs.writeFileSync(path.join(delivery,'SPOOL-file-helper.zip'),modelHelperArchive());
 console.log('Built standalone offline HTML: '+Buffer.byteLength(html)+' bytes. No network dependencies.');

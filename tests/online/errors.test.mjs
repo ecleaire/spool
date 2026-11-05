@@ -5,3 +5,5 @@ assert.ok(classifyError(Error('秘密キーは使用できません')).action.in
 console.log('PASS: errors distinguish login, permission, conflict, file, rate, network, storage, settings, input and unknown recovery paths.');
 
 assert.equal(classifyError({code:'SAVED_REFRESH_FAILED',message:'saved'}).category,'refresh');assert.match(classifyError({code:'SAVED_REFRESH_FAILED'}).title,/保存されました/);
+
+for(const error of [{code:'WRITE_RESULT_UNKNOWN',message:'request timed out'},{message:'Error: 保存結果を確認できませんでした。サーバー側で保存済みの可能性があります。'}]){const info=classifyError(error);assert.equal(info.category,'uncertain');assert.match(info.action,/再読み込み/);}

@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {createOnlineModelFiles} from '../../online/model-files.mjs';
+let context={session:{user:{id:'user'}},library:'library-a',epoch:1},signedCalls=0,downloads=0,opened=null,release;
+const filters=[];
+const chain={select(){return this},eq(key,value){filters.push([key,value]);return this},single(){return new Promise(resolve=>release=resolve)}};
+context.client={from:()=>chain,storage:{from:()=>({async createSignedUrl(){signedCalls++;return {data:{signedUrl:'https://example.com/signed?token=test'}}}})}};
+globalThis.document={createElement:()=>({click(){downloads++}})};globalThis.window={spoolShowModelOpen:file=>opened=file};
+const files=createOnlineModelFiles({context:()=>context}),meta={data:{name:'model.3mf',object_path:'library-a/file/model'}};
+let pending=files.open('file');release(meta);await pending;assert.equal(opened.name,'model.3mf');assert.equal(signedCalls,1);assert.ok(filters.some(([key,value])=>key==='library_id'&&value==='library-a'));assert.equal(downloads,0);
+pending=files.download('file');release(meta);await pending;assert.equal(downloads,1);
+pending=files.open('file');context={...context,library:'library-b',epoch:2};release(meta);await assert.rejects(pending,/変わりました/);assert.equal(signedCalls,2);assert.equal(downloads,1);
+delete globalThis.document;delete globalThis.window;
+console.log('PASS: private attachment actions stay scoped to the current library/account and never open a stale signed URL.');

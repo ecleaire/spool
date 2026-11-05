@@ -5,7 +5,7 @@ import {webcrypto} from 'node:crypto';
 const html=fs.readFileSync('dist/index.html','utf8');
 assert.ok(!/<script\b[^>]*src=|<link\b[^>]*rel="stylesheet"|@import|\bfetch\s*\(/i.test(html),'Offline artifact must not request runtime dependencies');
 const scripts=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('application/json')).map(x=>x[2]);
-assert.equal(scripts.length,10);scripts.forEach(s=>new vm.Script(s));
+assert.equal(scripts.length,11);scripts.forEach(s=>new vm.Script(s));
 const initialItem={id:'spool_test',name:'PLA Basic',brand:'Bambu Lab',material:'PLA',colorName:'白',color:'#FFFFFF',remaining:800,capacity:1000,diameter:'1.75',image:'data:image/png;base64,AAAA'};
 function boot({cached=[],embedded={},blocked=false}={}){
  const data=new Map(cached),nodes=new Map(),downloads=[];
@@ -64,7 +64,7 @@ for(const path of ['javascript:alert(1)','https://user:secret@example.com/part.s
 app.run('reservations[0].files='+JSON.stringify([modelPath,uncPath]));
 assert.equal(app.run('validBookings(reservations)'),true);
 assert.equal(app.run('decodeData(serializeData()).reservations[0].files[0]'),modelPath);
-assert.ok(app.run('bookingFileMarkup(reservations[0])').includes('spool-bambu://open/?path='+encodeURIComponent(modelPath)));
+assert.ok(app.run('bookingFileMarkup(reservations[0])').includes('spool-open://open/?path='+encodeURIComponent(modelPath)));
 app.run('openBooking(reservations[0].id)');assert.equal(form.elements.namedItem('files').value,[modelPath,uncPath].join('\n'));
 console.log('Passed: local/UNC model references, unsafe path rejection, JSON preservation and edit prefill.');
 
@@ -161,3 +161,16 @@ assert.equal(wishes.get('#statCount').textContent,1);wishes.run('setTab("planned
 wishes.run('openEditor("wish_test")');assert.equal(wishes.get('#form').elements.namedItem('inventoryStatus').value,'wish');assert.equal(wishes.run('valid({...items[0],purchaseIntent:"unknown"})'),false);
 const wishFile=fakeFile();wishes.context.window.showSaveFilePicker=async()=>wishFile;await wishes.run('saveDataFileAs()');assert.equal(boot({embedded:JSON.parse(wishFile.read())}).run('items.find(x=>x.id==="wish_test").purchaseIntent'),'wish');
 console.log('Passed: purchase wishes, nested filters, edit prefill, stock exclusion and JSON retention.');
+
+// Link repair must not change an item outside the member's edit grants.
+const scopedLinks=boot({cached:[['spool-inventory-v1','[]']]});scopedLinks.context.window.spoolCan=key=>key==='inventory_edit';
+const linkCandidates=[{...initialItem,id:'editable-stock',brand:'ELEGOO',material:'PLA',variant:'PLA',name:'PLA',colorName:'ブラック',amazonUrl:''},{...initialItem,id:'protected-wish',brand:'ELEGOO',material:'PLA',variant:'PLA',name:'PLA',colorName:'ブラック',inventoryStatus:'planned',purchaseIntent:'wish',amazonUrl:''}];
+const scopedResult=scopedLinks.run('enrichAmazonLinks('+JSON.stringify(linkCandidates)+')');assert.ok(scopedResult[0].amazonUrl);assert.equal(scopedResult[1].amazonUrl,'');
+// Reusing an owned product as a template must keep an allowed purchase-wish state.
+const scopedTemplate=boot({cached:[['spool-inventory-v1',JSON.stringify([initialItem])]]});scopedTemplate.context.window.spoolCan=key=>key==='wishlist_create';scopedTemplate.run('openEditor();fillFilamentTemplate(items[0])');assert.equal(scopedTemplate.get('#form').elements.namedItem('inventoryStatus').value,'wish');
+console.log('Passed: per-item link enrichment and template state respect separate inventory/purchase grants.');
+
+// HTTPS model references commonly include a download/signature query string.
+const signedModel='https://models.example.com/%E3%82%AD%E3%83%BC%E3%83%9B%E3%83%AB%E3%83%80%E3%83%BC.3mf?download=1&signature=test';assert.equal(app.run('validBookingFile('+JSON.stringify(signedModel)+')'),true);
+for(const unsafe of ['C:\\Models\\part?.3mf','C:\\Models\\*.stl','https://user:secret@models.example.com/model.3mf?download=1','https://models.example.com/model.exe?download=1'])assert.equal(app.run('validBookingFile('+JSON.stringify(unsafe)+')'),false);
+const remoteMarkup=app.run('bookingFileMarkup({files:['+JSON.stringify(signedModel)+']})');assert.ok(remoteMarkup.includes('キーホルダー.3mf</span>'));assert.ok(remoteMarkup.includes('download=1&amp;signature=test'));console.log('Passed: signed HTTPS model references, readable filenames and local/remote safety checks.');

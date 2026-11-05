@@ -37,6 +37,7 @@ jobs:
         run: |
           node build-offline.mjs
           node tests/offline.test.mjs
+          node tests/model-opener.test.mjs
       - name: Check data permissions and synchronization
         run: npm --prefix online test
       - name: Build public files

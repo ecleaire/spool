@@ -11,3 +11,10 @@ test('caller cancellation is not retried',async()=>{let calls=0;const controller
 
 test('administrative writes are not replayed after a lost response or self-demotion',async()=>{let calls=0;const fetcher=retryingFetch(async()=>{calls++;throw Error('Failed to fetch')});await assert.rejects(fetcher('https://demo.supabase.co/rest/v1/rpc/set_library_member_access',{method:'POST'}));assert.equal(calls,1)});
 test('temporary gateway failure retries a library read, never an account-access write',async()=>{let calls=0;const fetcher=retryingFetch(async()=>({status:++calls===1?503:200}));assert.equal((await fetcher('https://demo.supabase.co/rest/v1/libraries')).status,200);assert.equal(calls,2);calls=0;assert.equal((await fetcher('https://demo.supabase.co/rest/v1/rpc/set_spool_account_access',{method:'POST'})).status,503);assert.equal(calls,1)});
+
+test('stalled non-idempotent RPCs release the UI without replaying an uncertain write',async()=>{
+ for(const rpc of ['create_shared_library','set_spool_account_access','update_shared_purchase_plan']){
+  let calls=0,guard;const fetcher=retryingFetch((input,{signal}={})=>new Promise((resolve,reject)=>{calls++;signal?.addEventListener('abort',()=>reject(new DOMException('Aborted','AbortError')),{once:true})}),{timeout:2});
+  try{const result=await Promise.race([fetcher('https://demo.supabase.co/rest/v1/rpc/'+rpc,{method:'POST'}).catch(error=>error),new Promise(resolve=>{guard=setTimeout(()=>resolve({code:'TEST_TIMEOUT'}),100)})]);assert.equal(result.code,'WRITE_RESULT_UNKNOWN');assert.equal(calls,1);}finally{clearTimeout(guard)}
+ }
+});
