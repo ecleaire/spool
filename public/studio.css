@@ -823,3 +823,18 @@ body.simple-workspace .disclosure>summary::after{color:#345a3c;font-weight:700}
 body.simple-workspace button:disabled{opacity:.65}
 body.simple-workspace :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #245d36;outline-offset:3px;box-shadow:0 0 0 5px #fff}
 @media(prefers-reduced-motion:reduce){body.simple-workspace *,body.simple-workspace *::before,body.simple-workspace *::after{scroll-behavior:auto;transition:none}}
+
+/* Narrow screens always use one readable inventory column, including saved views. */
+@media(max-width:1000px){
+ body.simple-workspace .inventory .toolbar>.view-switch{display:none}
+ body.simple-workspace #items.grid-mode,body.simple-workspace #items.split-mode,body.simple-workspace #foregroundResults.filament-search-cards{grid-template-columns:minmax(0,1fr)}
+}
+/* Card actions keep their own cells instead of overflowing into adjacent controls. */
+body.simple-workspace .grid-mode .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;width:100%;min-width:0}
+body.simple-workspace .grid-mode .actions .shop-links:not([hidden]){display:contents}
+body.simple-workspace .grid-mode .actions>button,body.simple-workspace .grid-mode .actions .shop-link{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:0;width:100%;max-width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere;line-height:1.4;margin:0;padding:8px 6px}
+@media(max-width:1000px){
+ body.simple-workspace .filament-row .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
+ body.simple-workspace .filament-row .actions .shop-links:not([hidden]){display:contents}
+ body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:0;width:100%;max-width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere;line-height:1.4;margin:0;padding:8px 6px}
+}

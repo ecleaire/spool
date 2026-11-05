@@ -165,8 +165,10 @@ try{
  assert.ok(await authenticated.locator('.stats article>div').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize))>=14);
  await authenticated.locator('#gridView').click();
 
+ await authenticated.locator('#splitView').click();
  await authenticated.setViewportSize({width:390,height:844});
- await authenticated.locator('#splitView').click();await authenticated.locator('#sort').selectOption('remaining-desc');
+ await authenticated.waitForFunction(()=>!document.querySelector('#items').classList.contains('split-mode'));assert.equal(await authenticated.locator('.view-switch').isVisible(),false);
+ await authenticated.locator('#sort').selectOption('remaining-desc');
  await authenticated.locator('#bookingSort').selectOption('registered',{force:true});
  await authenticated.locator('#inventoryFilters>summary').click();
  await authenticated.locator('#cloud-account-open').click();

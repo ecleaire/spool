@@ -15,13 +15,13 @@ try{
   const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:'+server.address().port+(process.env.SPOOL_TEST_BASE_PATH||'/'));
   await page.evaluate(({stock,bookings})=>{localStorage.setItem('spool-inventory-v1',JSON.stringify(stock));localStorage.setItem('spool-inventory-v1-reservations',JSON.stringify(bookings))},{stock,bookings});await page.reload();
-  await page.locator('#splitView').click();assert.equal(await page.locator('#splitView').getAttribute('aria-pressed'),'true');
+  if(width>1000){await page.locator('#splitView').click();assert.equal(await page.locator('#splitView').getAttribute('aria-pressed'),'true')}else assert.equal(await page.locator('.view-switch').isVisible(),false);
   assert.equal(await page.locator('#items').evaluate(x=>getComputedStyle(x).gridTemplateColumns.split(' ').length),width>1000?2:1);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.equal(await page.locator('.filament-row').first().evaluate(x=>x.scrollWidth<=x.clientWidth),true);
   const row=page.locator('#items .filament-row').first();
-  const pairs=await row.evaluate(el=>{const links=[...el.querySelectorAll('.shop-link')].map(x=>x.getBoundingClientRect()),use=el.querySelector('[data-use]').getBoundingClientRect(),edit=el.querySelector('[data-edit]').getBoundingClientRect();return {links:Math.abs(links[0].top-links[1].top),buttons:Math.abs(use.top-edit.top)}});assert.ok(pairs.links<2&&pairs.buttons<2,'Paired links and buttons stay in the same row at '+width);
-  for(const mode of ['list','grid','split']){await page.locator('#'+mode+'View').click();const pos=await row.evaluate(el=>{const r=el.getBoundingClientRect(),c=el.querySelector('.row-select').getBoundingClientRect();return {x:c.left-r.left,y:c.top-r.top}});assert.ok(pos.x>=10&&pos.x<=14&&pos.y>=10&&pos.y<=14,'Corner checkbox in '+mode+' at '+width);}
+  const pairs=await row.evaluate(el=>{const links=[...el.querySelectorAll('.shop-link')].map(x=>x.getBoundingClientRect()),use=el.querySelector('[data-use]').getBoundingClientRect(),edit=el.querySelector('[data-edit]').getBoundingClientRect();return {links:Math.abs(links[0].top-links[1].top),buttons:Math.abs(use.top-edit.top)}});assert.ok(pairs.links<2&&pairs.buttons<2,'Paired links and buttons stay in their rows at '+width);
+  for(const mode of (width>1000?['list','grid','split']:['list'])){if(width>1000)await page.locator('#'+mode+'View').click();const pos=await row.evaluate(el=>{const r=el.getBoundingClientRect(),c=el.querySelector('.row-select').getBoundingClientRect();return {x:c.left-r.left,y:c.top-r.top}});assert.ok(pos.x>=10&&pos.x<=14&&pos.y>=10&&pos.y<=14,'Corner checkbox in '+mode+' at '+width);}
   if(shots&&width===390)await page.screenshot({path:shots+'/paired-actions-390.png',fullPage:true,animations:'disabled'});
   if(shots&&width===1440)await page.screenshot({path:shots+'/two-columns-1440.png',fullPage:true,animations:'disabled'});
   await page.locator('#inventoryFilters>summary').click();
@@ -44,6 +44,6 @@ try{
   await page.locator(await page.locator('#navBookings').isVisible()?'#navBookings':'#showBookings').click();await page.locator('#bookingFilters>summary').click();await page.locator('#bookingTagFilter').selectOption('v:マット');assert.equal(await page.locator('#bookingRows tr').count(),1);assert.equal(await page.locator('#bookingFilterCount').textContent(),'1');await page.locator('#resetBookingFilters').click();
   await page.locator('#bookingSearch').click();await page.locator('#foregroundSearch').fill('#マット');assert.equal(await page.locator('#foregroundResultCount').textContent(),'1');await page.locator('#searchFiltersTab').click();await page.locator('#foregroundFilters #bookingTagFilter').selectOption('v:マット');await page.locator('#searchQueryTab').click();await page.locator('[data-search-result="0"]').click();assert.equal(await page.locator('#bookingDialog').isVisible(),false);assert.equal(await page.locator('#bookingView .search-result-highlight').count(),1);assert.equal(await page.locator('#bookingFilters #bookingTagFilter').count(),1);
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1'))),stock);assert.deepEqual(errors,[]);await page.close();
-  console.log('PASS '+width+'px: two-column layout, location/tag combinations and unset values, hashtag search, foreground result/filter tabs, Escape restoration, shortcut, booking search and original data preservation.');
+  console.log('PASS '+width+'px: responsive inventory layout, location/tag combinations and unset values, hashtag search, foreground result/filter tabs, Escape restoration, shortcut, booking search and original data preservation.');
  }
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
