@@ -149,6 +149,7 @@ function showWeightCandidates(field){
 }
 function chooseWeight(value){const target=weightTarget;if(!target)return;if(target.name==='capacity')applySpoolCapacity(value);else{target.value=String(value);updateDraftSummary()}closeWeightCandidates();suppressWeightFocus=true;target.focus?.({preventScroll:true});suppressWeightFocus=false;target.dispatchEvent(new Event('input',{bubbles:true}))}
 for(const name of ['capacity','remaining']){const field=$('#form').elements.namedItem(name);field.setAttribute('aria-controls','weightCandidates');field.setAttribute('aria-expanded','false');field.addEventListener('focus',()=>{if(!suppressWeightFocus)showWeightCandidates(field)});field.addEventListener('click',()=>showWeightCandidates(field));field.addEventListener('keydown',e=>{if(e.key==='Escape'&&weightTarget){e.preventDefault();e.stopPropagation();closeWeightCandidates()}else if(e.key==='Tab')closeWeightCandidates();else if(e.key==='ArrowDown'&&!e.altKey){e.preventDefault();showWeightCandidates(field);$('#weightCandidates button:not([hidden])')?.focus()}})}
+for(const name of ['capacity','remaining'])$('#form').elements.namedItem(name).addEventListener('input',closeWeightCandidates);
 for(const button of $$('[data-spool-capacity]'))button.onclick=()=>chooseWeight(Number(button.dataset.spoolCapacity));
 $('#fillRemaining').onclick=()=>chooseWeight(Number($('#form').elements.namedItem('capacity').value));
 $('#weightCandidates').addEventListener('pointerdown',e=>{if(e.target.closest?.('button'))e.preventDefault()});
