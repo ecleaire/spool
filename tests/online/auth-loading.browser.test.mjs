@@ -11,7 +11,7 @@ const server=http.createServer((req,res)=>{const name=req.url.split('?')[0].spli
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 try{
- for(const scenario of ['slow-success','failure-retry','logout-during-load','bookmarked-shared']){
+ for(const scenario of ['slow-success','failure-retry','logout-during-load','bookmarked-shared','oauth-bookmark-return']){
   const page=await browser.newPage(),errors=[];let ensureCalls=0,otherCalls=0,entered,release;
   const requestStarted=new Promise(resolve=>entered=resolve),gate=new Promise(resolve=>release=resolve);
   page.on('pageerror',error=>errors.push(error.message));
@@ -24,12 +24,12 @@ try{
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
   });
   await page.addInitScript(({projectUrl,user,token})=>{sessionStorage.setItem('spool-auth-'+new URL(projectUrl).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user:{id:user,email:'qa@example.com'}}));window.__loadFailures=[];new MutationObserver(()=>{const text=document.querySelector('#cloud-panel')?.textContent||'';if(text.includes('ライブラリを読み込めませんでした'))window.__loadFailures.push(text)}).observe(document,{childList:true,subtree:true});},{projectUrl,user,token});
-  await page.goto('http://127.0.0.1:'+server.address().port+'/spool/'+(scenario==='bookmarked-shared'?'?library='+shared:''));await requestStarted;
+  if(scenario==='oauth-bookmark-return')await page.addInitScript(id=>sessionStorage.setItem('spool-login-library:/spool/',id),shared);await page.goto('http://127.0.0.1:'+server.address().port+'/spool/'+(scenario==='bookmarked-shared'?'?library='+shared:''));await requestStarted;
   try{
    await page.locator('#cloud-loading').waitFor({timeout:3000});assert.equal(await page.locator('#cloud-retry').count(),0);assert.equal(await page.locator('main').isVisible(),false);assert.deepEqual(await page.evaluate(()=>window.__loadFailures),[]);
    if(scenario==='logout-during-load'){await page.locator('#cloud-account-open').click();await page.locator('#cloud-logout').click();await page.locator('#cloud-login').waitFor();release();await page.waitForTimeout(250);assert.equal(otherCalls,0);assert.equal(await page.locator('main').isVisible(),false);assert.equal(await page.locator('#cloud-library').count(),0);}
    else{release();if(scenario==='failure-retry'){await page.locator('#cloud-retry').waitFor();assert.equal(await page.locator('#cloud-loading').count(),0);await page.locator('#cloud-retry').click();}await page.locator('#cloud-library').waitFor();assert.equal(await page.locator('main').isVisible(),true);assert.equal(await page.locator('#cloud-error').textContent(),'');assert.equal(ensureCalls,scenario==='failure-retry'?2:1);if(scenario==='slow-success')assert.deepEqual(await page.evaluate(()=>window.__loadFailures),[]);}
-   if(scenario==='bookmarked-shared'){assert.equal(await page.locator('#cloud-library').inputValue(),shared);assert.equal(new URL(page.url()).searchParams.get('library'),shared);await page.reload();await page.locator('#cloud-library').waitFor();assert.equal(await page.locator('#cloud-library').inputValue(),shared);await page.locator('#cloud-library').selectOption(lib);await page.waitForFunction(id=>new URL(location.href).searchParams.get('library')===id,lib);assert.equal(await page.locator('#cloud-library').inputValue(),lib);}assert.deepEqual(errors,[]);console.log('PASS auth loading: '+scenario);
+   if(scenario==='bookmarked-shared'||scenario==='oauth-bookmark-return'){assert.equal(await page.locator('#cloud-library').inputValue(),shared);assert.equal(new URL(page.url()).searchParams.get('library'),shared);await page.reload();await page.locator('#cloud-library').waitFor();assert.equal(await page.locator('#cloud-library').inputValue(),shared);await page.locator('#cloud-library').selectOption(lib);await page.waitForFunction(id=>new URL(location.href).searchParams.get('library')===id,lib);assert.equal(await page.locator('#cloud-library').inputValue(),lib);}assert.deepEqual(errors,[]);console.log('PASS auth loading: '+scenario);
   }finally{release();await page.close()}
  }
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
