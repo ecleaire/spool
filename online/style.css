@@ -210,3 +210,10 @@ body.simple-workspace .cloud-context-actions #cloud-save,body.simple-workspace #
 .permission-admin{padding:12px;border:1px solid #bbceaf;border-radius:9px;background:#f2f6eb}.permission-admin span{min-width:0}.permission-admin small{display:block;font-size:13px;line-height:1.6;color:#48633e}
 
 .permission-dialog .permission-help summary{font-size:15px;min-height:44px;padding:10px 0;cursor:pointer}.permission-dialog .permission-help p{line-height:1.7}.permission-dialog .permission-choice span{text-wrap:pretty}
+
+/* Primary actions must keep readable contrast inside management dialogs. */
+body.simple-workspace .cloud-tools-dialog .cloud-primary{background:#193e31;color:#f6f8ec;border:1px solid #193e31;justify-content:center;min-height:44px;font-size:16px;line-height:1.5;white-space:normal}
+.cloud-tools-dialog .cloud-primary:disabled{opacity:.55;cursor:default}
+.permission-dialog #permission-retry{min-height:44px;font-size:16px;padding:10px 14px}
+
+.cloud-tools-dialog .cloud-dialog-body button:not(.cloud-primary){color:#294e35;background:#edf4e6;border-color:#b8cbb2;min-height:44px;line-height:1.5}.cloud-tools-dialog .cloud-dialog-head button{color:#385b40}

@@ -967,3 +967,8 @@ body.simple-workspace #filamentDetails .dialog-actions button{min-height:44px;mi
 
 /* One icon family and equal touch targets for inventory views. */
 body.simple-workspace .inventory .view-switch>button:is(#listView,#splitView,#gridView,#simpleView){display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:10px;border-radius:6px;color:#385b46}body.simple-workspace .inventory .view-switch>button.selected{color:#193e31}body.simple-workspace .view-switch svg{display:block;width:24px;height:24px;flex:none}@media(max-width:1000px){body.simple-workspace .inventory .view-switch>button:is(#splitView,#gridView){display:none}}
+
+/* Purchase links use their own row and wrap as whole buttons. */
+body.simple-workspace .inventory .filament-row .actions .shop-links:not([hidden]){display:flex;grid-column:1/-1;flex-wrap:wrap;gap:6px;min-width:0;width:100%;order:1}
+body.simple-workspace .inventory .filament-row .actions .shop-links .shop-link{display:flex;align-items:center;justify-content:center;flex:1 1 100px;width:auto;min-width:0;max-width:100%;min-height:44px;margin:0;padding:8px 6px;white-space:normal;overflow-wrap:normal;line-height:1.4;box-sizing:border-box}
+@media(max-width:1000px){body.simple-workspace .inventory .filament-row .actions{grid-column:1/-1;grid-row:auto;padding-top:10px;border-top:1px solid #e0e8dc}}
