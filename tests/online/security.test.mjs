@@ -8,7 +8,7 @@ test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history
  const db=new PGlite();
  try{
  await db.exec(`create role anon;create role authenticated;create schema auth;create schema storage;
- create table auth.users(id uuid primary key);
+ create table auth.users(id uuid primary key,email text);
  create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub'$$;
  ` .replace("select nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub'","select (nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub')::uuid"));
  await db.exec(`create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
@@ -206,6 +206,41 @@ test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history
  await db.exec(readFileSync(new URL('../../supabase/upgrade-existing.sql',import.meta.url),'utf8'));
  await db.exec(readFileSync(new URL('../../supabase/upgrade-existing.sql',import.meta.url),'utf8'));
  await as(0,'owner@example.com',async()=>{const created=(await scalar("select public.create_shared_library('更新確認') as id")).id;const original=await scalar('select state from public.library_state where library_id=$1',[mine]);const chosen=original.state.items[0].id;await db.query("select public.set_filament_sharing($1,$2,'selected',$3)",[created,mine,[chosen]]);const visible=(await scalar('select public.get_shared_filaments($1) as rows',[created])).rows;assert.equal(visible.length,1);assert.equal(visible[0].source_item_id,chosen);assert.equal((await scalar('select state from public.library_state where library_id=$1',[mine])).state.items.length,original.state.items.length);});
+ // Account-level limits bound all libraries; purchase-plan sharing is explicit and narrow.
+ let planSource,planTarget;
+ const plan={id:'plan-a',name:'PLA planned',brand:'ELEGOO',material:'PLA',colorName:'青',color:'#2240AF',capacity:1000,remaining:1000,inventoryStatus:'planned',note:'原本',image:'',tags:[]},unshared={...plan,id:'plan-b'},owned={...plan,id:'stock-a',inventoryStatus:'owned'};
+ await as(0,'owner@example.com',async()=>{
+  planSource=(await scalar("select public.create_shared_library('購入予定の原本') as id")).id;planTarget=(await scalar("select public.create_shared_library('購入予定の共有先') as id")).id;
+  await db.query('select public.save_library_state($1,0,$2)',[planSource,{...state,items:[plan,unshared,owned]}]);
+  await db.query("select public.invite_library_member($1,'editor@example.com','editor')",[planTarget]);await db.query("select public.invite_library_member($1,'viewer@example.com','viewer')",[planTarget]);
+  await db.query("select public.set_filament_sharing($1,$2,'all','{}')",[planTarget,planSource]);assert.deepEqual((await scalar('select public.get_shared_filaments($1) as rows',[planTarget])).rows.map(x=>x.source_item_id),['stock-a']);
+  await db.query("select public.set_filament_sharing($1,$2,'all',$3)",[planTarget,planSource,['plan-a','stock-a']]);const rows=(await scalar('select public.get_shared_filaments($1) as rows',[planTarget])).rows;assert.equal(rows.length,2);assert.equal(rows.find(x=>x.source_item_id==='plan-a').can_edit_plan,true);assert.equal(rows[0].source_revision,1);assert.deepEqual((await scalar('select public.get_filament_sharing($1) as links',[planSource])).links.find(x=>x.shared_library_id===planTarget).included_ids,['plan-a']);
+ });
+ await as(1,'editor@example.com',async()=>{
+  await db.query('select public.ensure_my_library()');
+  assert.equal((await scalar('select public.update_shared_purchase_plan($1,$2,$3,1,$4) as revision',[planTarget,planSource,'plan-a',{name:'変更済み',shopUrl:'https://example.com/blue'}])).revision,2);
+  await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,1,$4)',[planTarget,planSource,'plan-a',{name:'古い変更'}]),/changed/);
+  await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,2,$4)',[planTarget,planSource,'plan-b',{name:'未共有を変更'}]),/Explicit/);
+  await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,2,$4)',[planTarget,planSource,'plan-a',{id:'別ID'}]),/Invalid/);
+  await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,2,$4)',[planTarget,planSource,'plan-a',{shopUrl:'javascript:alert(1)'}]),/Invalid/);
+  await db.query('select public.update_shared_purchase_plan($1,$2,$3,2,$4)',[planTarget,planSource,'plan-a',{inventoryStatus:'owned'}]);
+  await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,3,$4)',[planTarget,planSource,'plan-a',{name:'在庫を変更'}]),/purchase plan/);
+ });
+ await as(2,'viewer@example.com',async()=>{await db.query('select public.ensure_my_library()');await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,3,$4)',[planTarget,planSource,'plan-a',{name:'閲覧者の変更'}]),/editor required/);await assert.rejects(db.query('select public.get_spool_accounts()'),/Service administrator/);});
+ await db.query('update auth.users set email=$1 where id=$2',['editor@example.com',ids[1]]);
+ await as(0,'owner@example.com',async()=>{
+  const original=(await scalar('select state from public.library_state where library_id=$1',[planSource])).state;assert.equal(original.items[0].name,'変更済み');assert.equal(original.items[1].name,unshared.name);assert.equal(original.items[2].inventoryStatus,'owned');assert.deepEqual(original.reservations,[]);
+  assert.ok(Array.isArray((await scalar('select public.get_spool_accounts() as accounts')).accounts));
+  await assert.rejects(db.query("select public.set_spool_account_access('owner@example.com','disabled','{}')"),/own service administrator/);
+  await assert.rejects(db.query("select public.set_spool_account_access('editor@example.com','standard','{\"unknown\":true}')"),/Invalid/);
+  await db.query("select public.set_spool_account_access('editor@example.com','shared_only','{\"inventory_edit\":false,\"create_shared\":false,\"manage_members\":false}')");
+  assert.equal((await scalar('select public.get_library_member_permissions($1) as rows',[planTarget])).rows.find(x=>x.user_id===ids[1]).service_limits.inventory_edit,false);
+ });
+ await as(1,'editor@example.com',async()=>{const chosen=(await scalar('select public.ensure_my_library() as id')).id;assert.ok(chosen);assert.equal((await db.query('select * from public.libraries where personal')).rows.length,0);assert.equal((await scalar('select public.get_my_library_permissions($1) as p',[planTarget])).p.inventory_edit,false);await assert.rejects(db.query("select public.create_shared_library('不可')"),/not permitted/);await assert.rejects(db.query("select public.invite_library_member($1,'blocked@example.com','viewer')",[planTarget]),/administrator required/);});
+ await as(0,'owner@example.com',async()=>{await db.query("select public.set_spool_account_access('editor@example.com','standard','{}')");await db.query("select public.set_spool_account_access('viewer@example.com','disabled','{}')");});
+ await as(2,'viewer@example.com',async()=>{assert.equal((await scalar('select public.spool_allowed() as allowed')).allowed,false);assert.equal((await db.query('select * from public.libraries')).rows.length,0);await assert.rejects(db.query('select public.ensure_my_library()'),/invitation required/);});
+ await as(0,'owner@example.com',async()=>{await db.query("select public.set_spool_account_access('viewer@example.com','standard','{}')");});
+ await as(1,'editor@example.com',async()=>{assert.equal((await db.query('select * from public.libraries where personal')).rows.length>0,true);});
  let lifecycleId;const lifeFile='88888888-8888-4888-8888-888888888888';
  await as(0,'owner@example.com',async()=>{lifecycleId=(await scalar("select public.create_shared_library('削除確認') as id")).id;await db.query("select public.invite_library_member($1,'editor@example.com','editor')",[lifecycleId]);await assert.rejects(db.query('select public.leave_shared_library($1)',[lifecycleId]),/Host cannot/);await assert.rejects(db.query('select public.get_shared_library_deletion_info($1)',[mine]),/Shared library/);await assert.rejects(db.query('select public.delete_shared_library($1,$2,0,true)',[mine,'個人の材料']),/Personal library/);await db.query("insert into public.library_files(id,library_id,booking_id,name,object_path,size) values($1,$2,'booking','test.stl',$3,4)",[lifeFile,lifecycleId,lifecycleId+'/'+lifeFile+'/model']);await db.query("insert into storage.objects(bucket_id,name) values('spool-models',$1)",[lifecycleId+'/'+lifeFile+'/model']);await assert.rejects(db.query("select public.delete_shared_library($1,'間違い',0,true)",[lifecycleId]),/confirmation/);await assert.rejects(db.query("select public.delete_shared_library($1,'削除確認',0,false)",[lifecycleId]),/confirmation/);await assert.rejects(db.query("select public.delete_shared_library($1,'削除確認',99,true)",[lifecycleId]),/changed/);await assert.rejects(db.query("select public.delete_shared_library($1,'削除確認',0,true)",[lifecycleId]),/Storage files remain/);});
  await as(1,'editor@example.com',async()=>{await db.query('select public.ensure_my_library()');await assert.rejects(db.query('select public.get_shared_library_deletion_info($1)',[lifecycleId]),/Host required/);await assert.rejects(db.query("select public.delete_shared_library($1,'削除確認',0,true)",[lifecycleId]),/Host required/);await db.query("select public.set_filament_sharing($1,$2,'all','{}')",[lifecycleId,shared]);await db.query('select public.leave_shared_library($1)',[lifecycleId]);assert.equal((await db.query('select * from public.library_state where library_id=$1',[lifecycleId])).rows.length,0);await assert.rejects(db.query('select public.leave_shared_library($1)',[lifecycleId]),/Member required/);});

@@ -6,6 +6,7 @@ const tests=[
  'tests/online/permissions.browser.test.mjs',
  'tests/online/lifecycle.browser.test.mjs',
  'tests/online/booking-status.browser.test.mjs',
+ 'tests/online/v4-settings.browser.test.mjs',
  'tests/search-layout.browser.test.mjs',
  'tests/print-import.browser.test.mjs',
  'tests/usability.browser.test.mjs',

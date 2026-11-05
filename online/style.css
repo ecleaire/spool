@@ -221,3 +221,33 @@ body.simple-workspace .cloud-tools-dialog .cloud-primary{background:#193e31;colo
 #cloud-library-details .cloud-library-danger{font-size:16px;min-height:44px;padding:10px 14px;margin:12px;border:1px solid #c9a6a0;border-radius:7px;background:#fff8f5;color:#853a32}.lifecycle-dialog .cloud-dialog-body{font-size:16px;line-height:1.7}.lifecycle-dialog input{width:100%;font-size:16px;min-height:44px}.lifecycle-dialog .cloud-dialog-body #lifecycle-submit{display:block;width:100%;min-height:48px;font-size:16px;color:#fff;background:#8b302b;border-color:#8b302b}.lifecycle-dialog .cloud-dialog-body #lifecycle-submit:disabled{opacity:.55}.lifecycle-dialog .cloud-dialog-body .lifecycle-hint{font-size:14px;color:#445c49}
 
 .sharing-add-dialog .sharing-actions{grid-template-columns:minmax(0,1fr)}.lifecycle-dialog[open]{display:flex;flex-direction:column;max-height:calc(100dvh - 24px);overflow:hidden}.lifecycle-dialog .cloud-dialog-head{flex:none}.lifecycle-dialog .cloud-dialog-body{flex:1;min-height:0;max-height:none;overflow:auto}.lifecycle-footer{flex:none;padding:12px;border-top:1px solid #dec9c3;background:#fffefa}.lifecycle-dialog .lifecycle-footer #lifecycle-submit{width:100%;min-height:48px;font-size:16px;line-height:1.5;padding:12px;color:#fff;background:#8b302b;border:1px solid #8b302b;border-radius:7px}.lifecycle-dialog .lifecycle-footer #lifecycle-submit:disabled{opacity:.55}
+
+.permission-target{padding:16px;margin:0 0 20px;border:1px solid #a7bea5;border-radius:12px;background:#f1f6ed;color:#173c28}
+.cloud-tools-dialog .permission-target label{display:block;font-size:18px;font-weight:700;color:#173c28}
+.permission-target select{width:100%;max-width:100%;min-height:48px;margin-top:8px;font-size:17px}
+.cloud-tools-dialog .permission-target p{margin:8px 0 0;color:#294734;font-size:16px;overflow-wrap:anywhere}
+.permission-dialog #permission-groups[hidden]{display:none!important}
+.permission-footer .cloud-primary{width:100%;white-space:normal;overflow-wrap:anywhere;min-height:48px;font-size:17px;padding:12px}
+.account-access-dialog[open],.shared-plan-dialog[open],.help-dialog[open]{display:flex;flex-direction:column;max-height:calc(100dvh - 24px);overflow:hidden;width:min(720px,calc(100vw - 24px))}
+:is(.account-access-dialog,.shared-plan-dialog,.help-dialog) .cloud-dialog-body{flex:1;min-height:0;overflow:auto;max-height:none}
+:is(.account-access-dialog,.shared-plan-dialog,.help-dialog) .cloud-dialog-head{flex:none}
+.account-feature-grid,.shared-plan-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.account-feature-grid .permission-choice{display:flex;align-items:center;gap:10px;min-height:44px;font-size:16px;color:#1e402c}
+.account-feature-grid input{width:22px!important;min-height:22px!important;flex:none}
+.shared-plan-fields label{display:grid;gap:6px;min-width:0;font-size:17px;color:#203e2a}
+.shared-plan-fields input,.shared-plan-fields select{min-width:0;width:100%;box-sizing:border-box}
+.shared-plan-dialog details,.account-feature-details{margin:18px 0;border:1px solid #c2d2bb;border-radius:10px;padding:12px}
+.shared-plan-dialog summary,.account-feature-details summary,.help-topic summary{font-size:17px;color:#234830;cursor:pointer;min-height:44px;align-content:center;font-weight:600}
+.help-dialog .help-topic{border-bottom:1px solid #d2dfcd;padding:8px 0}.help-dialog .help-topic p{font-size:17px;line-height:1.8;color:#284532}
+.help-dialog h3{margin-top:24px;color:#173b29;font-size:20px}
+.shared-settings-entry{display:block;margin:10px max(16px,calc((100vw - 1520px)/2));padding:10px 16px;min-height:46px;background:#e5efda;color:#1c452c;border:1px solid #92af83;border-radius:8px;font-size:17px;font-weight:700}
+.sharing-hub #sharing-hub-people li{display:grid;gap:6px;padding:16px;border:1px solid #c0d0b8;border-radius:10px;background:#fff;margin:12px 0}
+.sharing-hub #sharing-hub-people strong{font-size:20px;color:#173c28}.sharing-hub #sharing-hub-people span{font-size:16px;color:#2e4b38;overflow-wrap:anywhere}
+.sharing-hub #sharing-hub-people button{width:fit-content;min-height:46px;font-size:17px;font-weight:650}
+#spool-help-entry{min-height:44px;padding:10px 14px;font-size:16px;color:#254a33;background:#fff;border:1px solid #a1b99a;border-radius:8px}
+.page-actions .shared-settings-entry{margin:0;width:auto;font-size:17px;white-space:nowrap}
+.sharing-hub-help button{display:block;margin:10px 0;min-height:44px}.sharing-hub-help button.danger{color:#862f28!important;background:#fff6f3!important;border-color:#c9a39a!important}
+body:not(.cloud-locked) .cloud-context :is(small,.cloud-role,.cloud-sync-state){color:#294a35}
+@media(min-width:1200px){.cloud-library-picker select{font-size:18px}.cloud-context :is(.cloud-role,.cloud-sync-state){font-size:16px}}
+@media(max-width:600px){.account-feature-grid,.shared-plan-fields{grid-template-columns:1fr}.page-actions .shared-settings-entry{margin:0;width:auto}.permission-footer .cloud-primary{font-size:16px}}
+@media(min-width:1200px){#cloud-panel .cloud-dialog-body :is(label,input,select,textarea){font-size:18px}#cloud-panel .cloud-dialog-body :is(p,small){font-size:17px;color:#294734}#cloud-panel .cloud-dialog-body h3{font-size:21px;color:#143822}#cloud-panel .cloud-dialog-body button{font-size:18px}#cloud-panel .permission-footer .cloud-primary{font-size:18px}}

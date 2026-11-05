@@ -9,7 +9,7 @@ const PRODUCT_LIBRARY=[...BAMBU_LIBRARY,...ELEGOO_LIBRARY,...BBAMBOO_LIBRARY];
 
 // Amazon JP product-page color swatches, checked 2026-11-05.
 // Sources are canonical product pages; no tracking identifiers or account data.
-// A missing entry excludes only a new catalog choice, never stored inventory.
+// Amazon links are optional. Keep every color, including official-store-only choices.
 const AMAZON_COLOR_LINKS={
  'bambu-basic':{'ジェイド ホワイト':'B0CGQYRSNT','グレー':'B0CRR3XFGS','パープル':'B0CGQZ4RLD','ブラック':'B0CGR29R63','ブルー':'B0CGVB282T','ブロンズ':'B0CGQYQJ1X','レッド':'B0CGR16JB5'},
  'bambu-matte':{'アイボリー ホワイト':'B0CDGQMJWW','アッシュ グレー':'B0CDGQYC69','スカーレット レッド':'B0CDGRWS27','ダーク ブルー':'B0CF5Y13J1','チャコール':'B0CDH4H4WP','マリン ブルー':'B0CDGSZM75','レモン イエロー':'B0CY4RX29H','サクラ ピンク':'B0CY5D92D7'},
@@ -19,4 +19,4 @@ const AMAZON_COLOR_LINKS={
  'elegoo-translucent':{'半透明クリスタルホワイト':'B0GZWJRNL8','半透明ライトグレー':'B0GZWJL5HQ','半透明レッド':'B0GZWC4TD9','半透明イエロー':'B0GZWJ39BR','半透明ライトブルー':'B0GZWGJ774','半透明グリーン':'B0GZW6TX53','半透明ピンク':'B0GZW2M7XX','半透明ライトパープル':'B0GZWHW1MR'},
  'elegoo-plus':{'ブラック':'B0BM4KWKPF','ホワイト':'B0BM4KBR9G','グレー':'B0CFXRJSDC','レッド':'B0BM4J229H','シーグリーン':'B0CFXS7Z2R','スカイブルー':'B0CFXTSV3C'}
 };
-for(const product of PRODUCT_LIBRARY){const links=AMAZON_COLOR_LINKS[product.id];if(!links)continue;product.amazonSource='https://www.amazon.co.jp/dp/'+Object.values(links)[0];product.colors=product.colors.filter(color=>links[color.name]).map(color=>({...color,amazonUrl:'https://www.amazon.co.jp/dp/'+links[color.name]}))}
+for(const product of PRODUCT_LIBRARY){const links=AMAZON_COLOR_LINKS[product.id];if(!links)continue;product.colors=product.colors.map(color=>({...color,amazonUrl:links[color.name]?'https://www.amazon.co.jp/dp/'+links[color.name]:''}))}

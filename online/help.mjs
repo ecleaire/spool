@@ -1,0 +1,18 @@
+const TOPICS=[
+ ['フィラメント','商品から登録するには？','「フィラメントを追加」→「商品を選択・手動入力」で商品と色を選びます。画像・素材・色・容量・確認済みの販売URLを入力します。タグ・保管場所は通常画面、直径やURLなどは詳細設定から変更できます。'],
+ ['フィラメント','Amazonと公式リンクは両方必要？','どちらか一方だけで登録できます。リンクなしの手動登録も可能です。色を変更すると、その色の確認済みリンクへ切り替わります。未確認のAmazonリンクは空欄になります。'],
+ ['購入予定と共有','購入予定は自動で共有される？','自動では共有しません。マイライブラリで購入予定を選び、共有先を指定します。一括操作から複数件を選ぶこともできます。「今後の在庫も共有」を有効にしていても、購入予定は選んだものだけ共有します。'],
+ ['購入予定と共有','共有した購入予定を変更するには？','共有先で対象の購入予定の「編集」を押します。編集を許可されている場合、商品名・色・販売URL・状態などを変更できます。共有元にも反映します。購入後は「購入済み・在庫あり」に切り替えます。'],
+ ['購入予定と共有','共有停止と削除の違いは？','共有停止は、その共有先への表示だけを外します。原本は残ります。共有ライブラリの完全削除はホストだけが行えます。個人ライブラリと他の共有元の原本は削除しません。'],
+ ['権限とアカウント','誰の権限を変更している？','共有設定→メンバーの権限で対象メンバーを選択します。対象の表示名・ユーザーID・ライブラリ名と、保存ボタンの名前を確認してください。保存するまで変更は反映しません。'],
+ ['権限とアカウント','ホスト・管理者・サービス管理者の違いは？','ホストは共有ライブラリの所有者です。共有ライブラリの管理者は、そのライブラリのメンバー・在庫・予約などを管理します。サービス管理者はアカウント全体の利用範囲を設定します。共有先のホストは、サービス管理者が許可した範囲内で操作を許可できます。'],
+ ['権限とアカウント','共有ライブラリ限定のアカウントとは？','共有ライブラリだけを使える設定です。個人ライブラリは表示されませんが、既存データは保持します。招待先がないときは招待待ちと表示されます。利用範囲はサービス管理者が変更します。'],
+ ['印刷予約','印刷情報をすぐ変更するには？','一覧の「印刷予定」「未定」「印刷済み」をクリックすると、その場で変更できます。予約を編集する権限が必要です。登録日時は一覧に表示します。過去の予約で時刻を記録していないものは日付だけ表示します。'],
+ ['印刷予約','3MF・G-codeから何を入力できる？','予約フォームにファイルをドロップすると、記録されている印刷時間・色・素材などを読み取ります。スライス前の3MFなど、情報を含まないファイルもあります。読み取り結果を確認し、必要に応じて修正してください。'],
+ ['保存とトラブル','ログイン後にライブラリを読み込めない','通信状態を確認し、表示された再読み込みボタンで再試行してください。共有ライブラリ限定の方は、招待先への参加が必要です。未保存の入力がある場合は、先にJSONへ退避してください。'],
+ ['保存とトラブル','データを移す・バックアップするには？','データ管理からJSONを書き出します。画像・在庫・予約を引き継げます。オンライン添付ファイルの本体はJSONに含まれません。必要な添付は別途ダウンロードしてください。オフライン版は端末のHTMLとデータで動作します。'],
+];
+export function openHelp(){
+ document.querySelector('#spool-help-dialog')?.remove();const dialog=document.createElement('dialog');dialog.id='spool-help-dialog';dialog.className='cloud-tools-dialog help-dialog';dialog.setAttribute('aria-labelledby','spoolHelpTitle');dialog.innerHTML='<div class="cloud-dialog-head"><h2 id="spoolHelpTitle">ヘルプ・使い方</h2><button type="button" aria-label="ヘルプを閉じる">×</button></div><div class="cloud-dialog-body"><label>ヘルプを検索<input type="search" id="spool-help-search" placeholder="共有・購入予定・権限など"></label>'+[...new Set(TOPICS.map(x=>x[0]))].map(group=>'<section><h3>'+group+'</h3>'+TOPICS.filter(x=>x[0]===group).map(([,title,body])=>'<details class="help-topic"><summary>'+title+'</summary><p>'+body+'</p></details>').join('')+'</section>').join('')+'<p id="spool-help-empty" hidden>一致する項目がありません。</p></div>';
+ document.querySelector('#cloud-panel').append(dialog);dialog.showModal();dialog.querySelector('button').onclick=()=>dialog.close();dialog.querySelector('input').oninput=event=>{const query=event.target.value.trim().toLowerCase();let total=0;for(const section of dialog.querySelectorAll('section')){let count=0;for(const topic of section.querySelectorAll('details')){topic.hidden=!topic.textContent.toLowerCase().includes(query);if(!topic.hidden)count++;}section.hidden=!count;total+=count;}dialog.querySelector('#spool-help-empty').hidden=!!total;};
+}

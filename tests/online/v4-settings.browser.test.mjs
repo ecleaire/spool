@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';import {readFileSync,mkdirSync} from 'node:fs';import http from 'node:http';
+import {chromium} from '../../online/node_modules/playwright-core/index.mjs';import {rolePermissions} from '../../online/permissions.mjs';
+const project=JSON.parse(readFileSync(new URL('../../online/config.json',import.meta.url))).url.replace(/\/$/,'');
+const user='22222222-2222-4222-8222-222222222222',personal='11111111-1111-4111-8111-111111111111',team='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify({sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';
+const server=http.createServer((req,res)=>{const name=req.url.split('?')[0].split('/').pop()||'index.html';if(!['index.html','online.js','online.css','config.json'].includes(name)&&!/^catalog-images-/.test(name)){res.writeHead(404).end();return;}res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':name.endsWith('.json')?'application/json':'text/html;charset=utf-8');res.end(name==='config.json'?JSON.stringify({url:project,key:'sb_publishable_test'}):readFileSync(new URL('../../online-dist/'+name,import.meta.url)))});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+try{for(const width of [1440,390,320]){
+ const page=await browser.newPage({viewport:{width,height:1000}}),errors=[],writes=[],accessWrites=[];let waiting=false,revision=1;
+ const stock={id:'stock',name:'PLA',brand:'ELEGOO',material:'PLA',variant:'PLA',colorName:'白',color:'#FFFFFF',capacity:1000,remaining:1000,inventoryStatus:'owned',image:'',tags:[]};let plan={...stock,id:'plan',name:'購入予定の青',colorName:'ダークブルー',color:'#2240AF',inventoryStatus:'planned'};
+ let link={shared_library_id:team,shared_library_name:'工作室',mode:'all',included_ids:[],excluded_ids:[]};
+ const libraries=[{id:personal,name:'マイライブラリ',personal:true,owner_id:user},{id:team,name:'工作室',personal:false,owner_id:user}];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.route(project+'/**',async route=>{const req=route.request(),url=new URL(req.url()),path=url.pathname,body=req.method()==='POST'?req.postDataJSON():{};let data=[];
+  if(path.endsWith('/auth/v1/user'))data={id:user,email:'admin@example.com'};
+  else if(path.endsWith('/rpc/ensure_my_library'))data=waiting?null:personal;
+  else if(path.endsWith('/rpc/spool_is_admin'))data=!waiting;
+  else if(path.endsWith('/libraries'))data=waiting?[]:libraries;
+  else if(path.endsWith('/library_state'))data={revision,state:{items:url.searchParams.get('library_id')==='eq.'+personal?[stock,plan]:[],reservations:[],deleted:[],customColorPresets:[]}};
+  else if(path.endsWith('/library_members'))data={role:'owner'};
+  else if(path.endsWith('/rpc/get_my_library_permissions'))data={...rolePermissions('owner'),_admin:true};
+  else if(path.endsWith('/rpc/get_library_member_profiles'))data=[{user_id:user,display_name:'ホスト',display_id:'host',role:'owner'}];
+  else if(path.endsWith('/rpc/get_filament_sharing'))data=[link];
+  else if(path.endsWith('/rpc/set_filament_sharing')){writes.push(body);link={...link,mode:body.sharing_mode,included_ids:body.item_ids,excluded_ids:body.excluded_item_ids};data=null;}
+  else if(path.endsWith('/rpc/get_shared_filaments'))data=[stock,plan].filter(x=>x.inventoryStatus==='planned'?link.included_ids.includes(x.id):!link.excluded_ids.includes(x.id)).map(item=>({source_id:personal,source_name:'マイライブラリ',source_item_id:item.id,source_revision:revision,can_edit_plan:item.inventoryStatus==='planned',can_stop:true,item}));
+  else if(path.endsWith('/rpc/update_shared_purchase_plan')){assert.equal(body.expected_revision,revision);plan={...plan,...body.changes};data=++revision;}
+  else if(path.endsWith('/rpc/get_spool_accounts'))data=[{email:'member@example.com',display_name:'メンバー',display_id:'member',mode:'standard',features:{},is_admin:false}];
+  else if(path.endsWith('/rpc/set_spool_account_access')){accessWrites.push(body);data=null;}
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
+ });
+ await page.addInitScript(({user,token,project})=>sessionStorage.setItem('spool-auth-'+new URL(project).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,user:{id:user,email:'admin@example.com'}})),{user,token,project});
+ await page.goto('http://127.0.0.1:'+server.address().port+'/spool/');await page.locator('body:not(.cloud-locked)').waitFor();
+ await page.locator('#cloud-library-more').click();await page.locator('#cloud-manage-sharing').click();await page.locator('#sharing-hub-filaments').click();await page.locator('#sharing-save:not([disabled])').waitFor();assert.equal(await page.locator('[data-share-id=plan]').isChecked(),false);assert.equal(await page.locator('#sharing-future').isChecked(),true);await page.locator('#sharing-future').uncheck();await page.locator('#sharing-future').check();assert.equal(await page.locator('[data-share-id=plan]').isChecked(),false);await page.locator('[data-share-id=plan]').check();page.once('dialog',d=>d.accept());await page.locator('#sharing-save').click();await page.locator('#filament-sharing-dialog').waitFor({state:'hidden'});assert.ok(writes.at(-1).item_ids.includes('plan'));
+ await page.locator('#cloud-library').selectOption(team);const shared='shared-'+personal+'-plan';await page.locator('[data-edit="'+shared+'"]:not([disabled])').waitFor();await page.locator('[data-edit="'+shared+'"]').click();await page.locator('#sharedPlanForm [name=name]').fill('共有先で変更した購入予定');
+ if(process.env.SPOOL_SCREENSHOT_DIR){mkdirSync(process.env.SPOOL_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/v4-shared-plan-'+width+'.png'});}
+ await page.locator('#shared-plan-save').click();await page.locator('#shared-plan-dialog').waitFor({state:'hidden'});assert.equal(plan.name,'共有先で変更した購入予定');assert.equal(stock.name,'PLA');
+ await page.locator('#cloud-shared-settings').click();assert.equal(await page.locator('#sharingHubTitle').innerText(),'共有ライブラリの設定');await page.locator('#sharing-hub-close').click();
+ if(!await page.locator('#cloud-library-details').evaluate(x=>x.open))await page.locator('#cloud-library-more').click();await page.locator('#cloud-mobile-manage').click();await page.locator('.settings-users-entry').click();await page.locator('.settings-account-access').click();await page.locator('#account-access-target:not([disabled])').waitFor();assert.equal(await page.locator('#account-access-save').isDisabled(),true);await page.locator('#account-access-target').selectOption('member@example.com');await page.locator('#account-access-mode').selectOption('shared_only');await page.locator('.account-feature-details>summary').click();await page.locator('[data-account-feature=bookings_create]').uncheck();
+ if(process.env.SPOOL_SCREENSHOT_DIR)await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/v4-account-access-'+width+'.png'});
+ page.once('dialog',d=>d.accept());await page.locator('#account-access-save').click();await page.locator('#account-access-result[data-state=success]').waitFor();assert.equal(accessWrites.at(-1).target_email,'member@example.com');assert.equal(accessWrites.at(-1).access_mode,'shared_only');assert.equal(accessWrites.at(-1).feature_settings.bookings_create,false);await page.locator('[data-account-access-close]').click();
+ await page.locator('#spool-help-entry').click();await page.locator('#spool-help-search').fill('購入予定');assert.equal(await page.locator('#spool-help-dialog .help-topic:visible').count()>0,true);await page.getByRole('button',{name:'ヘルプを閉じる',exact:true}).click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ waiting=true;await page.reload();await page.locator('#cloud-panel').filter({hasText:'共有ライブラリへの招待をお待ちください。'}).waitFor();assert.equal(await page.locator('main').isVisible(),false);assert.deepEqual(errors,[]);await page.close();console.log('PASS v4 '+width+'px: optional purchase-plan sharing, scoped source edits, shared settings, explicit account limits, help and shared-only waiting.');
+}}finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve))}

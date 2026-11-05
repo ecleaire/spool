@@ -1004,6 +1004,9 @@ body.simple-workspace .bulk-toolbar button:disabled{opacity:.65;cursor:default}
 #bookingStatusDialog .booking-status-options button:hover{background:#eff5eb}
 #bookingStatusError{margin:10px 0 0;font-size:16px;line-height:1.5;color:#982f2b}
 #bookingStatusError:empty{display:none}
+body.simple-workspace{--reading-text:#102f21;--reading-secondary:#294532}
+body.simple-workspace main :is(p,small,label,.item-tag,.color-name,.meta){color:#294532}
+@media(min-width:1200px){body.simple-workspace main :is(p,small,label,input,select,textarea,.item-tag,.color-name,.meta){font-size:17px}body.simple-workspace main button{font-size:18px}body.simple-workspace .page-title h1{font-size:38px}}
 
 /* Keep the important booking facts readable without opening details. */
 body.simple-workspace #bookingView .booking-table th{font-size:17px;color:#254936;background:#edf3e9;padding:16px;font-weight:700}
