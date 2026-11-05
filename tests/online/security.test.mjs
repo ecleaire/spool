@@ -227,6 +227,39 @@ test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history
   await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,3,$4)',[planTarget,planSource,'plan-a',{name:'在庫を変更'}]),/purchase plan/);
  });
  await as(2,'viewer@example.com',async()=>{await db.query('select public.ensure_my_library()');await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,3,$4)',[planTarget,planSource,'plan-a',{name:'閲覧者の変更'}]),/editor required/);await assert.rejects(db.query('select public.get_spool_accounts()'),/Service administrator/);});
+
+ // Purchase wishes have their own grants; type conversion cannot bypass stock authority.
+ let wishesLibrary;
+ await as(0,'owner@example.com',async()=>{wishesLibrary=(await scalar("select public.create_shared_library('希望専用') as id")).id;await db.query("select public.invite_library_member($1,'editor@example.com','editor')",[wishesLibrary]);});
+ await as(1,'editor@example.com',async()=>{await db.query('select public.ensure_my_library()');});
+ await as(0,'owner@example.com',async()=>{await db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[wishesLibrary,ids[1],{wishlist_create:true}]);});
+ const wish={...plan,id:'wish-only',purchaseIntent:'wish'},wishState={...state,items:[wish]};
+ await as(1,'editor@example.com',async()=>{
+  await assert.rejects(db.query('select public.save_library_state($1,0,$2)',[wishesLibrary,{...state,items:[owned]}]),/Permission denied/);
+  await assert.rejects(db.query('select public.save_library_state($1,0,$2)',[wishesLibrary,{...state,items:[plan]}]),/Permission denied/);
+  assert.equal((await scalar('select public.save_library_state($1,0,$2) as revision',[wishesLibrary,wishState])).revision,1);
+  await assert.rejects(db.query('select public.save_library_state($1,1,$2)',[wishesLibrary,{...wishState,items:[{...wish,name:'変更'}]}]),/Permission denied/);
+ });
+ await as(0,'owner@example.com',async()=>{await db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[wishesLibrary,ids[1],{wishlist_edit:true}]);});
+ await as(1,'editor@example.com',async()=>{
+  await assert.rejects(db.query('select public.save_library_state($1,1,$2)',[wishesLibrary,{...wishState,items:[{...wish,inventoryStatus:'owned'}]}]),/conversion/);
+  await assert.rejects(db.query('select public.save_library_state($1,1,$2)',[wishesLibrary,{...wishState,items:[{...wish,purchaseIntent:'planned'}]}]),/conversion/);
+  assert.equal((await scalar('select public.save_library_state($1,1,$2) as revision',[wishesLibrary,{...wishState,items:[{...wish,name:'希望を編集'}]}])).revision,2);
+ });
+ await as(0,'owner@example.com',async()=>{await db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[wishesLibrary,ids[1],{wishlist_edit:true,purchase_create:true}]);});
+ await as(1,'editor@example.com',async()=>{assert.equal((await scalar('select public.save_library_state($1,2,$2) as revision',[wishesLibrary,{...wishState,items:[{...wish,purchaseIntent:'planned'}]}])).revision,3);});
+
+ // A shared source wish can be edited without inventory or purchase-plan edit rights.
+ await as(0,'owner@example.com',async()=>{
+  await db.query('select public.save_library_state($1,3,$2)',[wishesLibrary,{...state,items:[wish]}]);
+  await db.query("select public.set_filament_sharing($1,$2,'selected',$3)",[planTarget,wishesLibrary,[wish.id]]);
+  await db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[planTarget,ids[1],{wishlist_edit:true}]);
+ });
+ await as(1,'editor@example.com',async()=>{
+  const rows=(await scalar('select public.get_shared_filaments($1) as rows',[planTarget])).rows;assert.equal(rows.find(x=>x.source_item_id===wish.id).can_edit_plan,true);
+  await assert.rejects(db.query('select public.update_shared_purchase_plan($1,$2,$3,4,$4)',[planTarget,wishesLibrary,wish.id,{purchaseIntent:'planned'}]),/editor required/);
+  assert.equal((await scalar('select public.update_shared_purchase_plan($1,$2,$3,4,$4) as revision',[planTarget,wishesLibrary,wish.id,{name:'共有から希望を編集'}])).revision,5);
+ });
  await db.query('update auth.users set email=$1 where id=$2',['editor@example.com',ids[1]]);
  await as(0,'owner@example.com',async()=>{
   const original=(await scalar('select state from public.library_state where library_id=$1',[planSource])).state;assert.equal(original.items[0].name,'変更済み');assert.equal(original.items[1].name,unshared.name);assert.equal(original.items[2].inventoryStatus,'owned');assert.deepEqual(original.reservations,[]);

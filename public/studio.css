@@ -1037,3 +1037,7 @@ body.simple-workspace #bookingView .booking-card-footer{align-items:center;gap:1
 body.simple-workspace #bookingView .booking-card-metrics>div>span{color:#38533f;font-size:16px}
 @media(min-width:761px) and (max-width:1199px){body.simple-workspace #bookingView .booking-table-scroll{display:none}body.simple-workspace #bookingCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:16px}}
 @media(max-width:760px){body.simple-workspace #bookingView .booking-card{padding:18px}body.simple-workspace #bookingView .booking-card h3{font-size:22px}body.simple-workspace #bookingView .booking-card-top{gap:10px;margin-bottom:12px}body.simple-workspace #bookingView .booking-card-metrics{gap:10px;padding:12px;margin:16px 0}}
+#purchaseIntentFilter{min-height:44px;max-width:100%;padding:9px 36px 9px 12px;border:1px solid #91a78f;border-radius:9px;background:#f7faf3;color:#193f2b;font:inherit;font-size:16px;line-height:1.4;cursor:pointer}
+#purchaseIntentFilter:focus-visible{outline:3px solid #86ab69;outline-offset:2px}
+.purchase-planned .planned-capacity{display:block;white-space:nowrap;font-weight:600}
+@media(max-width:760px){#purchaseIntentFilter{grid-column:1/-1;width:100%;margin-top:4px}}

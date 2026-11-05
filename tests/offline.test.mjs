@@ -154,3 +154,10 @@ for(const [amazonUrl,shopUrl] of [['','https://jp.elegoo.com/products/pla-filame
 // Remove only the confirmed wrong glow link, preserving original stock and custom URLs.
 assert.equal(app.run('BBAMBOO_LIBRARY.find(p=>p.id==="bbamboo-glow").sourceUrl'),'');assert.equal(app.run('BBAMBOO_LIBRARY.find(p=>p.id==="bbamboo-glow").colors[0].shopUrl'),'');
 const repaired=JSON.parse(app.run('JSON.stringify(enrichAmazonLinks([{...items[0],brand:"B.BAMBOO",name:"PLA Glow",variant:"PLA Glow",colorName:"蓄光ブルー",amazonUrl:"https://www.amazon.co.jp/dp/B0H99CBS67?ref=share",shopUrl:"https://www.amazon.jp/dp/B0H99CBS67"}])[0])'));assert.equal(repaired.amazonUrl,'');assert.equal(repaired.shopUrl,'');assert.equal(repaired.remaining,800);assert.equal(repaired.image,initialItem.image);assert.equal(app.run('enrichAmazonLinks([{...items[0],brand:"B.BAMBOO",name:"PLA Glow",amazonUrl:"https://example.com/custom"}])[0].amazonUrl'),'https://example.com/custom');
+
+// Wishes remain inside planned purchases and survive backup without inflating stock.
+const wishes=boot({cached:[['spool-inventory-v1',JSON.stringify([initialItem,planItem,{...planItem,id:'wish_test',purchaseIntent:'wish'}])]]});
+assert.equal(wishes.get('#statCount').textContent,1);wishes.run('setTab("planned")');assert.ok(wishes.get('#items').innerHTML.includes('購入希望'));wishes.get('#purchaseIntentFilter').value='wish';wishes.run('render()');assert.ok(wishes.get('#items').innerHTML.includes('data-row-id="wish_test"'));assert.ok(!wishes.get('#items').innerHTML.includes('data-row-id="plan_test"'));
+wishes.run('openEditor("wish_test")');assert.equal(wishes.get('#form').elements.namedItem('inventoryStatus').value,'wish');assert.equal(wishes.run('valid({...items[0],purchaseIntent:"unknown"})'),false);
+const wishFile=fakeFile();wishes.context.window.showSaveFilePicker=async()=>wishFile;await wishes.run('saveDataFileAs()');assert.equal(boot({embedded:JSON.parse(wishFile.read())}).run('items.find(x=>x.id==="wish_test").purchaseIntent'),'wish');
+console.log('Passed: purchase wishes, nested filters, edit prefill, stock exclusion and JSON retention.');
