@@ -14,6 +14,7 @@ const tests=[
  'tests/small-screen.browser.test.mjs',
  'tests/color-name-wrap.browser.test.mjs',
  'tests/simple-view.browser.test.mjs',
+ 'tests/legacy-site-notice.browser.test.mjs',
 ];
 const escape=value=>String(value).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A');
 for(const file of tests){
