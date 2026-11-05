@@ -3,6 +3,7 @@ const tests=[
  'tests/online/browser.test.mjs',
  'tests/online/auth-loading.browser.test.mjs',
  'tests/online/sharing.browser.test.mjs',
+ 'tests/online/permissions.browser.test.mjs',
  'tests/search-layout.browser.test.mjs',
  'tests/print-import.browser.test.mjs',
  'tests/usability.browser.test.mjs',

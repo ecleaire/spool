@@ -1,3 +1,4 @@
+import {rolePermissions} from '../../online/permissions.mjs';
 import {chromium} from '../../online/node_modules/playwright-core/index.mjs';
 import http from 'node:http';
 import {readFileSync,readdirSync} from 'node:fs';
@@ -15,6 +16,7 @@ try{
   page.on('pageerror',error=>errors.push(error.message));
   await page.route(projectUrl+'/**',async route=>{const url=new URL(route.request().url());let data=[];
    if(url.pathname.endsWith('/auth/v1/user'))data={id:user,email:'qa@example.com'};
+   else if(url.pathname.endsWith('/rpc/get_my_library_permissions'))data=rolePermissions('owner');
    else if(url.pathname.endsWith('/auth/v1/logout'))data={};
    else if(url.pathname.endsWith('/rpc/ensure_my_library')){ensureCalls++;if(ensureCalls===1){entered();await gate;if(scenario==='failure-retry'){await route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({code:'42501',message:'permission denied'})});return}}data=lib;}
    else {if(!url.pathname.endsWith('/rpc/spool_is_admin'))otherCalls++;if(url.pathname.endsWith('/libraries'))data=[{id:lib,name:'QA library',personal:true,owner_id:user}];else if(url.pathname.endsWith('/rpc/spool_is_admin'))data=false;else if(url.pathname.endsWith('/library_state'))data={revision:0,state:{items:[],reservations:[],deleted:[],customColorPresets:[]}};else if(url.pathname.endsWith('/library_members'))data=url.searchParams.get('select')==='role'?{role:'owner'}:[];}

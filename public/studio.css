@@ -906,3 +906,64 @@ body.simple-workspace .simple-mode .product-image{width:100%;height:160px;object
 body.simple-workspace .simple-mode .product>div{width:100%;min-width:0}
 body.simple-workspace .simple-mode .color-name{margin:0;font-size:17px}
 @media(max-width:1000px){body.simple-workspace #items.simple-mode{grid-template-columns:minmax(0,1fr)}body.simple-workspace .inventory .toolbar>.view-switch{display:flex;grid-column:1/-1;grid-row:3;justify-self:end;width:auto}body.simple-workspace .view-switch>#gridView,body.simple-workspace .view-switch>#splitView{display:none}body.simple-workspace .view-switch button{min-width:44px;min-height:44px}body.simple-workspace .inventory .toolbar>.filter-disclosure[open]{grid-row:4}body.simple-workspace .simple-mode .product{flex-direction:row;align-items:center;gap:16px}body.simple-workspace .simple-mode .product-photo{width:96px}body.simple-workspace .simple-mode .product-image{height:100px}body.simple-workspace .simple-mode .product>div{flex:1}}
+
+/* Filament details: compact overview, clear stock summary and grouped secondary information. */
+body.simple-workspace #filamentDetails{width:min(820px,calc(100vw - 24px));padding:0;overflow:hidden;max-height:calc(100dvh - 32px)}
+body.simple-workspace #filamentDetails[open]{display:flex;flex-direction:column}
+body.simple-workspace #filamentDetails .dialog-head{position:relative;flex:none}
+body.simple-workspace #filamentDetailsBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:22px;display:flex;flex-direction:column;gap:18px;scroll-padding-block:16px}
+body.simple-workspace .detail-overview{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;align-items:center}
+body.simple-workspace .detail-hero{margin:0;padding:12px;border:1px solid #e1e8dc;border-radius:12px;background:#f8faf6;min-width:0}
+body.simple-workspace .detail-hero .detail-product-image{width:100%;height:200px;object-fit:contain;margin:0}
+body.simple-workspace .detail-summary{min-width:0;display:grid;gap:16px}
+body.simple-workspace #filamentDetails .detail-maker{display:grid;gap:4px;margin:0;font-size:16px}
+body.simple-workspace .detail-maker>strong{font-size:19px;overflow-wrap:anywhere}
+body.simple-workspace .detail-maker>span{font-size:15px;color:#49604e}
+body.simple-workspace .detail-color{display:flex;align-items:flex-start;gap:12px;min-width:0}
+body.simple-workspace .detail-color>.color-chip{width:26px;height:26px;flex:none;border:1px solid #bacab4;margin-top:25px}
+body.simple-workspace .detail-color>div{min-width:0;display:grid;gap:4px}
+body.simple-workspace .detail-label{display:block;font-size:13px;line-height:1.5;color:#4e6451}
+body.simple-workspace .detail-color strong{font-size:22px;line-height:1.45;min-width:0}
+body.simple-workspace .detail-color code{font-size:13px;color:#4e6451}
+body.simple-workspace .detail-tags .tag-list{margin:0;display:flex;flex-wrap:wrap;gap:6px}
+body.simple-workspace #filamentDetails .detail-tags .item-tag{font-size:14px}
+body.simple-workspace .detail-stock{padding:16px 18px;border:1px solid #cbdac4;border-radius:12px;background:#f4f8f0}
+body.simple-workspace .detail-stock-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+body.simple-workspace #filamentDetails h3{font-size:16px;margin:0 0 8px;color:#294c34}
+body.simple-workspace #filamentDetails .detail-stock-heading h3{margin:0}
+body.simple-workspace .detail-status{font-size:13px;padding:4px 9px;border-radius:6px;background:#dfecd8;color:#294f34;white-space:nowrap}
+body.simple-workspace .detail-status.is-planned{background:#f4e9c9;color:#695018}
+body.simple-workspace .detail-stock-content{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center}
+body.simple-workspace .detail-remaining>strong{display:block;font-size:34px;line-height:1.35;color:#234d32;font-variant-numeric:tabular-nums}
+body.simple-workspace .detail-remaining>strong small{font-size:16px;font-weight:500}
+body.simple-workspace .detail-capacity{display:block;font-size:14px;line-height:1.6;color:#49604e}
+body.simple-workspace .detail-stock-bar{height:6px;margin-top:10px;border-radius:4px;background:#dce6d5;overflow:hidden}
+body.simple-workspace .detail-stock-bar>i{display:block;height:100%;background:#537f48;border-radius:4px}
+body.simple-workspace .detail-storage{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px 12px;margin:0;min-width:0}
+body.simple-workspace #filamentDetails .detail-storage :is(dt,dd){font-size:15px;line-height:1.6;margin:0;overflow-wrap:anywhere}
+body.simple-workspace .detail-storage dt{color:#4e6451}
+body.simple-workspace .detail-notes,body.simple-workspace .detail-purchase{padding-top:16px;border-top:1px solid #dfe7d9}
+body.simple-workspace #filamentDetails .detail-note{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;margin:0;line-height:1.7}
+body.simple-workspace #filamentDetails .detail-sharing p{font-size:16px;margin:0}
+body.simple-workspace .detail-sharing small{font-size:14px;color:#4c634e}
+body.simple-workspace .detail-shop-links{display:flex;flex-wrap:wrap;gap:10px}
+body.simple-workspace #filamentDetails .detail-shop-links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:120px;padding:8px 16px;border:1px solid #a8bea0;border-radius:8px;font-size:16px;color:#294f35;text-decoration:none;background:#fff}
+body.simple-workspace #filamentDetails .dialog-actions{position:relative;flex:none;margin:0;padding:12px 20px;gap:10px}
+body.simple-workspace #filamentDetails .dialog-actions button{min-height:44px;min-width:100px;font-size:16px}
+@media(max-width:600px){
+ body.simple-workspace #filamentDetailsBody{padding:16px;gap:16px}
+ body.simple-workspace .detail-overview{grid-template-columns:minmax(0,1fr);gap:14px}
+ body.simple-workspace .detail-hero{width:min(210px,100%);justify-self:center;padding:8px}
+ body.simple-workspace .detail-hero .detail-product-image{height:140px}
+ body.simple-workspace .detail-summary{gap:12px}
+ body.simple-workspace .detail-stock{padding:14px}
+ body.simple-workspace .detail-stock-content{grid-template-columns:minmax(0,1fr);gap:14px}
+ body.simple-workspace .detail-remaining>strong{font-size:30px}
+ body.simple-workspace .detail-storage{gap:8px 12px}
+ body.simple-workspace #filamentDetails .detail-shop-links a{flex:1;min-width:0}
+ body.simple-workspace #filamentDetails .dialog-actions{padding:10px 12px max(10px,env(safe-area-inset-bottom))}
+ body.simple-workspace #filamentDetails .dialog-actions button{flex:1;min-width:0}
+}
+
+/* One icon family and equal touch targets for inventory views. */
+body.simple-workspace .inventory .view-switch>button:is(#listView,#splitView,#gridView,#simpleView){display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:10px;border-radius:6px;color:#385b46}body.simple-workspace .inventory .view-switch>button.selected{color:#193e31}body.simple-workspace .view-switch svg{display:block;width:24px;height:24px;flex:none}@media(max-width:1000px){body.simple-workspace .inventory .view-switch>button:is(#splitView,#gridView){display:none}}

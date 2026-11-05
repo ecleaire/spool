@@ -1,3 +1,4 @@
+import {rolePermissions} from '../../online/permissions.mjs';
 import {chromium} from '../../online/node_modules/playwright-core/index.mjs';
 import http from 'node:http';
 import {readFileSync,mkdirSync,readdirSync} from 'node:fs';
@@ -39,6 +40,7 @@ try{
   else if(url.pathname.endsWith('/rpc/create_shared_library')){sharedCreated=true;data=sharedLib;}
   else if(url.pathname.endsWith('/rpc/get_shared_filaments'))data=sharedRows;
   else if(url.pathname.endsWith('/rpc/library_is_shared'))data=false;
+  else if(url.pathname.endsWith('/rpc/get_my_library_permissions'))data=rolePermissions(memberRole);
   else if(url.pathname.endsWith('/rpc/get_filament_sharing'))data=sharingLinks;
   else if(url.pathname.endsWith('/rpc/get_library_member_profiles'))data=[{user_id:user,role:memberRole,display_name:'テスト利用者',display_id:'qa_owner'}];
   else if(url.pathname.endsWith('/rpc/set_filament_sharing')){const body=req.postDataJSON();mergeWrites.push(body);sharingLinks=body.sharing_mode==='none'?[]:[{shared_library_id:body.shared_lib,shared_library_name:sharedName,mode:body.sharing_mode,included_ids:body.item_ids,excluded_ids:body.excluded_item_ids}];data=null;}
