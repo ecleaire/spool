@@ -2171,7 +2171,7 @@ function updateBookingDraftBanner(){
  select.innerHTML=drafts.map(d=>'<option value="'+esc(d.slot)+'">'+esc(d.data.fields?.title||'作品名未入力')+' · '+esc(new Date(d.updatedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}))+'</option>').join('');if(drafts.some(d=>d.slot===previous))select.value=previous;
 }
 function beginBookingDraft(){
- if(!$('#bookingDialog').open)return;const c=bookingExperienceContext();bookingDraftScope=c?{account:c.account,library:c.library}:null;bookingDraftSlot=bookingEditId||'new';bookingDraftWasNew=!bookingEditId;bookingDraftRecoveredId=null;bookingDraftExpiresAt=null;bookingDraftBaseSignature=bookingDraftSignature(reservations.find(x=>x.id===bookingEditId));bookingDraftBaseline=JSON.stringify(bookingDraftForm());$('#bookingDraftStatus').textContent=bookingDraftScope?'下書きはこの端末に保存し、24時間で自動削除します。':'';
+ if(!$('#bookingDialog').open)return;const c=bookingExperienceContext();bookingDraftScope=c?{account:c.account,library:c.library}:null;bookingDraftSlot=bookingEditId||'new-'+crypto.randomUUID();bookingDraftWasNew=!bookingEditId;bookingDraftRecoveredId=null;bookingDraftExpiresAt=null;bookingDraftBaseSignature=bookingDraftSignature(reservations.find(x=>x.id===bookingEditId));bookingDraftBaseline=JSON.stringify(bookingDraftForm());$('#bookingDraftStatus').textContent=bookingDraftScope?'下書きはこの端末に保存し、24時間で自動削除します。':'';
 }
 const openBookingBeforeExperience=openBooking;
 openBooking=function(id){if(bookingSaving)return;openBookingBeforeExperience(id);beginBookingDraft()};
@@ -2184,7 +2184,7 @@ $('#bookingDialog').addEventListener('close',()=>{persistBookingDraft();bookingD
 $('#bookingDraftRestore').onclick=()=>{
  const c=bookingExperienceContext(),draft=bookingDraftStore.list(c).find(x=>x.slot===$('#bookingDraftPicker').value);if(!draft){updateBookingDraftBanner();toast('下書きは期限切れ、または削除済みです。');return}
  if($('#bookingDialog').open&&JSON.stringify(bookingDraftForm())!==bookingDraftBaseline&&!confirm('現在の入力を下書きで置き換えますか？'))return;
- const data=draft.data,original=reservations.find(x=>x.id===data.bookingId);
+ const raw=draft.data,data={...raw,bookingId:typeof raw.bookingId==='string'&&raw.bookingId.length<=120?raw.bookingId:null,pendingNames:Array.isArray(raw.pendingNames)?raw.pendingNames.filter(x=>typeof x==='string'&&x.length<=240).slice(0,10):[],attachmentIds:Array.isArray(raw.attachmentIds)?raw.attachmentIds.filter(x=>typeof x==='string'&&x.length<=120).slice(0,10):[]},original=reservations.find(x=>x.id===data.bookingId);
  if(!data.wasNew&&!original&&!confirm('元の予約が見つかりません。新規予約として復元しますか？'))return;
  if(original&&data.baseSignature&&bookingDraftSignature(original)!==data.baseSignature&&!confirm('元の予約が更新されています。下書きを復元して内容を確認しますか？ 保存するまで原本は変更されません。'))return;
  openBooking(original?.id);if(!$('#bookingDialog').open||bookingExperienceKey(c)!==bookingExperienceKey())return;
