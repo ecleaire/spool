@@ -1187,7 +1187,7 @@ body.simple-workspace #bookingView .booking-creator{display:block;font-size:20px
 @media(max-width:760px){body.simple-workspace #bookingView .booking-row-details>summary{font-size:max(var(--spool-type-floor,18px),18px)}body.simple-workspace #bookingView .booking-creator{font-size:19px}body.simple-workspace #bookingView .booking-overview .booking-urgent-stat.has-urgent strong{font-size:34px}}
 
 /* Shared reading floor: compact metadata remains readable on every screen. */
-:root{--spool-type-floor:19px}
+:root{--spool-type-floor:clamp(19px,1.05vw,23px)}
 body.simple-workspace{--ink:#153526;--muted:#304b39;--reading-text:#153526;--reading-secondary:#304b39;font-size:20px}
 body.simple-workspace :is(.content,dialog) :is(.eyebrow,.brand-name,.color-name,.library-note,.field-feedback,.optional-tag,.required-label,.help-details>summary,.booking-quality-label,.booking-row-actions .booking-source,.detail-kicker,.detail-note,.upload-hint){color:#304b39}
 body.simple-workspace :is(.content,dialog) :is(small,.item-tag,.tag-chip,.color-preset span,.color-preset small){font-size:max(var(--spool-type-floor),1em)}
