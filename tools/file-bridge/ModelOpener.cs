@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
 public static class ModelOpener {
+    [DllImport("shell32.dll")]
+    static extern void SHChangeNotify(uint eventId, uint flags, IntPtr item1, IntPtr item2);
     const string DownloadHost = "mtfmamufpaqpwsuiccoz.supabase.co";
     const long Limit = 104857600;
     static readonly string Home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SPOOL", "FileBridge");
@@ -64,6 +67,7 @@ public static class ModelOpener {
                 using (RegistryKey command=key.CreateSubKey(@"shell\open\command")) command.SetValue("","\""+target+"\" \"%1\"");
             }
         }
+        SHChangeNotify(0x08000000,0,IntPtr.Zero,IntPtr.Zero);
         MessageBox.Show("Installed. In Windows, associate STL, 3MF and G-code with your preferred slicer.\n\nYou can now use the SPOOL 'Open in app' links.","SPOOL");
     }
 
@@ -76,6 +80,7 @@ public static class ModelOpener {
             }
             Registry.CurrentUser.DeleteSubKeyTree(path,false);
         }
+        SHChangeNotify(0x08000000,0,IntPtr.Zero,IntPtr.Zero);
         MessageBox.Show("SPOOL app links removed. Original and downloaded model files were kept.","SPOOL");
     }
 
