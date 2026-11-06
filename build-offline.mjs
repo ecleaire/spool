@@ -4,6 +4,7 @@ import path from 'node:path';
 const root=fs.realpathSync(process.cwd()),publicDir=path.join(root,'public'),output=path.join(root,'dist');
 const inlineJs=name=>'<script>\n'+fs.readFileSync(path.join(publicDir,name),'utf8').replace('MODEL_HELPER_DOWNLOAD_PLACEHOLDER',JSON.stringify('data:application/zip;base64,'+modelHelperArchive().toString('base64'))).replace(/<\/script/gi,'<\\/script')+'\n</script>';
 let html=fs.readFileSync(path.join(publicDir,'inventory.html'),'utf8');
+html=html.replace('EVENT_BANNER_PLACEHOLDER','data:image/png;base64,'+fs.readFileSync(path.join(publicDir,'event-christmas-2026.png')).toString('base64'));
 const version=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8')).version;
 if(!/^\d+\.\d+\.\d+(?:-[a-z0-9.-]+)?$/i.test(version))throw Error('Invalid release version');
 html=html.replace(/(<summary id="appVersion">)[^<]*(<\/summary>)/,'$1v'+version+'$2');

@@ -25,6 +25,7 @@ html=html.replace(/<body\b([^>]*)>/i,(_,attributes)=>{
 });
 if(!html.includes('id="cloud-panel"')||!/<body\b[^>]*\bcloud-locked/.test(html))throw Error('Online shell and login protection were not inserted');
 // Public catalog photos are fetched on demand; private library photos remain in authenticated state.
+html=html.replace(/data-event-banner src="data:image\/png;base64,[A-Za-z0-9+/]+=*"/,'data-event-banner src="./event-christmas-2026.png"');
 const catalogImages={};html=html.replace(/data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*/g,value=>{const key=createHash('sha256').update(value).digest('hex');catalogImages[key]=value;return 'catalog-image:'+key});
 const catalogText=JSON.stringify(catalogImages),catalogFile='catalog-images-'+createHash('sha256').update(catalogText).digest('hex').slice(0,16)+'.json';
 const lazyCatalog=`
@@ -63,7 +64,8 @@ writeFileSync(path.join(out,'index.html'),html);
 // Hosting uses a supported static output directory; retain the standalone offline app beside it.
 const hosted=path.join(root,'out');mkdirSync(hosted,{recursive:true});
 writeFileSync(path.join(out,'favicon.svg'),readFileSync(path.join(root,'public/favicon.svg')));
-const publicFiles=['favicon.svg','index.html','online.js','online.css','config.json','offline.html',catalogFile];
+writeFileSync(path.join(out,'event-christmas-2026.png'),readFileSync(path.join(root,'public/event-christmas-2026.png')));
+const publicFiles=['event-christmas-2026.png','favicon.svg','index.html','online.js','online.css','config.json','offline.html',catalogFile];
 if(lstatSync(hosted).isSymbolicLink())throw Error('Public output must be a regular directory');
 if(readdirSync(hosted).some(name=>(!publicFiles.includes(name)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(name))||!lstatSync(path.join(hosted,name)).isFile()))throw Error('Unexpected files in public output; review them before publication');
 for(const name of publicFiles)writeFileSync(path.join(hosted,name),readFileSync(path.join(out,name)));

@@ -4,7 +4,7 @@ import http from 'node:http';import {readFileSync,mkdirSync} from 'node:fs';impo
 const project=JSON.parse(readFileSync(new URL('../../online/config.json',import.meta.url))).url.replace(/\/$/,'');
 const user='22222222-2222-4222-8222-222222222222',personal='11111111-1111-4111-8111-111111111111',team='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',other='33333333-3333-4333-8333-333333333333';
 const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify({sub:user,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';
-const server=http.createServer((req,res)=>{const file=req.url.split('?')[0].split('/').pop()||'index.html';if(!['index.html','online.js','online.css','config.json'].includes(file)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(file)){res.writeHead(404).end();return}res.setHeader('Content-Type',file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/json');res.end(file==='config.json'?JSON.stringify({url:project,key:'sb_publishable_test'}):readFileSync(new URL('../../online-dist/'+file,import.meta.url)))});
+const server=http.createServer((req,res)=>{const file=req.url.split('?')[0].split('/').pop()||'index.html';if(!['index.html','online.js','online.css','config.json','event-christmas-2026.png'].includes(file)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(file)){res.writeHead(404).end();return}res.setHeader('Content-Type',file.endsWith('.png')?'image/png':file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/json');res.end(file==='config.json'?JSON.stringify({url:project,key:'sb_publishable_test'}):readFileSync(new URL('../../online-dist/'+file,import.meta.url)))});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)mkdirSync(shots,{recursive:true});
 try{
@@ -28,7 +28,7 @@ try{
  for(const width of [320,390,1440]){
   await page.setViewportSize({width,height:1000});
   await page.locator('[data-cloud-nav="events"]').click();
-  assert.equal(await page.locator('#eventView').isVisible(),true);
+  assert.equal(await page.locator('#eventView').isVisible(),true);await page.locator('[data-event-banner]').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
   assert.equal(await page.locator('[data-cloud-nav="events"]').getAttribute('aria-current'),'page');
   assert.equal(await page.locator('#add').isVisible(),false);assert.equal(await page.locator('#addBooking').isVisible(),false);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
