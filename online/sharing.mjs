@@ -9,7 +9,7 @@ export function createFilamentSharing({context,bridge,esc,fail,refreshShared,pre
  window.spoolSharingMarkup=item=>{
   if(item._sharedSource)return '';
   const names=loadedLibrary===ctx().library?links.filter(link=>link.active!==false&&sharingIncludes(link,item.id,item)).map(link=>link.shared_library_name):[];
-  return names.length?'<span class="filament-sharing-label">共有中：'+esc(names.join('、'))+'</span>':loadedLibrary===ctx().library?'<span class="filament-sharing-label not-shared">未共有</span>':'';
+  return names.length?'<span class="filament-sharing-label">共有中：'+esc(names.join('、'))+'</span>':loadedLibrary===ctx().library?'<span class="filament-sharing-label not-shared">'+(ctx().active?.personal===false?'共有ライブラリ内':'共有先への同期なし')+'</span>':'';
  };
  window.spoolStopSharing=async id=>{
   const c=ctx(),item=bridge.snapshot().items.find(x=>x.id===id),source=item?._sharedSource;if(!source?.canStop)return;
