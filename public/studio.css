@@ -1214,3 +1214,11 @@ body.simple-workspace .event-redesign small{color:#304b39}
 @media(max-width:760px){body.simple-workspace .event-redesign :is(p,dd,li){font-size:max(var(--spool-type-floor,18px),18px)}}
 
 @media(max-width:760px){body.simple-workspace .stats article{padding:8px 10px}body.simple-workspace .stats article>div{line-height:1.4}body.simple-workspace .stats small{font-size:max(var(--spool-type-floor,18px),18px)}}
+
+/* UI audit: keep form hints readable and image actions concise. */
+body.simple-workspace #bookingDialog :is(.field-required,.field-optional,.color-field-heading>span){color:#304b39}
+body.simple-workspace #bookingDialog :is(#bookingNoPreference,#bookingRandom){color:#284a33;font-weight:600}
+body.simple-workspace #bookingDialog :is(#bookingNoPreference,#bookingRandom)[aria-pressed=true]{background:#e5efd9;color:#183d29;border-color:#789566}
+body.simple-workspace #editor :is(#draftBrand,#draftColor,.help-details p){color:#304b39}
+body.simple-workspace #editor #imageDrop .upload-button{white-space:nowrap;line-height:1.5}
+body.simple-workspace #editor #imageDrop .help-details>summary{white-space:normal;text-wrap:pretty;line-height:1.6}
