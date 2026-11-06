@@ -289,3 +289,5 @@ body.simple-workspace .booking-row-actions .booking-source{flex-basis:100%;margi
 body.simple-workspace .booking-row-actions>button{flex:1 1 auto;min-height:44px;white-space:nowrap;font-size:14px;margin:0;padding:8px 12px}
 body.simple-workspace .booking-table td:last-child{min-width:180px}
 @media(max-width:760px){body.simple-workspace .booking-card-footer{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}body.simple-workspace .booking-row-actions>button{font-size:16px}}
+
+@media(max-width:760px){body:not(.cloud-locked) .cloud-navigation{gap:2px}body.simple-workspace .cloud-topbar .cloud-navigation button{padding-inline:4px;font-size:14px;white-space:nowrap}body:not(.cloud-locked) .cloud-navigation button>span{display:none}}

@@ -11,7 +11,7 @@ html=html.replace('<link rel="stylesheet" href="style.css">',()=>'<style>\n'+fs.
 html=html.replace('<link rel="stylesheet" href="polish.css">',()=>'<style>\n'+fs.readFileSync(path.join(publicDir,'polish.css'),'utf8')+'\n</style>');
 html=html.replace('<link rel="stylesheet" href="workspace.css">',()=>'<style>\n'+fs.readFileSync(path.join(publicDir,'workspace.css'),'utf8')+'\n</style>');
 html=html.replace('<link rel="stylesheet" href="studio.css">',()=>'<style>\n'+fs.readFileSync(path.join(publicDir,'studio.css'),'utf8')+'\n</style>');
-for(const name of ['bootstrap.js','color-presets.js','elegoo-library.js','bambu-library.js','app.js','model-files.js','print-metadata.js','reservations.js','offline.js','forms.js','print-import.js']){
+for(const name of ['bootstrap.js','color-presets.js','elegoo-library.js','bambu-library.js','app.js','model-files.js','print-metadata.js','reservations.js','offline.js','forms.js','print-import.js','events.js']){
  const marker='<script src="'+name+'"></script>';
  if(!html.includes(marker))throw Error('Missing script '+name);
  html=html.replace(marker,()=>inlineJs(name));
