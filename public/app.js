@@ -5,7 +5,22 @@ function validPresets(data){return Array.isArray(data)&&data.length<=500&&data.e
 function validTags(tags){return tags===undefined||(Array.isArray(tags)&&tags.length<=20&&tags.every(x=>typeof x==='string'&&x.trim()&&x.length<=30));}
 function sortTags(tags){const types=['ノーマル','シルク','マット','半透明','蓄光','多色'],rank=tag=>/^(PLA(?:\+|-CF)?|PETG(?:-CF)?|ABS|ASA|TPU|TPE|PC|PA(?:\d+)?(?:-CF|-GF)?|PVA|HIPS|PPS(?:-CF)?|PPA(?:-CF)?)$/i.test(tag)?0:types.includes(tag)?1:/^(青|赤|緑|黄|オレンジ|紫|ピンク|茶|ベージュ|白|黒|グレー)系$/.test(tag)?2:3;return [...new Set(tags||[])].sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b,'ja',{numeric:true}))}
 function parseTags(value){const tags=[...new Set(String(value||'').split(/[,、\n]/).map(x=>x.trim().replace(/^#/, '')).filter(Boolean))];if(!validTags(tags))throw Error('タグは20個まで、1個30文字以内で入力してください。');return tags;}
-function automaticFilamentTags(item){const text=[item.name,item.variant,item.colorName].filter(Boolean).join(' '),tags=[item.material];if(/silk|シルク/i.test(text))tags.push('シルク');if(/matte|マット/i.test(text))tags.push('マット');if(isTranslucentFilament(item))tags.push('半透明');if(/glow|蓄光|夜光/i.test(text))tags.push('蓄光');if(/rainbow|dual.?colou?r|tri.?colou?r|多色|二色|三色|双色|虹色|[&＆]/i.test(text))tags.push('多色');if(!tags.slice(1).length&&/^(?:PLA|PLA Basic|PLA RFID)$/i.test(variantOf(item)||item.name||''))tags.push('ノーマル');return [...new Set(tags.filter(Boolean))]}
+function filamentColorFamilyTags(item){
+ const name=String(item.colorName||'').normalize('NFKC').toLowerCase();
+ const families=[['白系',/ホワイト|しろ|白|white/],['黒系',/ブラック|くろ|黒|black/],['グレー系',/グレー|グレイ|シルバー|灰|gray|grey|silver/],['ベージュ系',/ベージュ|アイボリー|クリーム|beige|ivory|cream/],['茶系',/ブラウン|チョコ|ココア|コーヒー|ブロンズ|茶|brown|chocolate|cocoa|coffee|bronze/],['ピンク系',/ピンク|マゼンタ|ローズ|pink|magenta|rose/],['オレンジ系',/オレンジ|橙|orange/],['黄系',/イエロー|ゴールド|金|黄|yellow|gold/],['赤系',/レッド|マルーン|ワイン|赤|red|maroon|wine/],['緑系',/グリーン|オリーブ|緑|green|olive/],['青系',/ブルー|シアン|ターコイズ|ティール|ネイビー|青|水色|blue|cyan|turquoise|teal|navy/],['紫系',/パープル|バイオレット|ラベンダー|紫|purple|violet|lavender/]];
+ const matches=families.flatMap(([tag,pattern])=>{const match=pattern.exec(name);return match?[{tag,index:match.index}]:[]}).sort((a,b)=>a.index-b.index);
+ if(matches.length)return /[&＆/・]|二色|三色|双色|dual|tri.?colou?r/i.test(name)?matches.map(x=>x.tag):[matches[0].tag];
+ // A rainbow has no single representative hue; do not infer one from its preview HEX.
+ if(/rainbow|レインボー|多色|虹色/i.test(name))return [];
+ const hex=normalizeHex(item.color);if(!hex)return [];
+ const [r,g,b]=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255),max=Math.max(r,g,b),min=Math.min(r,g,b),delta=max-min,light=(max+min)/2,saturation=delta?delta/(1-Math.abs(2*light-1)):0;
+ if(max<=.2)return ['黒系'];if(min>=.85&&delta<=.12)return ['白系'];if(saturation<.15||delta<.08)return ['グレー系'];
+ let hue=(max===r?(g-b)/delta+(g<b?6:0):max===g?(b-r)/delta+2:(r-g)/delta+4)*60;
+ if(hue>=10&&hue<65&&light<.43)return ['茶系'];if(hue>=15&&hue<65&&light>.65&&saturation<.55)return ['ベージュ系'];
+ if(hue>=315&&hue<345||(hue<20||hue>=345)&&light>.68)return ['ピンク系'];
+ return [hue<15||hue>=345?'赤系':hue<45?'オレンジ系':hue<70?'黄系':hue<170?'緑系':hue<255?'青系':hue<315?'紫系':'ピンク系'];
+}
+function automaticFilamentTags(item){const text=[item.name,item.variant,item.colorName].filter(Boolean).join(' '),tags=[item.material];if(/silk|シルク/i.test(text))tags.push('シルク');if(/matte|マット/i.test(text))tags.push('マット');if(isTranslucentFilament(item))tags.push('半透明');if(/glow|蓄光|夜光/i.test(text))tags.push('蓄光');if(/rainbow|dual.?colou?r|tri.?colou?r|多色|二色|三色|双色|虹色|[&＆]/i.test(text))tags.push('多色');if(!tags.slice(1).length&&/^(?:PLA|PLA Basic|PLA RFID)$/i.test(variantOf(item)||item.name||''))tags.push('ノーマル');return [...new Set([...tags,...filamentColorFamilyTags(item)].filter(Boolean))]}
 function filamentTags(item){return [...new Set([...automaticFilamentTags(item),...(item.tags||[])].filter(Boolean))]}
 function filamentTagsMarkup(item){return tagsMarkup(filamentTags(item),true)}
 function tagsMarkup(tags,interactive=false){return tags?.length?'<span class="tag-list">'+sortTags(tags).map(x=>interactive?'<button type="button" class="item-tag" data-search-tag="'+esc(x)+'" title="このタグで検索">#'+esc(x)+'</button>':'<span class="item-tag">#'+esc(x)+'</span>').join('')+'</span>':'';}

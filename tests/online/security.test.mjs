@@ -206,6 +206,7 @@ test('SQL enforces invitations, tenant isolation, owner privileges, CAS, history
  await db.exec(readFileSync(new URL('../../supabase/upgrade-existing.sql',import.meta.url),'utf8'));
  await db.exec(readFileSync(new URL('../../supabase/upgrade-existing.sql',import.meta.url),'utf8'));
  await as(0,'owner@example.com',async()=>{const created=(await scalar("select public.create_shared_library('更新確認') as id")).id;const original=await scalar('select state from public.library_state where library_id=$1',[mine]);const chosen=original.state.items[0].id;await db.query("select public.set_filament_sharing($1,$2,'selected',$3)",[created,mine,[chosen]]);const visible=(await scalar('select public.get_shared_filaments($1) as rows',[created])).rows;assert.equal(visible.length,1);assert.equal(visible[0].source_item_id,chosen);assert.equal((await scalar('select state from public.library_state where library_id=$1',[mine])).state.items.length,original.state.items.length);});
+ await (await import('./auto-sharing-sql.mjs')).checkAutomaticFilamentSharing({db,as,scalar,source:mine});
  // Account-level limits bound all libraries; purchase-plan sharing is explicit and narrow.
  let planSource,planTarget;
  const plan={id:'plan-a',name:'PLA planned',brand:'ELEGOO',material:'PLA',colorName:'青',color:'#2240AF',capacity:1000,remaining:1000,inventoryStatus:'planned',note:'原本',image:'',tags:[]},unshared={...plan,id:'plan-b'},owned={...plan,id:'stock-a',inventoryStatus:'owned'};

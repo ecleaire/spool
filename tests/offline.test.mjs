@@ -182,3 +182,9 @@ for(const note of ['棚AのUSBに保管','担当者から受け取り予定','<i
 }
 for(const note of ['', '   ', 'line\nbreak', 'x'.repeat(2049)])assert.equal(app.run('validBookingReference('+JSON.stringify(note)+')'),false);
 console.log('Passed: free-text model references are preserved and escaped, with no clickable executable or malformed URLs.');
+
+// Color families derive from names first, then HEX; never overwrite manual tags.
+for(const [name,hex,expected] of [['ジェイドホワイト','#AADDCC','白系'],['クリアライトブルー','#FFFFFF','青系'],['シルクシルバー','#FFFFFF','グレー系'],['ピンク','#222222','ピンク系'],['ベージュ','#AA4422','ベージュ系'],['ブラック','#FFFFFF','黒系'],['ココアブラウン','#FFFFFF','茶系'],['レッド','#FFFFFF','赤系'],['グリーン','#FFFFFF','緑系'],['バイオレット','#FFFFFF','紫系'],['オレンジ','#FFFFFF','オレンジ系'],['ゴールド','#FFFFFF','黄系'],['custom','#FFFFFF','白系'],['custom','#000000','黒系'],['custom','#888888','グレー系'],['custom','#0000FF','青系'],['custom','#FF0000','赤系'],['custom','#FFFF00','黄系'],['custom','#00FF00','緑系'],['custom','#FF8000','オレンジ系'],['custom','#8000FF','紫系'],['custom','#FF80C0','ピンク系'],['custom','#704020','茶系'],['custom','#DBC8B6','ベージュ系']])assert.equal(app.run('filamentColorFamilyTags('+JSON.stringify({colorName:name,color:hex})+')[0]'),expected,name);
+assert.deepEqual(Array.from(app.run('filamentColorFamilyTags({colorName:"レッド＆ブルー",color:"#FFFFFF"})')),['赤系','青系']);assert.equal(app.run('filamentColorFamilyTags({colorName:"レインボー rainbow",color:"#FF0000"}).length'),0);
+assert.ok(app.run('filamentTags({name:"PLA",material:"PLA",colorName:"ホワイト",color:"#FFFFFF",tags:["よく使う"]}).includes("白系")'));assert.ok(app.run('filamentTags({name:"PLA",material:"PLA",colorName:"ホワイト",color:"#FFFFFF",tags:["よく使う"]}).includes("よく使う")'));
+console.log('Passed: automatic color-family tags, name priority, HEX fallback, multicolor, rainbow and manual-tag preservation.');
