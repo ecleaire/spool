@@ -317,8 +317,10 @@ window.spoolBookingFileUpload=async(bookingId,files,ids=[])=>{
    window.spoolBookingProgress?.('upload',{total:files.length,completed:uploaded.length,name:file.name});
    if(library!==lib||authEpoch!==epoch)throw Error('ログイン状態が変わりました。保存状態を確認してください。');
    if(!/\.(stl|obj|3mf|amf|step|stp|gcode)$/i.test(file.name)||file.name.length>240||file.size<1||file.size>104857600)throw Error('対応形式・100MB以下のファイルを指定してください。');
-   const id=/^[0-9a-f-]{36}$/i.test(ids[fileIndex]||'')?ids[fileIndex]:crypto.randomUUID(),object_path=`${place.library}/${id}/model`;
-   const meta=await client.from('library_files').insert({id,library_id:place.library,booking_id:place.booking,name:file.name,size:file.size,object_path});if(meta.error)throw meta.error;
+   let id=/^[0-9a-f-]{36}$/i.test(ids[fileIndex]||'')?ids[fileIndex]:crypto.randomUUID(),object_path=`${place.library}/${id}/model`;
+   const insert=()=>client.from('library_files').insert({id,library_id:place.library,booking_id:place.booking,name:file.name,size:file.size,object_path});let meta=await insert();
+   if(meta.error?.code==='23505'){id=crypto.randomUUID();object_path=`${place.library}/${id}/model`;meta=await insert();}
+   if(meta.error)throw meta.error;
    const result=await client.storage.from('spool-models').upload(object_path,file,{contentType:'application/octet-stream',upsert:false});
    if(result.error){await client.from('library_files').delete().eq('id',id);throw result.error}
    uploaded.push({id,name:file.name,size:file.size,kind:'online'});window.spoolBookingProgress?.('upload',{total:files.length,completed:uploaded.length});
