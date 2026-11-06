@@ -27,7 +27,7 @@ try{
   });
   await page.addInitScript(({user,token,project})=>sessionStorage.setItem('spool-auth-'+new URL(project).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,user:{id:user,email:'test@example.com'}})),{user,token,project});
   await page.goto('http://127.0.0.1:'+server.address().port+'/spool/');await page.locator('body:not(.cloud-locked)').waitFor();await page.locator('[data-cloud-nav=bookings]').click();
-  const registration=page.locator(width>=1200?'#bookingRows .booking-registered':'#bookingCards .booking-card-registration');assert.equal(await registration.isVisible(),true);assert.ok((await registration.innerText()).includes('14:35'));
+  const registration=page.locator(width>=1200?'#bookingRows .booking-registered':'#bookingCards .booking-card-registration');assert.equal(await registration.isVisible(),true);assert.ok((await registration.innerText()).includes('2026/11/06'));assert.ok(!(await registration.innerText()).includes('14:35'));
   assert.equal(await page.locator('.sidebar').isVisible(),false,'Online layout keeps the top navigation');
   const trigger=page.locator('[data-quick-booking-status]:visible');assert.equal(await trigger.isEnabled(),true);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

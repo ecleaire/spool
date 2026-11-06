@@ -15,7 +15,7 @@ try{
   await page.goto('http://127.0.0.1:'+server.address().port);
   const navigate=()=>page.locator(width>760?'#navBookings':'#showBookings').click();
   const trigger=()=>page.locator('[data-quick-booking-status]:visible');
-  await navigate();const registered=page.locator(width>=1200?'#bookingRows .booking-registered':'#bookingCards .booking-card-registration');assert.equal(await registered.isVisible(),true);assert.ok((await registered.innerText()).includes('14:35'));
+  await navigate();const registered=page.locator(width>=1200?'#bookingRows .booking-registered':'#bookingCards .booking-card-registration');assert.equal(await registered.isVisible(),true);assert.ok((await registered.innerText()).includes('2026/11/06'));assert.ok(!(await registered.innerText()).includes('14:35'));
   assert.ok(Number(await registered.locator('time').evaluate(x=>parseFloat(getComputedStyle(x).fontSize)))>=17);
   if(process.env.SPOOL_SCREENSHOT_DIR){mkdirSync(process.env.SPOOL_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/booking-list-'+width+'.png',fullPage:true});}
   await trigger().click();
@@ -35,6 +35,6 @@ try{
   await page.keyboard.press('Escape');await page.evaluate(()=>{delete window.spoolAuthorizeChange;window.spoolCan=()=>false;renderBookings()});assert.equal(await trigger().count(),0);assert.ok((await page.locator('[data-readonly-booking-status]:visible').innerText()).includes('印刷済み'));
   await page.evaluate(()=>{delete window.spoolCan;const {registeredTime,...legacy}=reservations[0];saveBookings([legacy])});assert.equal(await registered.locator('.booking-registered-time').count(),0);assert.ok((await registered.innerText()).includes('2026/11/06'));
   await page.locator('#addBooking').click();await page.locator('#bookingForm [name=title]').fill('新しい予約');await page.locator('#bookingNoPreference').click();await page.locator('#saveBookingButton').click();await page.locator('#bookingDialog').waitFor({state:'hidden'});assert.match(await page.evaluate(()=>reservations.find(x=>x.title==='新しい予約').registeredTime),/^([01]\d|2[0-3]):[0-5]\d$/);
-  assert.deepEqual(errors,[]);await page.close();console.log('PASS '+width+'px: anchored status editor, all states, light dismiss, focus, filtered rows, persistence, unrelated fields, denied writes, visible registration time and legacy dates.');
+  assert.deepEqual(errors,[]);await page.close();console.log('PASS '+width+'px: anchored status editor, all states, light dismiss, focus, filtered rows, persistence, unrelated fields, denied writes, date-only registration display and legacy dates.');
  }
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}

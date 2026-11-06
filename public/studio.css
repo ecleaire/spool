@@ -1,5 +1,5 @@
 /* SPOOL 2 — one visual system for the offline and shared workspaces. */
-body.simple-workspace{--bg:#f4f3ef;--line:#dedfd8;--ink:#203b34;--muted:#66746d;--green:#174e40;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic UI",Meiryo,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+body.simple-workspace{--bg:#f4f3ef;--line:#dedfd8;--ink:#203b34;--muted:#66746d;--green:#174e40;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic UI",Meiryo,sans-serif;font-size:max(var(--spool-type-floor,16px),14px);-webkit-font-smoothing:antialiased}
 body.simple-workspace *,body.simple-workspace *:before,body.simple-workspace *:after{box-sizing:border-box}
 body.simple-workspace button,body.simple-workspace input,body.simple-workspace select,body.simple-workspace textarea{font:inherit}
 body.simple-workspace button{transition:background .16s,border-color .16s,box-shadow .16s}
@@ -9,16 +9,16 @@ body.simple-workspace .primary,body.simple-workspace .cloud-primary{background:#
 body.simple-workspace .primary:hover,body.simple-workspace .cloud-primary:hover{background:#103d32;border-color:#103d32}
 body.simple-workspace .content{max-width:1600px;padding:32px 40px 24px;margin-inline:auto}
 body.simple-workspace .page-title{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:24px}
-body.simple-workspace .page-title .eyebrow{display:block;font-size:10px;line-height:1.4;letter-spacing:.2em;font-weight:700;color:#6d7a72;margin-bottom:8px}
+body.simple-workspace .page-title .eyebrow{display:block;font-size:max(var(--spool-type-floor,16px),10px);line-height:1.4;letter-spacing:.2em;font-weight:700;color:#6d7a72;margin-bottom:8px}
 body.simple-workspace .page-title h1{font-size:clamp(28px,2.5vw,40px);font-weight:750;letter-spacing:-.055em;line-height:1.2;margin:0}
 body.simple-workspace .heading-dot{color:#bc724b}
 body.simple-workspace .page-title p{display:none}
 body.simple-workspace .page-actions{display:flex;gap:10px;align-items:center}
-body.simple-workspace .page-actions button{min-height:46px;border-radius:10px;padding:10px 18px;font-size:13px;white-space:nowrap}
+body.simple-workspace .page-actions button{min-height:46px;border-radius:10px;padding:10px 18px;font-size:max(var(--spool-type-floor,16px),13px);white-space:nowrap}
 body.simple-workspace .page-actions .library-entry{background:#fff;border:1px solid #cbd3cb;color:#345246;box-shadow:none}
 body.simple-workspace>aside{background:#193f34;border-right:1px solid #294f40}
 body.simple-workspace>aside .logo{color:#f4f7eb;font-size:28px;letter-spacing:-.03em}
-body.simple-workspace>aside .nav{border-radius:9px;font-size:13px;min-height:48px}
+body.simple-workspace>aside .nav{border-radius:9px;font-size:max(var(--spool-type-floor,16px),13px);min-height:48px}
 body.simple-workspace>aside .nav.active{background:#e6efdb;color:#315337}
 body.simple-workspace>aside .workspace{border-color:#ffffff15;background:#ffffff05;border-radius:10px}
 body.simple-workspace>main>header{position:static;background:#fcfcf8;border-color:#e0e6d8}
@@ -28,10 +28,10 @@ body.simple-workspace .stats,body.simple-workspace .booking-overview{display:gri
 body.simple-workspace .stats article,body.simple-workspace .booking-overview article{position:relative;min-width:0;border:0;border-right:1px solid #e6e8e0;border-radius:0;background:transparent!important;box-shadow:none;padding:18px 24px;color:var(--ink)}
 body.simple-workspace .stats article:last-child,body.simple-workspace .booking-overview article:last-child{border-right:0}
 body.simple-workspace .stats article:first-child:before,body.simple-workspace .booking-overview article:first-child:before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:3px;background:#28644f;border-radius:0 3px 3px 0}
-body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{display:block;font-size:12px;color:#63736a;line-height:1.5;margin:0 0 6px}
+body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{display:block;font-size:max(var(--spool-type-floor,16px),12px);color:#63736a;line-height:1.5;margin:0 0 6px}
 body.simple-workspace .stats article>div>span{display:none}
 body.simple-workspace .stats strong,body.simple-workspace .booking-overview strong{font-size:30px;font-weight:650;letter-spacing:-.05em;line-height:1.1;color:#203b34;font-variant-numeric:tabular-nums}
-body.simple-workspace .stats small,body.simple-workspace .booking-overview small{font-size:11px;color:#6b7970;margin-left:7px}
+body.simple-workspace .stats small,body.simple-workspace .booking-overview small{font-size:max(var(--spool-type-floor,16px),11px);color:#6b7970;margin-left:7px}
 body.simple-workspace .alert-stat strong,body.simple-workspace .booking-urgent-stat strong{color:#a6623e}
 body.simple-workspace .booking-overview article:nth-child(3) strong{font-size:24px}
 
@@ -39,52 +39,52 @@ body.simple-workspace .booking-overview article:nth-child(3) strong{font-size:24
 body.simple-workspace .inventory,body.simple-workspace .booking-list-panel{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 6px 24px #283e2c04}
 body.simple-workspace .inventory .section-top{padding:0 18px;border-bottom:0;background:#fff;min-width:0}
 body.simple-workspace .inventory .tabs{padding:12px 0;gap:5px}
-body.simple-workspace .inventory .tabs button{min-height:42px;padding:9px 12px;border:0;border-radius:8px;font-size:12px;font-weight:550;color:#68756d;background:transparent}
+body.simple-workspace .inventory .tabs button{min-height:42px;padding:9px 12px;border:0;border-radius:8px;font-size:max(var(--spool-type-floor,16px),12px);font-weight:550;color:#68756d;background:transparent}
 body.simple-workspace .inventory .tabs button.selected{background:#e8f0e9;color:#174e40;font-weight:700}
-body.simple-workspace .tabs span{background:#dae7dd;color:#315847;font-size:10px;border-radius:4px;padding:2px 5px}
+body.simple-workspace .tabs span{background:#dae7dd;color:#315847;font-size:max(var(--spool-type-floor,16px),10px);border-radius:4px;padding:2px 5px}
 body.simple-workspace .inventory .toolbar{padding:12px 18px;gap:8px;background:#fff;border:0;align-items:center;min-width:0}
 body.simple-workspace .inventory .toolbar>.search{min-width:120px;flex:1 1 160px}
-body.simple-workspace .inventory .toolbar>#sort{flex:0 1 150px;min-width:0;font-size:12px}
+body.simple-workspace .inventory .toolbar>#sort{flex:0 1 150px;min-width:0;font-size:max(var(--spool-type-floor,16px),12px)}
 body.simple-workspace .search{background:#f6f7f3;border:1px solid #e0e5dc;border-radius:8px;min-height:44px;color:#667c6f}
-body.simple-workspace .search input{height:42px;min-width:0;font-size:13px;color:#273f34}
+body.simple-workspace .search input{height:42px;min-width:0;font-size:max(var(--spool-type-floor,16px),13px);color:#273f34}
 body.simple-workspace .search input::placeholder{color:#829086}
 body.simple-workspace .toolbar select,body.simple-workspace .booking-tools select{min-height:44px;height:44px;border-color:#dce3d9;border-radius:8px;color:#506258;background:#fff}
 body.simple-workspace .view-switch{display:flex;background:#f0f3ed;padding:3px;border:1px solid #e0e5dc;border-radius:8px;gap:1px}
 body.simple-workspace .view-switch button{width:32px;height:36px;border-radius:5px;color:#7b8a7e}
 body.simple-workspace .view-switch button.selected{color:#174e40;background:white;box-shadow:0 1px 4px #29433015}
 body.simple-workspace .disclosure,body.simple-workspace .optional-fields{border-color:#e0e5dc;border-radius:10px;background:#fcfdfa;box-shadow:none}
-body.simple-workspace .disclosure>summary,body.simple-workspace .optional-fields>summary{color:#3c5143;font-size:13px;min-height:46px}
+body.simple-workspace .disclosure>summary,body.simple-workspace .optional-fields>summary{color:#3c5143;font-size:max(var(--spool-type-floor,16px),13px);min-height:46px}
 body.simple-workspace .filter-disclosure{background:#fff;border-radius:8px;margin:0}
-body.simple-workspace .filter-disclosure>summary{min-height:44px;font-size:12px;padding:10px}
+body.simple-workspace .filter-disclosure>summary{min-height:44px;font-size:max(var(--spool-type-floor,16px),12px);padding:10px}
 body.simple-workspace .batch-disclosure{margin:0;background:#fafbf8;border:0;border-top:1px solid #e7e9e2;border-bottom:1px solid #e7e9e2;border-radius:0}
-body.simple-workspace .batch-disclosure>summary{min-height:32px;padding:7px 20px;font-size:11px;color:#6d7b70}
-body.simple-workspace .table-label{padding:12px 22px 12px 52px;min-height:40px;background:#f6f7f3;border-top:0;border-bottom:1px solid #e5e8df;color:#6b786e;font-size:11px;letter-spacing:.02em}
+body.simple-workspace .batch-disclosure>summary{min-height:32px;padding:7px 20px;font-size:max(var(--spool-type-floor,16px),11px);color:#6d7b70}
+body.simple-workspace .table-label{padding:12px 22px 12px 52px;min-height:40px;background:#f6f7f3;border-top:0;border-bottom:1px solid #e5e8df;color:#6b786e;font-size:max(var(--spool-type-floor,16px),11px);letter-spacing:.02em}
 body.simple-workspace .table-label,body.simple-workspace .filament-row{grid-template-columns:minmax(260px,2.5fr) .45fr 1.2fr .8fr 150px;gap:18px}
 body.simple-workspace .filament-row{min-height:140px;padding:16px 22px 16px 52px;border-bottom:1px solid #eaede5;background:#fff}
 body.simple-workspace .filament-row:hover{background:#fafcf7}
 body.simple-workspace .filament-row.is-selected{background:#eef5ed}
 body.simple-workspace .product{gap:18px;min-width:0}
 body.simple-workspace .product-image{width:108px;height:108px;flex:none;padding:5px;border:1px solid #eaede4;border-radius:13px;background:#fbfcf8;box-shadow:none}
-body.simple-workspace .product h3{font-size:clamp(16px,1.18vw,21px);line-height:1.45;font-weight:700;letter-spacing:-.02em;color:#223d32;margin:4px 0}
-body.simple-workspace .brand-name{font-size:10px;letter-spacing:.09em;font-weight:650;color:#748274}
-body.simple-workspace .color-name{font-size:12px;color:#5c6f60;line-height:1.6}
-body.simple-workspace .color-hex{font-size:11px;color:#748277}
-body.simple-workspace .filament-sharing-label{font-size:10px;color:#3c6c52}
+body.simple-workspace .product h3{font-size:max(var(--spool-type-floor,18px),clamp(16px,1.18vw,21px));line-height:1.45;font-weight:700;letter-spacing:-.02em;color:#223d32;margin:4px 0}
+body.simple-workspace .brand-name{font-size:max(var(--spool-type-floor,16px),10px);letter-spacing:.09em;font-weight:650;color:#748274}
+body.simple-workspace .color-name{font-size:max(var(--spool-type-floor,16px),12px);color:#5c6f60;line-height:1.6}
+body.simple-workspace .color-hex{font-size:max(var(--spool-type-floor,16px),11px);color:#748277}
+body.simple-workspace .filament-sharing-label{font-size:max(var(--spool-type-floor,16px),10px);color:#3c6c52}
 body.simple-workspace .filament-sharing-label.not-shared{display:none}
-body.simple-workspace .material span{font-size:11px;padding:6px 8px;border-radius:5px;background:#eef2e8;color:#617552}
+body.simple-workspace .material span{font-size:max(var(--spool-type-floor,16px),11px);padding:6px 8px;border-radius:5px;background:#eef2e8;color:#617552}
 body.simple-workspace .weight-number{font-size:22px;font-weight:600;color:#28563e;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-body.simple-workspace .weight-number small{font-size:11px;font-weight:400;letter-spacing:0;color:#7a887a}
+body.simple-workspace .weight-number small{font-size:max(var(--spool-type-floor,16px),11px);font-weight:400;letter-spacing:0;color:#7a887a}
 body.simple-workspace .bar{height:5px;background:#edf1e6;border-radius:5px;margin-top:11px}
 body.simple-workspace .bar i{background:#7fa16b;border-radius:5px}
-body.simple-workspace .place{font-size:12px;color:#6f7f71;line-height:1.6;overflow-wrap:anywhere}
+body.simple-workspace .place{font-size:max(var(--spool-type-floor,16px),12px);color:#6f7f71;line-height:1.6;overflow-wrap:anywhere}
 body.simple-workspace .filament-row .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:center;min-width:0}
 body.simple-workspace .actions>button[data-use]{grid-column:1;grid-row:1}
 body.simple-workspace .actions>button[data-edit]{grid-column:2;grid-row:1}
-body.simple-workspace .filament-row .actions>button{width:auto;min-width:0;min-height:36px;padding:6px 8px;border-radius:7px;border:1px solid #d4dfd0;color:#3d6550;background:#fff;font-size:12px}
+body.simple-workspace .filament-row .actions>button{width:auto;min-width:0;min-height:36px;padding:6px 8px;border-radius:7px;border:1px solid #d4dfd0;color:#3d6550;background:#fff;font-size:max(var(--spool-type-floor,16px),12px)}
 body.simple-workspace .filament-row .actions>button[data-edit]{background:#edf3e9;border-color:#dce6d5;font-weight:600}
-body.simple-workspace .filament-row .actions .shop-link{min-height:32px;min-width:0;padding:5px 4px;font-size:10px;border-color:#e6eae0;color:#71816d;white-space:nowrap;justify-content:center;border-radius:6px}
+body.simple-workspace .filament-row .actions .shop-link{min-height:32px;min-width:0;padding:5px 4px;font-size:max(var(--spool-type-floor,16px),10px);border-color:#e6eae0;color:#71816d;white-space:nowrap;justify-content:center;border-radius:6px}
 body.simple-workspace .filament-row .actions .stop-sharing{grid-column:1/-1}
-body.simple-workspace .table-footer{background:#fff;padding:15px 22px;color:#6b7c6c;font-size:11px;border-top:0}
+body.simple-workspace .table-footer{background:#fff;padding:15px 22px;color:#6b7c6c;font-size:max(var(--spool-type-floor,16px),11px);border-top:0}
 body.simple-workspace .grid-mode{display:grid;background:#f6f7f2;gap:18px;padding:20px}
 body.simple-workspace .grid-mode .filament-row{display:flex;min-width:0;padding:34px 18px 18px;border:1px solid #dfe5d8;border-radius:14px;background:#fff;box-shadow:none}
 body.simple-workspace .grid-mode .product-image{width:100%;height:220px;background:#fafbf7;border:0;padding:14px}
@@ -92,40 +92,40 @@ body.simple-workspace .grid-mode .product{gap:12px}
 body.simple-workspace .grid-mode .actions{display:flex;flex-wrap:wrap;padding-top:12px;margin-top:auto;border-top:1px solid #ecede7}
 body.simple-workspace .grid-mode .actions>button{flex:1 1 48px}
 body.simple-workspace .grid-mode .actions .shop-link{flex:1 1 64px}
-body.simple-workspace .item-tag{background:#f0f3eb;color:#637359;border:0;border-radius:4px;font-size:10px}
+body.simple-workspace .item-tag{background:#f0f3eb;color:#637359;border:0;border-radius:4px;font-size:max(var(--spool-type-floor,16px),10px)}
 
 /* Print queue has the same hierarchy and surfaces as inventory. */
 body.simple-workspace .booking-title{padding:22px 24px 16px;border:0;background:#fff}
-body.simple-workspace .booking-title h2{font-size:18px;font-weight:700;color:#244735;letter-spacing:-.03em}
-body.simple-workspace .booking-title p,body.simple-workspace .booking-sort-hint{font-size:12px;color:#758273}
+body.simple-workspace .booking-title h2{font-size:max(var(--spool-type-floor,18px),18px);font-weight:700;color:#244735;letter-spacing:-.03em}
+body.simple-workspace .booking-title p,body.simple-workspace .booking-sort-hint{font-size:max(var(--spool-type-floor,16px),12px);color:#758273}
 body.simple-workspace .booking-status-tabs{padding:0 22px 14px;gap:7px;border-bottom:1px solid #e6e9df;background:#fff}
-body.simple-workspace .booking-status-tabs button{min-height:40px;border:0;background:#f6f7f1;border-radius:7px;padding:8px 12px;color:#6a7a66;font-size:12px}
+body.simple-workspace .booking-status-tabs button{min-height:40px;border:0;background:#f6f7f1;border-radius:7px;padding:8px 12px;color:#6a7a66;font-size:max(var(--spool-type-floor,16px),12px)}
 body.simple-workspace .booking-status-tabs button.selected{background:#174e40;color:#fff;font-weight:650}
 body.simple-workspace .booking-status-tabs button.selected span{background:#ffffff24;color:#fff}
 body.simple-workspace .booking-tools{background:#fff;padding:14px 22px;border-bottom:1px solid #e7e9e1}
-body.simple-workspace .booking-table th{font-size:11px;font-weight:600;background:#f6f7f2;color:#6d7c69;border-color:#e5e8df;padding-block:13px}
-body.simple-workspace .booking-table td{padding-block:20px;border-color:#e9ece4;font-size:13px}
-body.simple-workspace .work-title{font-size:16px;font-weight:650;line-height:1.6;color:#254331}
-body.simple-workspace .booking-color-label{font-size:12px!important;color:#687a61!important;margin-top:6px}
-body.simple-workspace .class-badge{background:#edf1e6;color:#657a51;border-radius:5px;font-size:12px}
-body.simple-workspace .print-state{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:6px 9px;border-radius:6px;white-space:nowrap}
+body.simple-workspace .booking-table th{font-size:max(var(--spool-type-floor,16px),11px);font-weight:600;background:#f6f7f2;color:#6d7c69;border-color:#e5e8df;padding-block:13px}
+body.simple-workspace .booking-table td{padding-block:20px;border-color:#e9ece4;font-size:max(var(--spool-type-floor,16px),13px)}
+body.simple-workspace .work-title{font-size:max(var(--spool-type-floor,16px),16px);font-weight:650;line-height:1.6;color:#254331}
+body.simple-workspace .booking-color-label{font-size:max(var(--spool-type-floor,16px),12px)!important;color:#687a61!important;margin-top:6px}
+body.simple-workspace .class-badge{background:#edf1e6;color:#657a51;border-radius:5px;font-size:max(var(--spool-type-floor,16px),12px)}
+body.simple-workspace .print-state{display:inline-flex;align-items:center;gap:6px;font-size:max(var(--spool-type-floor,16px),11px);font-weight:600;padding:6px 9px;border-radius:6px;white-space:nowrap}
 body.simple-workspace .print-state.planned{background:#edf2e6;color:#617343}
 body.simple-workspace .print-state.printed{background:#e6f2ee;color:#347060}
 body.simple-workspace .print-state.undecided{background:#f0f0ec;color:#7c8076}
 body.simple-workspace .booking-duration{font-variant-numeric:tabular-nums;color:#2f523a;font-weight:600}
 body.simple-workspace .booking-deadline time{font-weight:600;font-variant-numeric:tabular-nums}
 body.simple-workspace .booking-deadline.urgent,body.simple-workspace .booking-deadline.overdue{color:#a1613d}
-body.simple-workspace .booking-edit{padding:8px 12px;min-height:38px;border-radius:7px;border:1px solid #d9e2d1;color:#446747;background:#f8faf4;font-size:12px}
-body.simple-workspace .booking-row-details>summary{font-size:11px;color:#839078;padding-top:5px}
+body.simple-workspace .booking-edit{padding:8px 12px;min-height:38px;border-radius:7px;border:1px solid #d9e2d1;color:#446747;background:#f8faf4;font-size:max(var(--spool-type-floor,16px),12px)}
+body.simple-workspace .booking-row-details>summary{font-size:max(var(--spool-type-floor,16px),11px);color:#839078;padding-top:5px}
 body.simple-workspace .booking-empty{padding:54px 24px;color:#6c7b63;background:#fafbf7}
 body.simple-workspace .booking-empty h3{font-size:19px;color:#34563c}
-body.simple-workspace .booking-empty p{font-size:13px;line-height:1.8}
+body.simple-workspace .booking-empty p{font-size:max(var(--spool-type-floor,16px),13px);line-height:1.8}
 body.simple-workspace .booking-card{background:#fff;border:1px solid #dce4d1;border-radius:13px;box-shadow:none;padding:18px}
 body.simple-workspace .booking-card h3{font-size:20px;line-height:1.5;color:#25452f;margin:14px 0 8px;letter-spacing:-.04em}
 body.simple-workspace .booking-card-metrics{border-radius:9px;background:#f7f8f2;border:0;padding:14px;gap:12px}
-body.simple-workspace .booking-card-metrics>div>span{font-size:10px;color:#7c896f;letter-spacing:.04em}
+body.simple-workspace .booking-card-metrics>div>span{font-size:max(var(--spool-type-floor,16px),10px);color:#7c896f;letter-spacing:.04em}
 body.simple-workspace .booking-card-footer{border-color:#e9ece1;padding-top:13px;margin-top:16px}
-body.simple-workspace .booking-card-footer small{font-size:11px;color:#819075}
+body.simple-workspace .booking-card-footer small{font-size:max(var(--spool-type-floor,16px),11px);color:#819075}
 
 /* Registration is a focused editor, with a secondary material preview. */
 body.simple-workspace #editor,body.simple-workspace #bookingDialog,body.simple-workspace .cloud-tools-dialog{border:1px solid #d5dece;border-radius:18px;box-shadow:0 24px 90px #102f2540;background:#fff}
@@ -135,59 +135,59 @@ body.simple-workspace .dialog-head h2{font-size:22px;font-weight:700;letter-spac
 body.simple-workspace .dialog-head .close{width:36px;height:36px;border:1px solid #e4e8db;border-radius:9px;background:#f8faf3;color:#6a8056;font-size:20px}
 body.simple-workspace #editor .editor-layout{padding:24px;gap:22px;background:#f9faf6}
 body.simple-workspace .filament-workflow{padding:0;margin:0;gap:8px}
-body.simple-workspace .filament-workflow li{background:transparent;border:0;border-bottom:2px solid #e1e7d8;border-radius:0;min-height:35px;padding:0 0 10px;font-size:12px;color:#879675}
+body.simple-workspace .filament-workflow li{background:transparent;border:0;border-bottom:2px solid #e1e7d8;border-radius:0;min-height:35px;padding:0 0 10px;font-size:max(var(--spool-type-floor,16px),12px);color:#879675}
 body.simple-workspace .filament-workflow li.is-complete{background:transparent;border-color:#527a54;color:#436444}
-body.simple-workspace .filament-workflow li>span{width:20px;height:20px;font-size:10px;background:#e7eddf;color:#648054}
+body.simple-workspace .filament-workflow li>span{width:20px;height:20px;font-size:max(var(--spool-type-floor,16px),10px);background:#e7eddf;color:#648054}
 body.simple-workspace #editor .editor-visual{background:#fff;border:1px solid #dfe6d4;border-radius:12px;padding:16px}
-body.simple-workspace .photo-section-title{font-size:13px;color:#526e40}
-body.simple-workspace .photo-section-title small{font-size:10px;color:#899877}
+body.simple-workspace .photo-section-title{font-size:max(var(--spool-type-floor,16px),13px);color:#526e40}
+body.simple-workspace .photo-section-title small{font-size:max(var(--spool-type-floor,16px),10px);color:#899877}
 body.simple-workspace .editor-visual .image-editor{border:0;background:#fbfcf8;padding:10px;border-radius:9px}
 body.simple-workspace .editor-visual .image-editor img{height:240px;padding:8px;background:#fff;border-radius:8px}
-body.simple-workspace .editor-visual .image-status{font-size:11px;line-height:1.7;color:#81906c}
+body.simple-workspace .editor-visual .image-status{font-size:max(var(--spool-type-floor,16px),11px);line-height:1.7;color:#81906c}
 body.simple-workspace .product-autofill{background:#eaf2e6;border:1px solid #ccdcbf;border-radius:12px;padding:18px;margin-bottom:16px}
-body.simple-workspace .product-autofill>label{font-size:14px;font-weight:700;color:#3e6038;margin-bottom:10px}
-body.simple-workspace .product-autofill>select{border-color:#cbd8bc;min-height:50px;font-size:15px;background:#fff;border-radius:8px}
-body.simple-workspace .product-autofill>p{font-size:12px;color:#718363;line-height:1.6}
-body.simple-workspace .manual-entry-button{font-size:12px;color:#587548;min-height:36px}
+body.simple-workspace .product-autofill>label{font-size:max(var(--spool-type-floor,16px),14px);font-weight:700;color:#3e6038;margin-bottom:10px}
+body.simple-workspace .product-autofill>select{border-color:#cbd8bc;min-height:50px;font-size:max(var(--spool-type-floor,16px),15px);background:#fff;border-radius:8px}
+body.simple-workspace .product-autofill>p{font-size:max(var(--spool-type-floor,16px),12px);color:#718363;line-height:1.6}
+body.simple-workspace .manual-entry-button{font-size:max(var(--spool-type-floor,16px),12px);color:#587548;min-height:36px}
 body.simple-workspace .color-selection-panel{border:1px solid #dde5d1;border-radius:12px;padding:18px;background:#fff;margin:16px 0 22px}
-body.simple-workspace .color-selection-heading h3{font-size:15px;font-weight:700;color:#3d6035}
+body.simple-workspace .color-selection-heading h3{font-size:max(var(--spool-type-floor,16px),15px);font-weight:700;color:#3d6035}
 body.simple-workspace .selected-color-preview{padding:12px;border:0;background:#f5f8ed;border-radius:9px;margin:14px 0 12px}
 body.simple-workspace .selected-color-preview #colorInfoSwatch{width:36px;height:36px}
-body.simple-workspace .selected-color-preview #colorInfoSummary{font-size:14px;color:#44673a}
+body.simple-workspace .selected-color-preview #colorInfoSummary{font-size:max(var(--spool-type-floor,16px),14px);color:#44673a}
 body.simple-workspace .color-selection-panel .disclosure{border:0;border-top:1px solid #e8ecdf;border-radius:0;background:transparent;padding-top:3px}
 body.simple-workspace .color-preset{background:#fff;border-color:#e0e7d5;border-radius:9px;padding:10px;min-height:80px}
 body.simple-workspace .color-preset.is-current{background:#f0f6e7;border-color:#7d9b60;box-shadow:0 0 0 1px #7d9b60}
-body.simple-workspace .color-preset span{font-size:12px;color:#536c41}
-body.simple-workspace .color-preset small{font-size:10px;color:#91a17b}
+body.simple-workspace .color-preset span{font-size:max(var(--spool-type-floor,16px),12px);color:#536c41}
+body.simple-workspace .color-preset small{font-size:max(var(--spool-type-floor,16px),10px);color:#91a17b}
 body.simple-workspace .library-products{gap:12px;padding:0 14px 14px}
 body.simple-workspace .library-products button{border:1px solid #dde5d2;border-radius:10px;background:#fff;padding:14px;gap:10px}
 body.simple-workspace .library-products button:hover{border-color:#7e9c68;background:#f6faef;box-shadow:none}
 body.simple-workspace .library-products img{width:100px;height:100px;object-fit:contain}
-body.simple-workspace .library-products span{font-size:14px;font-weight:650;color:#45673a}
-body.simple-workspace .library-products small{font-size:10px;color:#7a8c67}
-body.simple-workspace .library-brand-tabs button{border-radius:7px;border-color:#d9e3cb;font-size:11px;min-height:36px;padding:7px 12px}
+body.simple-workspace .library-products span{font-size:max(var(--spool-type-floor,16px),14px);font-weight:650;color:#45673a}
+body.simple-workspace .library-products small{font-size:max(var(--spool-type-floor,16px),10px);color:#7a8c67}
+body.simple-workspace .library-brand-tabs button{border-radius:7px;border-color:#d9e3cb;font-size:max(var(--spool-type-floor,16px),11px);min-height:36px;padding:7px 12px}
 body.simple-workspace .library-brand-tabs button.is-active{background:#315a3e;border-color:#315a3e;color:#fff}
-body.simple-workspace .form-section-heading h3{font-size:15px;color:#3a5a32;font-weight:700}
-body.simple-workspace .fields label,body.simple-workspace .booking-form-scroll label{font-size:13px;line-height:1.6;color:#4c6441}
-body.simple-workspace .fields input,body.simple-workspace .fields select,body.simple-workspace .fields textarea,body.simple-workspace .booking-form-scroll input,body.simple-workspace .booking-form-scroll select,body.simple-workspace .booking-form-scroll textarea{border:1px solid #d6e0c9;border-radius:8px;background:#fff;color:#38572f;min-height:46px;box-shadow:none;font-size:14px}
+body.simple-workspace .form-section-heading h3{font-size:max(var(--spool-type-floor,16px),15px);color:#3a5a32;font-weight:700}
+body.simple-workspace .fields label,body.simple-workspace .booking-form-scroll label{font-size:max(var(--spool-type-floor,16px),13px);line-height:1.6;color:#4c6441}
+body.simple-workspace .fields input,body.simple-workspace .fields select,body.simple-workspace .fields textarea,body.simple-workspace .booking-form-scroll input,body.simple-workspace .booking-form-scroll select,body.simple-workspace .booking-form-scroll textarea{border:1px solid #d6e0c9;border-radius:8px;background:#fff;color:#38572f;min-height:46px;box-shadow:none;font-size:max(var(--spool-type-floor,16px),14px)}
 body.simple-workspace .fields input:focus,body.simple-workspace .fields select:focus,body.simple-workspace .fields textarea:focus{border-color:#6e9054;box-shadow:0 0 0 3px #e9f2de}
-body.simple-workspace .fields small{color:#697a5b;font-size:11px;line-height:1.6}
+body.simple-workspace .fields small{color:#697a5b;font-size:max(var(--spool-type-floor,16px),11px);line-height:1.6}
 body.simple-workspace .weight-presets{gap:6px;background:transparent;padding:0;margin:10px 0}
-body.simple-workspace .weight-presets button{background:#fff;border:1px solid #d7e2c8;border-radius:7px;min-height:36px;color:#65804e;font-size:12px}
+body.simple-workspace .weight-presets button{background:#fff;border:1px solid #d7e2c8;border-radius:7px;min-height:36px;color:#65804e;font-size:max(var(--spool-type-floor,16px),12px)}
 body.simple-workspace .weight-presets button.is-active{background:#e8f2dc;border-color:#7a9b5c;color:#4d7334;font-weight:700}
 body.simple-workspace #editor .dialog-actions,body.simple-workspace #bookingDialog .dialog-actions{padding:13px 22px;background:#fff;border-top:1px solid #dce5d0;box-shadow:none}
-body.simple-workspace .dialog-actions button{border-radius:9px;font-size:13px;min-height:44px}
-body.simple-workspace .filament-save-summary{font-size:12px;color:#758867}
-body.simple-workspace .editor-save-destination{background:#edf4e8;color:#547443;border-left:3px solid #77995d;font-size:12px!important;padding:6px 10px;margin-bottom:0!important}
+body.simple-workspace .dialog-actions button{border-radius:9px;font-size:max(var(--spool-type-floor,16px),13px);min-height:44px}
+body.simple-workspace .filament-save-summary{font-size:max(var(--spool-type-floor,16px),12px);color:#758867}
+body.simple-workspace .editor-save-destination{background:#edf4e8;color:#547443;border-left:3px solid #77995d;font-size:max(var(--spool-type-floor,16px),12px)!important;padding:6px 10px;margin-bottom:0!important}
 body.simple-workspace .booking-form-section{border-color:#e0e7d6}
 body.simple-workspace .booking-duration-control{background:#f2f7ea;border:1px solid #ccddb8;border-radius:10px}
-body.simple-workspace .tag-suggestions button{border-radius:6px;background:#fff;border:1px solid #d6e0c9;color:#6d8356;font-size:12px}
+body.simple-workspace .tag-suggestions button{border-radius:6px;background:#fff;border:1px solid #d6e0c9;color:#6d8356;font-size:max(var(--spool-type-floor,16px),12px)}
 body.simple-workspace .tag-suggestions button[aria-pressed=true]{background:#e8f1dd;color:#4b7030;border-color:#819e61}
 body.simple-workspace #filamentTagDetails .tag-input-field{border:0;background:transparent;padding:0;margin:12px 14px}
 body.simple-workspace #filamentTagDetails .tag-suggestions,body.simple-workspace #bookingTagDetails .tag-suggestions{margin:12px 14px 16px}
 body.simple-workspace #bookingTagDetails>label{padding:12px 14px}
 body.simple-workspace .workspace-footer{border-color:#e0e4d8;margin-top:24px;padding-top:16px;color:#80916d}
-body.simple-workspace .workspace-footer summary{font-size:11px}
+body.simple-workspace .workspace-footer summary{font-size:max(var(--spool-type-floor,16px),11px)}
 
 /* Online chrome stays small; library context scrolls away. */
 body.simple-workspace:not(.cloud-locked) .cloud-topbar{background:#fcfcf8;border-bottom:1px solid #dce3d5;box-shadow:inset 0 2px #244e3a;padding-inline:32px;gap:30px}
@@ -196,20 +196,20 @@ body.simple-workspace.cloud-locked .cloud-topline,body.simple-workspace.cloud-lo
 body.simple-workspace .cloud-brand{color:#204b36;font-size:26px;letter-spacing:-.03em;gap:10px}
 body.simple-workspace .cloud-brand-icon{background:#edf2e6;border:1px solid #cbd9bd;color:#477044;border-radius:10px;width:35px;height:35px}
 body.simple-workspace .cloud-brand-dot{color:#b8794d}
-body.simple-workspace .cloud-brand>small{color:#879977;letter-spacing:.16em;border-color:#dce5d0;font-size:8px}
+body.simple-workspace .cloud-brand>small{color:#879977;letter-spacing:.16em;border-color:#dce5d0;font-size:max(var(--spool-type-floor,16px),8px)}
 body.simple-workspace .cloud-navigation{gap:6px;align-items:center;align-self:center}
-body.simple-workspace .cloud-navigation button{padding:0 16px;color:#708168;font-size:13px;font-weight:600;border-radius:8px;border:0;min-height:42px;height:42px;background:transparent}
+body.simple-workspace .cloud-navigation button{padding:0 16px;color:#708168;font-size:max(var(--spool-type-floor,16px),13px);font-weight:600;border-radius:8px;border:0;min-height:42px;height:42px;background:transparent}
 body.simple-workspace .cloud-navigation button.is-active{background:#244f3c;color:#fff;border-radius:8px}
 body.simple-workspace .cloud-navigation button:after{display:none}
-body.simple-workspace .cloud-navigation button>span{font-size:17px;color:inherit}
+body.simple-workspace .cloud-navigation button>span{font-size:max(var(--spool-type-floor,18px),17px);color:inherit}
 body.simple-workspace .cloud-account-trigger{border:1px solid #d9e3ce;border-radius:9px;background:#f4f7ee;color:#567442;height:40px;padding:4px 10px}
 body.simple-workspace .cloud-avatar{background:#e1ebd5;color:#4d7038}
-body.simple-workspace .account-trigger-name{color:#5a7448;font-size:12px}
+body.simple-workspace .account-trigger-name{color:#5a7448;font-size:max(var(--spool-type-floor,16px),12px)}
 body.simple-workspace .cloud-context{background:transparent;border-top:0;padding-inline:40px;max-width:1600px;min-height:56px;gap:12px}
 body.simple-workspace:not(.cloud-locked) #cloud-panel{background:#fcfcf8;border-color:#e2e6d9}
-body.simple-workspace .cloud-library-picker select{font-size:13px;font-weight:650;color:#4e703f}
+body.simple-workspace .cloud-library-picker select{font-size:max(var(--spool-type-floor,16px),13px);font-weight:650;color:#4e703f}
 body.simple-workspace .library-picker-icon{background:#f0f5e7;border-color:#dce6ce;color:#77975b}
-body.simple-workspace .cloud-sync-state{font-size:11px;background:transparent;color:#80996b;padding:4px 6px}
+body.simple-workspace .cloud-sync-state{font-size:max(var(--spool-type-floor,16px),11px);background:transparent;color:#80996b;padding:4px 6px}
 body.simple-workspace .cloud-save-button,body.simple-workspace #cloud-library-more{border-radius:8px;min-height:40px;background:#f1f6e8;border-color:#d7e3c9;color:#607f46}
 body.simple-workspace .cloud-current-library{border-color:#dce6ce;background:#f6f9f0;color:#50713e}
 body.simple-workspace .cloud-dialog-head{padding:22px 24px;background:#fafcf5;border-color:#e1e8d4}
@@ -221,7 +221,7 @@ body.simple-workspace .cloud-welcome{max-width:1160px;padding-top:60px;margin-to
 body.simple-workspace .cloud-welcome h1{color:#254f36;letter-spacing:-.055em;font-weight:650;line-height:1.5}
 body.simple-workspace .welcome-pillars>div{border-color:#d8e2ce;padding-block:20px}
 body.simple-workspace .welcome-pillars strong{font-size:28px;letter-spacing:-.05em;color:#46683b}
-body.simple-workspace .welcome-pillars small{font-size:12px;color:#81966d}
+body.simple-workspace .welcome-pillars small{font-size:max(var(--spool-type-floor,16px),12px);color:#81966d}
 body.simple-workspace .welcome-login-note,body.simple-workspace .welcome-version{color:#8ca077}
 
 @media(min-width:1280px){
@@ -242,37 +242,37 @@ body.simple-workspace .welcome-login-note,body.simple-workspace .welcome-version
  body.simple-workspace .table-label>span:nth-child(4),body.simple-workspace .place{display:none}
  body.simple-workspace .product-image{width:86px;height:86px}
  body.simple-workspace .product{gap:12px}
- body.simple-workspace .product h3{font-size:16px}
+ body.simple-workspace .product h3{font-size:max(var(--spool-type-floor,16px),16px)}
  body.simple-workspace .content{padding-inline:24px}
 }
 @media(max-width:760px){
  body.simple-workspace .content{padding:22px 16px 18px}
  body.simple-workspace>main>header{min-height:52px;height:52px;padding:7px 14px}
  body.simple-workspace>main>.mobile-navigation{position:sticky;top:0;z-index:25;min-height:52px;padding:6px 12px;background:#fcfcf8;border-bottom:1px solid #dce4d1;gap:6px}
- body.simple-workspace .mobile-navigation button{border-radius:7px;min-height:40px;font-size:12px;color:#69805a}
+ body.simple-workspace .mobile-navigation button{border-radius:7px;min-height:40px;font-size:max(var(--spool-type-floor,16px),12px);color:#69805a}
  body.simple-workspace .mobile-navigation button.selected{background:#28523b;color:#fff}
  body.simple-workspace .page-title{gap:16px;margin-bottom:18px;display:block}
- body.simple-workspace .page-title .eyebrow{font-size:9px;letter-spacing:.16em;margin-bottom:6px}
+ body.simple-workspace .page-title .eyebrow{font-size:max(var(--spool-type-floor,16px),9px);letter-spacing:.16em;margin-bottom:6px}
  body.simple-workspace .page-title h1{font-size:30px;letter-spacing:-.055em}
  body.simple-workspace .page-actions{gap:8px;margin-top:18px;display:grid;grid-template-columns:auto minmax(0,1fr)}
- body.simple-workspace .page-actions button{min-height:44px;padding:9px 12px;font-size:12px}
+ body.simple-workspace .page-actions button{min-height:44px;padding:9px 12px;font-size:max(var(--spool-type-floor,16px),12px)}
  body.simple-workspace .page-actions:has(#addBooking:not([hidden])){grid-template-columns:1fr}
  body.simple-workspace .stats,body.simple-workspace .booking-overview{grid-template-columns:repeat(2,minmax(0,1fr));border-radius:11px;margin-bottom:18px}
  body.simple-workspace .stats article,body.simple-workspace .booking-overview article{padding:13px 16px;border-bottom:1px solid #e6e8df}
  body.simple-workspace .stats article:nth-child(2n),body.simple-workspace .booking-overview article:nth-child(2n){border-right:0}
  body.simple-workspace .stats article:nth-last-child(-n+2),body.simple-workspace .booking-overview article:nth-last-child(-n+2){border-bottom:0}
- body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:10px;margin-bottom:4px}
+ body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:max(var(--spool-type-floor,16px),10px);margin-bottom:4px}
  body.simple-workspace .stats strong,body.simple-workspace .booking-overview strong{font-size:26px}
- body.simple-workspace .stats small,body.simple-workspace .booking-overview small{font-size:10px}
+ body.simple-workspace .stats small,body.simple-workspace .booking-overview small{font-size:max(var(--spool-type-floor,16px),10px)}
  body.simple-workspace .booking-overview article:nth-child(3) strong{font-size:20px}
  body.simple-workspace .inventory{display:block;border-radius:12px}
  body.simple-workspace .inventory .section-top{padding:0 12px}
  body.simple-workspace .inventory .tabs{padding:9px 0;gap:3px}
- body.simple-workspace .inventory .tabs button{padding:8px 9px;font-size:11px;min-height:40px}
+ body.simple-workspace .inventory .tabs button{padding:8px 9px;font-size:max(var(--spool-type-floor,16px),11px);min-height:40px}
  body.simple-workspace .inventory .toolbar{padding:10px 12px;gap:7px}
  body.simple-workspace .inventory .toolbar>.search{min-width:0}
- body.simple-workspace .inventory .toolbar>#sort{width:100%;min-width:0;font-size:12px}
- body.simple-workspace .inventory .toolbar .filter-disclosure>summary{font-size:11px;padding:8px 6px;min-height:44px}
+ body.simple-workspace .inventory .toolbar>#sort{width:100%;min-width:0;font-size:max(var(--spool-type-floor,16px),12px)}
+ body.simple-workspace .inventory .toolbar .filter-disclosure>summary{font-size:max(var(--spool-type-floor,16px),11px);padding:8px 6px;min-height:44px}
  body.simple-workspace .view-switch{padding:2px}
  body.simple-workspace .inventory .view-switch button{width:32px;min-width:32px;height:40px}
  body.simple-workspace .batch-disclosure>summary{padding-inline:14px}
@@ -280,38 +280,38 @@ body.simple-workspace .welcome-login-note,body.simple-workspace .welcome-version
  body.simple-workspace .filament-row{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:12px;padding:17px 14px 14px 36px;min-height:158px}
  body.simple-workspace .product{gap:12px;grid-column:1;grid-row:1}
  body.simple-workspace .product-image{width:70px;height:78px;padding:3px;border-radius:9px}
- body.simple-workspace .product h3{font-size:15px;line-height:1.4;margin:4px 0}
- body.simple-workspace .brand-name{font-size:9px;letter-spacing:.05em}
- body.simple-workspace .color-name{font-size:11px;line-height:1.6}
+ body.simple-workspace .product h3{font-size:max(var(--spool-type-floor,16px),15px);line-height:1.4;margin:4px 0}
+ body.simple-workspace .brand-name{font-size:max(var(--spool-type-floor,16px),9px);letter-spacing:.05em}
+ body.simple-workspace .color-name{font-size:max(var(--spool-type-floor,16px),11px);line-height:1.6}
  body.simple-workspace .weight-number{font-size:19px}
- body.simple-workspace .weight-number small{display:block;font-size:10px;line-height:1.8}
+ body.simple-workspace .weight-number small{display:block;font-size:max(var(--spool-type-floor,16px),10px);line-height:1.8}
  body.simple-workspace .filament-row>.weight{grid-column:2;grid-row:1;align-self:center}
  body.simple-workspace .bar{margin-top:6px;height:4px}
  body.simple-workspace .filament-row>.material,body.simple-workspace .place{display:none}
  body.simple-workspace .filament-row .actions{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;gap:6px;padding-top:6px;border-top:1px solid #eff1e8}
- body.simple-workspace .filament-row .actions>button{min-height:44px;min-width:44px;padding:6px 10px;font-size:12px;flex:0 0 auto}
- body.simple-workspace .filament-row .actions .shop-link{min-height:44px;font-size:10px;padding:6px;flex:1 1 auto;white-space:nowrap}
+ body.simple-workspace .filament-row .actions>button{min-height:44px;min-width:44px;padding:6px 10px;font-size:max(var(--spool-type-floor,16px),12px);flex:0 0 auto}
+ body.simple-workspace .filament-row .actions .shop-link{min-height:44px;font-size:max(var(--spool-type-floor,16px),10px);padding:6px;flex:1 1 auto;white-space:nowrap}
  body.simple-workspace .grid-mode{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px}
  body.simple-workspace .grid-mode .filament-row{display:flex;padding:30px 10px 12px;gap:10px;min-height:0}
  body.simple-workspace .grid-mode .product{display:flex;gap:10px;min-width:0}
  body.simple-workspace .grid-mode .product-image{width:100%;height:135px;padding:8px}
- body.simple-workspace .grid-mode .product h3{font-size:14px;overflow-wrap:anywhere}
+ body.simple-workspace .grid-mode .product h3{font-size:max(var(--spool-type-floor,16px),14px);overflow-wrap:anywhere}
  body.simple-workspace .grid-mode .actions{grid-row:auto;padding-top:10px}
  body.simple-workspace .grid-mode .actions>button,body.simple-workspace .grid-mode .actions .shop-link{flex:1 1 40px;padding:5px;min-width:0}
  body.simple-workspace .booking-title{padding:18px 16px 12px}
- body.simple-workspace .booking-title h2{font-size:17px}
+ body.simple-workspace .booking-title h2{font-size:max(var(--spool-type-floor,18px),17px)}
  body.simple-workspace .booking-sort-hint{display:none}
  body.simple-workspace .booking-status-tabs{padding:0 14px 12px;gap:5px}
- body.simple-workspace .booking-status-tabs button{padding:7px 9px;min-height:40px;font-size:11px}
+ body.simple-workspace .booking-status-tabs button{padding:7px 9px;min-height:40px;font-size:max(var(--spool-type-floor,16px),11px)}
  body.simple-workspace .booking-tools{padding:12px 14px;gap:8px}
  body.simple-workspace .booking-cards{padding:12px;background:#f7f8f2;gap:12px}
  body.simple-workspace .booking-card{padding:16px;border-radius:10px}
  body.simple-workspace .booking-card h3{font-size:19px}
- body.simple-workspace .booking-edit{min-height:44px;font-size:12px}
+ body.simple-workspace .booking-edit{min-height:44px;font-size:max(var(--spool-type-floor,16px),12px)}
  body.simple-workspace .library-products{gap:9px;padding-inline:10px}
  body.simple-workspace .library-products button{padding:12px 8px}
  body.simple-workspace .library-products img{width:84px;height:84px}
- body.simple-workspace .library-products span{font-size:13px}
+ body.simple-workspace .library-products span{font-size:max(var(--spool-type-floor,16px),13px)}
  body.simple-workspace .booking-table-scroll{display:none}
  body.simple-workspace #editor,body.simple-workspace #bookingDialog{max-width:100vw;width:100vw;max-height:100dvh;border:0;border-radius:0}
  body.simple-workspace #editor>form,body.simple-workspace #bookingDialog>form{max-height:100dvh}
@@ -319,17 +319,17 @@ body.simple-workspace .welcome-login-note,body.simple-workspace .welcome-version
  body.simple-workspace .dialog-head{padding:15px 16px}
  body.simple-workspace .dialog-head h2{font-size:19px}
  body.simple-workspace .product-autofill{padding:15px;border-radius:10px}
- body.simple-workspace .product-autofill>select{font-size:16px}
- body.simple-workspace .fields input,body.simple-workspace .fields select,body.simple-workspace .fields textarea,body.simple-workspace .booking-form-scroll input,body.simple-workspace .booking-form-scroll select,body.simple-workspace .booking-form-scroll textarea{font-size:16px}
+ body.simple-workspace .product-autofill>select{font-size:max(var(--spool-type-floor,16px),16px)}
+ body.simple-workspace .fields input,body.simple-workspace .fields select,body.simple-workspace .fields textarea,body.simple-workspace .booking-form-scroll input,body.simple-workspace .booking-form-scroll select,body.simple-workspace .booking-form-scroll textarea{font-size:max(var(--spool-type-floor,16px),16px)}
  body.simple-workspace .color-selection-panel{padding:15px;margin-bottom:20px}
  body.simple-workspace #editor .editor-visual{padding:15px}
  body.simple-workspace .editor-visual .image-editor img{height:150px}
  body.simple-workspace #editor .dialog-actions,body.simple-workspace #bookingDialog .dialog-actions{padding:10px 16px max(10px,env(safe-area-inset-bottom))}
  body.simple-workspace .cloud-context{padding-inline:16px}
  body.simple-workspace:not(.cloud-locked) .cloud-topbar{padding-inline:12px;gap:9px}
- body.simple-workspace .cloud-navigation button{font-size:12px;padding:0 10px;min-height:40px;height:40px}
+ body.simple-workspace .cloud-navigation button{font-size:max(var(--spool-type-floor,16px),12px);padding:0 10px;min-height:40px;height:40px}
  body.simple-workspace .cloud-account-trigger{width:44px;min-width:44px;height:44px}
- body.simple-workspace .cloud-library-picker #cloud-library{font-size:13px}
+ body.simple-workspace .cloud-library-picker #cloud-library{font-size:max(var(--spool-type-floor,16px),13px)}
  body.simple-workspace .cloud-dialog-head{padding:18px}
  body.simple-workspace .cloud-dialog-head h2{font-size:21px}
  body.simple-workspace .cloud-dialog-body{padding:18px}
@@ -338,25 +338,25 @@ body.simple-workspace .welcome-login-note,body.simple-workspace .welcome-version
  body.simple-workspace .welcome-pillars strong{font-size:25px}
  body.simple-workspace .welcome-pillars>div{padding-block:16px}
 }
-@media(max-width:370px){body.simple-workspace .filament-row{grid-template-columns:minmax(0,1fr) 78px;gap:8px}body.simple-workspace .product-image{width:54px;height:66px}body.simple-workspace .product{gap:8px}body.simple-workspace .grid-mode{grid-template-columns:1fr}body.simple-workspace .cloud-navigation button{padding-inline:6px;font-size:11px}}
+@media(max-width:370px){body.simple-workspace .filament-row{grid-template-columns:minmax(0,1fr) 78px;gap:8px}body.simple-workspace .product-image{width:54px;height:66px}body.simple-workspace .product{gap:8px}body.simple-workspace .grid-mode{grid-template-columns:1fr}body.simple-workspace .cloud-navigation button{padding-inline:6px;font-size:max(var(--spool-type-floor,16px),11px)}}
 @media(prefers-reduced-motion:reduce){body.simple-workspace *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 /* Horizontal material cards for comparing two spools side by side. */
-body.simple-workspace .view-switch #splitView{width:42px;min-width:42px;font-size:12px;font-weight:650}
+body.simple-workspace .view-switch #splitView{width:42px;min-width:42px;font-size:max(var(--spool-type-floor,16px),12px);font-weight:650}
 body.simple-workspace .split-mode{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:16px;padding:18px;background:#f6f7f2}
 body.simple-workspace .split-mode>.filament-row{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:12px 16px;min-width:0;min-height:0;padding:20px 18px 16px 42px;border:1px solid #dfe5d8;border-radius:12px;background:#fff;align-items:center}
 body.simple-workspace .split-mode .product{grid-column:1;grid-row:1;display:flex;gap:14px;min-height:106px;min-width:0}
 body.simple-workspace .split-mode .product-image{width:96px;height:106px;flex:none}
-body.simple-workspace .split-mode .product h3{font-size:17px;overflow-wrap:anywhere}
+body.simple-workspace .split-mode .product h3{font-size:max(var(--spool-type-floor,18px),17px);overflow-wrap:anywhere}
 body.simple-workspace .split-mode .material{display:block;grid-column:2;grid-row:1;align-self:start;justify-self:end;padding-top:4px}
 body.simple-workspace .split-mode .material .diameter{display:none}
 body.simple-workspace .split-mode .weight{grid-column:2;grid-row:1;align-self:end;min-width:0;padding-bottom:4px}
 body.simple-workspace .split-mode .weight-number{font-size:22px}
 body.simple-workspace .split-mode .weight-number small{display:block;line-height:1.8}
-body.simple-workspace .split-mode .place{display:block;grid-column:1/-1;grid-row:2;font-size:11px}
+body.simple-workspace .split-mode .place{display:block;grid-column:1/-1;grid-row:2;font-size:max(var(--spool-type-floor,16px),11px)}
 body.simple-workspace .split-mode .actions{display:flex;grid-column:1/-1;grid-row:3;flex-wrap:wrap;justify-content:flex-end;border-top:1px solid #e9ede2;padding-top:12px;gap:8px}
 body.simple-workspace .split-mode .actions>button{min-width:60px;min-height:40px;padding:7px 12px}
-body.simple-workspace .split-mode .actions .shop-link{min-height:40px;padding:7px 10px;font-size:11px}
+body.simple-workspace .split-mode .actions .shop-link{min-height:40px;padding:7px 10px;font-size:max(var(--spool-type-floor,16px),11px)}
 body.simple-workspace .split-mode>.empty-state{grid-column:1/-1}
 body.simple-workspace .split-mode .is-reordering>.reorder-controls{grid-column:1/-1;grid-row:1}
 body.simple-workspace .split-mode .is-reordering>.product,body.simple-workspace .split-mode .is-reordering>.material,body.simple-workspace .split-mode .is-reordering>.weight{grid-row:2}
@@ -373,7 +373,7 @@ body.simple-workspace .split-mode .is-reordering>.actions{grid-row:4}
  body.simple-workspace .split-mode>.filament-row{grid-template-columns:minmax(0,1fr) 86px;padding:17px 14px 14px 34px;gap:10px}
  body.simple-workspace .split-mode .product{gap:10px;min-height:92px}
  body.simple-workspace .split-mode .product-image{width:72px;height:88px}
- body.simple-workspace .split-mode .product h3{font-size:15px}
+ body.simple-workspace .split-mode .product h3{font-size:max(var(--spool-type-floor,16px),15px)}
  body.simple-workspace .split-mode .weight-number{font-size:20px}
  body.simple-workspace .split-mode .actions>button,body.simple-workspace .split-mode .actions .shop-link{min-height:44px}
 }
@@ -382,13 +382,13 @@ body.simple-workspace .split-mode .is-reordering>.actions{grid-row:4}
 body.simple-workspace .filter-disclosure>summary{display:flex;align-items:center;gap:7px;min-height:44px;padding:10px 12px;cursor:pointer;border:1px solid #a9c3aa;border-radius:8px;background:#edf4e9;color:#375f3b;box-shadow:0 1px 2px #28452809;list-style:none}
 body.simple-workspace .filter-disclosure>summary:hover{background:#e3eeda;border-color:#6c9467}
 body.simple-workspace .filter-disclosure>summary:after{display:none;content:none}
-body.simple-workspace .filter-toggle-label{font-family:inherit;font-size:12px;font-weight:650;line-height:1.4;white-space:nowrap}
+body.simple-workspace .filter-toggle-label{font-family:inherit;font-size:max(var(--spool-type-floor,16px),12px);font-weight:650;line-height:1.4;white-space:nowrap}
 body.simple-workspace .filter-toggle-icon{width:16px;height:16px;flex:none}
 body.simple-workspace .filter-toggle-arrow{width:14px;height:14px;flex:none;margin-left:auto;transition:transform .16s}
 body.simple-workspace .filter-disclosure[open]>summary{background:#e1edda;border-color:#92b08a;border-radius:8px 8px 0 0}
 body.simple-workspace .filter-disclosure[open] .filter-toggle-arrow{transform:rotate(180deg)}
 body.simple-workspace .filter-fields{padding:14px;gap:12px;background:#f6faf1;border:1px solid #bdcfb1;border-top:0;border-radius:0 0 9px 9px}
-body.simple-workspace .filter-field{display:flex;flex-direction:column;gap:6px;flex:1 1 160px;min-width:0;font-size:12px;color:#648055}
+body.simple-workspace .filter-field{display:flex;flex-direction:column;gap:6px;flex:1 1 160px;min-width:0;font-size:max(var(--spool-type-floor,16px),12px);color:#648055}
 body.simple-workspace .filter-field>span{font-weight:600}
 body.simple-workspace .filter-field select{width:100%;min-width:0;margin:0;flex:none}
 body.simple-workspace #filterCount:empty,body.simple-workspace #bookingFilterCount:empty{display:none}
@@ -398,40 +398,40 @@ body.simple-workspace .inventory,body.simple-workspace .booking-view{scroll-marg
 body.simple-workspace #searchDialog{width:min(840px,calc(100vw - 40px));max-width:none;max-height:85dvh;margin:clamp(16px,5vh,54px) auto 0;padding:0;border:1px solid #d6dfce;border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 24px 100px #193f3545;color:#294b36}
 body.simple-workspace #searchDialog[open]{display:flex;flex-direction:column}
 body.simple-workspace .search-panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;border-bottom:1px solid #e3e8da}
-body.simple-workspace .search-panel-head small{display:block;font-size:11px;color:#7d936b;margin-bottom:4px}
+body.simple-workspace .search-panel-head small{display:block;font-size:max(var(--spool-type-floor,16px),11px);color:#7d936b;margin-bottom:4px}
 body.simple-workspace .search-panel-head h2{font-size:20px;line-height:1.4;margin:0;font-weight:700;letter-spacing:-.04em}
 body.simple-workspace #closeSearchPanel{width:36px;height:36px;border:1px solid #dfe6d5;border-radius:8px;background:#f7faf2;font-size:23px;color:#78925e}
 body.simple-workspace .search-panel-input{display:flex;align-items:center;gap:12px;margin:18px 22px 14px;padding:0 14px;min-height:56px;border:1px solid #a4bf91;border-radius:10px;background:#f7faf2}
 body.simple-workspace .search-panel-input>span{font-size:24px;color:#76945f}
-body.simple-workspace #foregroundSearch{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;padding:13px 0;color:#31582f;font-family:inherit;font-size:18px;font-weight:500;line-height:1.5;outline-offset:4px}
-body.simple-workspace #clearSearchQuery{padding:8px 5px;font-size:11px;color:#7e9667;background:transparent;border:0;white-space:nowrap}
+body.simple-workspace #foregroundSearch{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;padding:13px 0;color:#31582f;font-family:inherit;font-size:max(var(--spool-type-floor,18px),18px);font-weight:500;line-height:1.5;outline-offset:4px}
+body.simple-workspace #clearSearchQuery{padding:8px 5px;font-size:max(var(--spool-type-floor,16px),11px);color:#7e9667;background:transparent;border:0;white-space:nowrap}
 body.simple-workspace .search-panel-tabs{display:flex;gap:8px;padding:0 22px 12px;border-bottom:1px solid #e2e9d8}
-body.simple-workspace .search-panel-tabs button{display:flex;gap:8px;align-items:center;padding:9px 13px;min-height:40px;border:0;border-radius:7px;background:#edf3e7;color:#547146;font-size:12px}
+body.simple-workspace .search-panel-tabs button{display:flex;gap:8px;align-items:center;padding:9px 13px;min-height:40px;border:0;border-radius:7px;background:#edf3e7;color:#547146;font-size:max(var(--spool-type-floor,16px),12px)}
 body.simple-workspace .search-panel-tabs button[aria-selected=true]{background:#2b573b;color:#fff;font-weight:650}
-body.simple-workspace .search-panel-tabs span:not(:empty){padding:2px 6px;border-radius:4px;background:#ffffff28;font-size:10px}
+body.simple-workspace .search-panel-tabs span:not(:empty){padding:2px 6px;border-radius:4px;background:#ffffff28;font-size:max(var(--spool-type-floor,16px),10px)}
 body.simple-workspace .search-panel-tabs button[aria-selected=false] span:not(:empty){background:#dce8d2;color:#5b7c43}
 body.simple-workspace .search-panel-scroll{min-height:80px;overflow:auto;overscroll-behavior:contain;flex:1}
-body.simple-workspace .search-result-hint{font-size:11px;color:#8b9d76;padding:12px 22px 5px;margin:0}
+body.simple-workspace .search-result-hint{font-size:max(var(--spool-type-floor,16px),11px);color:#8b9d76;padding:12px 22px 5px;margin:0}
 body.simple-workspace .foreground-results{padding:0 12px 10px}
 body.simple-workspace .search-result{display:flex;align-items:center;gap:14px;min-height:90px;width:100%;padding:12px 10px;text-align:left;border:0;border-bottom:1px solid #edf0e5;background:#fff;color:#496b3a;border-radius:6px}
 body.simple-workspace .search-result:hover,body.simple-workspace .search-result:focus-visible{background:#f1f7e9}
 body.simple-workspace .search-result>img{width:58px;height:62px;object-fit:contain;flex:none;background:#fafcf6;border:1px solid #e6ecdb;border-radius:8px;padding:3px}
 body.simple-workspace .search-result-copy{display:block;min-width:0;flex:1}
-body.simple-workspace .search-result-copy strong{display:block;font-size:14px;line-height:1.5;color:#365e30;overflow-wrap:anywhere}
-body.simple-workspace .search-result-copy small{display:block;font-size:11px;line-height:1.8;color:#879c6e}
+body.simple-workspace .search-result-copy strong{display:block;font-size:max(var(--spool-type-floor,16px),14px);line-height:1.5;color:#365e30;overflow-wrap:anywhere}
+body.simple-workspace .search-result-copy small{display:block;font-size:max(var(--spool-type-floor,16px),11px);line-height:1.8;color:#879c6e}
 body.simple-workspace .search-result .tag-list{margin-top:3px}
-body.simple-workspace .search-result-meta{font-size:12px;white-space:nowrap;color:#6e8856;font-variant-numeric:tabular-nums}
+body.simple-workspace .search-result-meta{font-size:max(var(--spool-type-floor,16px),12px);white-space:nowrap;color:#6e8856;font-variant-numeric:tabular-nums}
 body.simple-workspace .search-booking-color{display:block;width:36px;height:36px;border:1px solid #cbd8bd;border-radius:50%;flex:none}
 body.simple-workspace #searchFiltersPanel{padding:16px 22px}
 body.simple-workspace #foregroundFilters .filter-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:#fafcf6;border:1px solid #d6e2c8;border-radius:10px;padding:16px}
-body.simple-workspace #foregroundFilters select{min-height:46px;font-size:14px;border:1px solid #cbdcbb;border-radius:7px;background:#fff;color:#50723e;padding:9px}
+body.simple-workspace #foregroundFilters select{min-height:46px;font-size:max(var(--spool-type-floor,16px),14px);border:1px solid #cbdcbb;border-radius:7px;background:#fff;color:#50723e;padding:9px}
 body.simple-workspace #foregroundFilters #toggleReorder,body.simple-workspace #foregroundFilters #resetInventoryFilters{display:none}
-body.simple-workspace #clearSearchFilters{margin-top:12px;padding:10px 12px;min-height:40px;border:1px solid #cedcbd;border-radius:8px;background:#f4f8ed;font-size:12px;color:#769358}
+body.simple-workspace #clearSearchFilters{margin-top:12px;padding:10px 12px;min-height:40px;border:1px solid #cedcbd;border-radius:8px;background:#f4f8ed;font-size:max(var(--spool-type-floor,16px),12px);color:#769358}
 body.simple-workspace .search-panel-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 22px;border-top:1px solid #dfe7d3;background:#fcfdf9;flex:none}
-body.simple-workspace .search-panel-footer small{font-size:11px;color:#8b9e73}
-body.simple-workspace .search-panel-footer .primary{min-height:44px;padding:10px 20px;font-size:13px;white-space:nowrap}
-body.simple-workspace .search-panel-empty{padding:34px 20px;text-align:center;font-size:14px;color:#67874b}
-body.simple-workspace .search-panel-empty small{display:block;margin-top:10px;font-size:12px;color:#92a57c}
+body.simple-workspace .search-panel-footer small{font-size:max(var(--spool-type-floor,16px),11px);color:#8b9e73}
+body.simple-workspace .search-panel-footer .primary{min-height:44px;padding:10px 20px;font-size:max(var(--spool-type-floor,16px),13px);white-space:nowrap}
+body.simple-workspace .search-panel-empty{padding:34px 20px;text-align:center;font-size:max(var(--spool-type-floor,16px),14px);color:#67874b}
+body.simple-workspace .search-panel-empty small{display:block;margin-top:10px;font-size:max(var(--spool-type-floor,16px),12px);color:#92a57c}
 body.simple-workspace .search-result-highlight{outline:3px solid #8aa76e;outline-offset:-3px;background:#f0f7e6}
 body.simple-workspace #filamentDetails{padding:0;width:min(680px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 32px);overflow:auto}
 body.simple-workspace #filamentDetails .dialog-head{position:sticky;top:0;z-index:2;margin:0;padding:16px 20px;background:#fff;flex-wrap:nowrap;gap:16px}
@@ -439,28 +439,28 @@ body.simple-workspace #filamentDetails .dialog-head h2{min-width:0;margin:0;over
 body.simple-workspace #closeFilamentDetails{flex:none;min-width:36px;min-height:36px;border:1px solid #dfe6d5;border-radius:8px;background:#f7faf2;color:#78925e;font-size:22px}
 body.simple-workspace #filamentDetails .dialog-actions{position:sticky;bottom:0;margin:0;padding:12px 20px;background:#fff;border-top:1px solid #dfe7d3}
 @media(max-width:760px){
- body.simple-workspace .inventory .toolbar .filter-disclosure>summary{min-height:44px;gap:5px;padding:8px;font-size:11px}
- body.simple-workspace .filter-toggle-label{font-size:11px}
+ body.simple-workspace .inventory .toolbar .filter-disclosure>summary{min-height:44px;gap:5px;padding:8px;font-size:max(var(--spool-type-floor,16px),11px)}
+ body.simple-workspace .filter-toggle-label{font-size:max(var(--spool-type-floor,16px),11px)}
  body.simple-workspace .filter-toggle-icon{width:14px;height:14px}
  body.simple-workspace #searchDialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);margin-top:8px;border-radius:12px}
  body.simple-workspace .search-panel-head{padding:14px 16px}
- body.simple-workspace .search-panel-head h2{font-size:18px}
+ body.simple-workspace .search-panel-head h2{font-size:max(var(--spool-type-floor,18px),18px)}
  body.simple-workspace .search-panel-input{margin:14px 16px 12px;gap:8px;padding:0 10px;min-height:52px}
- body.simple-workspace #foregroundSearch{font-size:16px}
+ body.simple-workspace #foregroundSearch{font-size:max(var(--spool-type-floor,16px),16px)}
  body.simple-workspace .search-panel-tabs{padding-inline:16px;gap:6px}
- body.simple-workspace .search-panel-tabs button{padding:9px 10px;font-size:11px;min-height:42px}
+ body.simple-workspace .search-panel-tabs button{padding:9px 10px;font-size:max(var(--spool-type-floor,16px),11px);min-height:42px}
  body.simple-workspace .search-result-hint{padding-inline:16px}
  body.simple-workspace .foreground-results{padding-inline:8px}
  body.simple-workspace .search-result{padding:12px 8px;gap:10px}
  body.simple-workspace .search-result>img{width:44px;height:50px}
- body.simple-workspace .search-result-copy strong{font-size:13px}
- body.simple-workspace .search-result-copy small{font-size:10px}
- body.simple-workspace .search-result-meta{font-size:11px}
+ body.simple-workspace .search-result-copy strong{font-size:max(var(--spool-type-floor,16px),13px)}
+ body.simple-workspace .search-result-copy small{font-size:max(var(--spool-type-floor,16px),10px)}
+ body.simple-workspace .search-result-meta{font-size:max(var(--spool-type-floor,16px),11px)}
  body.simple-workspace #searchFiltersPanel{padding:14px 16px}
  body.simple-workspace #foregroundFilters .filter-fields{grid-template-columns:minmax(0,1fr);padding:12px}
- body.simple-workspace #foregroundFilters select{font-size:16px}
+ body.simple-workspace #foregroundFilters select{font-size:max(var(--spool-type-floor,16px),16px)}
  body.simple-workspace .search-panel-footer{padding:12px 16px;gap:8px}
- body.simple-workspace .search-panel-footer small{font-size:10px;max-width:150px}
+ body.simple-workspace .search-panel-footer small{font-size:max(var(--spool-type-floor,16px),10px);max-width:150px}
 }
 
 body.simple-workspace .split-mode .product>div{min-width:0}body.simple-workspace .split-mode .item-tag,body.simple-workspace .search-result .item-tag{max-width:100%;overflow:hidden;text-overflow:ellipsis}
@@ -468,31 +468,31 @@ body.simple-workspace .split-mode .product>div{min-width:0}body.simple-workspace
 .card-material{display:none}
 body.simple-workspace .booking-import{margin:0 0 22px;padding:16px;border:1px solid #d8e3d9;border-radius:12px;background:#f4f8f3;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 body.simple-workspace .booking-import>div:first-child{flex:1;min-width:160px;display:grid;gap:5px}
-body.simple-workspace .booking-import small,body.simple-workspace .booking-quality small{font-size:12px;color:#61746a;line-height:1.6}
+body.simple-workspace .booking-import small,body.simple-workspace .booking-quality small{font-size:max(var(--spool-type-floor,16px),12px);color:#61746a;line-height:1.6}
 body.simple-workspace .booking-import>button,body.simple-workspace #bookingImportApply{min-height:44px;padding:9px 14px;background:#fff;border:1px solid #bbcec1;border-radius:8px;color:#27533f}
 body.simple-workspace #bookingImportPanel{flex-basis:100%;border-top:1px solid #dce6dc;padding-top:14px;min-width:0}
-body.simple-workspace #bookingImportPanel label,body.simple-workspace .booking-quality{display:grid;gap:8px;font-size:14px;font-weight:600}
-body.simple-workspace #bookingImportSource,body.simple-workspace .booking-quality select{max-width:100%;width:100%;min-height:46px;background:#fff;border:1px solid #ccd9cd;border-radius:8px;padding:10px;font-size:14px;color:#244b38}
-body.simple-workspace #bookingImportFeedback,body.simple-workspace #bookingImportStatus{font-size:13px;line-height:1.6;overflow-wrap:anywhere;margin:0}
+body.simple-workspace #bookingImportPanel label,body.simple-workspace .booking-quality{display:grid;gap:8px;font-size:max(var(--spool-type-floor,16px),14px);font-weight:600}
+body.simple-workspace #bookingImportSource,body.simple-workspace .booking-quality select{max-width:100%;width:100%;min-height:46px;background:#fff;border:1px solid #ccd9cd;border-radius:8px;padding:10px;font-size:max(var(--spool-type-floor,16px),14px);color:#244b38}
+body.simple-workspace #bookingImportFeedback,body.simple-workspace #bookingImportStatus{font-size:max(var(--spool-type-floor,16px),13px);line-height:1.6;overflow-wrap:anywhere;margin:0}
 body.simple-workspace #bookingImportStatus{margin:10px 0}
 body.simple-workspace #bookingImportFeedback{flex-basis:100%}
 body.simple-workspace .import-metrics{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0}
-body.simple-workspace .import-metrics>span{display:grid;gap:5px;font-size:12px;color:#65766b}
-body.simple-workspace .import-metrics strong{font-size:17px;color:#264837}
-body.simple-workspace .import-colors{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;max-height:120px;overflow:auto}
+body.simple-workspace .import-metrics>span{display:grid;gap:5px;font-size:max(var(--spool-type-floor,16px),12px);color:#65766b}
+body.simple-workspace .import-metrics strong{font-size:max(var(--spool-type-floor,18px),17px);color:#264837}
+body.simple-workspace .import-colors{display:flex;flex-wrap:wrap;gap:8px;font-size:max(var(--spool-type-floor,16px),12px);max-height:120px;overflow:auto}
 body.simple-workspace .import-colors>span{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;background:white;border:1px solid #dde4da;border-radius:6px}
 body.simple-workspace .import-colors i{width:20px;height:20px;border:1px solid #0002;border-radius:50%;flex:none}
 body.simple-workspace .booking-quality{margin:18px 0;font-weight:600}
-body.simple-workspace .booking-quality-label{display:block;font-size:12px;color:#64786c;line-height:1.5;margin-top:5px;font-weight:400}
+body.simple-workspace .booking-quality-label{display:block;font-size:max(var(--spool-type-floor,16px),12px);color:#64786c;line-height:1.5;margin-top:5px;font-weight:400}
 body.simple-workspace .booking-color-label{flex-wrap:wrap}
-body.simple-workspace .reorder-hint{display:flex;align-items:center;justify-content:space-between;gap:12px;grid-column:1/-1;width:100%;margin:0;padding:12px 20px;font-size:14px;line-height:1.7;background:#edf4ec;border-block:1px solid #d9e5d6;color:#355b43}
+body.simple-workspace .reorder-hint{display:flex;align-items:center;justify-content:space-between;gap:12px;grid-column:1/-1;width:100%;margin:0;padding:12px 20px;font-size:max(var(--spool-type-floor,16px),14px);line-height:1.7;background:#edf4ec;border-block:1px solid #d9e5d6;color:#355b43}
 body.simple-workspace .reorder-hint strong{margin-right:14px;color:#1f4d38}
-body.simple-workspace .reorder-hint button{flex:none;min-height:40px;padding:7px 18px;background:#fff;border:1px solid #adc4ad;border-radius:8px;font-size:14px}
+body.simple-workspace .reorder-hint button{flex:none;min-height:40px;padding:7px 18px;background:#fff;border:1px solid #adc4ad;border-radius:8px;font-size:max(var(--spool-type-floor,16px),14px)}
 @media(min-width:761px){
- body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:clamp(14px,.9vw,17px);color:#53675c}
- body.simple-workspace .stats small,body.simple-workspace .booking-overview small{font-size:13px}
- body.simple-workspace .product .color-name,body.simple-workspace .place{font-size:13px}
- body.simple-workspace .brand-name{font-size:12px}
+ body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:max(var(--spool-type-floor,18px),clamp(14px,.9vw,17px));color:#53675c}
+ body.simple-workspace .stats small,body.simple-workspace .booking-overview small{font-size:max(var(--spool-type-floor,16px),13px)}
+ body.simple-workspace .product .color-name,body.simple-workspace .place{font-size:max(var(--spool-type-floor,16px),13px)}
+ body.simple-workspace .brand-name{font-size:max(var(--spool-type-floor,16px),12px)}
  body.simple-workspace:not(.cloud-locked) .cloud-topbar{padding-inline:max(40px,calc((100% - 1600px)/2 + 40px))}
 }
 body.simple-workspace .grid-mode .filament-row{padding:30px 16px 14px;gap:11px;min-height:0;justify-content:flex-start}
@@ -503,8 +503,8 @@ body.simple-workspace .grid-mode .brand-name,body.simple-workspace .grid-mode .p
 body.simple-workspace .grid-mode .product h3{margin-bottom:2px}
 body.simple-workspace .grid-mode .product .color-name{display:inline-flex;align-items:center;max-width:100%;margin:0;gap:4px;overflow-wrap:anywhere}
 body.simple-workspace .grid-mode .product .tag-list{display:inline-flex;gap:4px;flex-wrap:wrap;margin:0;min-width:0}
-body.simple-workspace .grid-mode .card-material{display:inline-flex;padding:4px 7px;font-size:12px;line-height:1.4}
-body.simple-workspace .grid-mode .item-tag{font-size:12px;max-width:100%;overflow-wrap:anywhere;white-space:normal}
+body.simple-workspace .grid-mode .card-material{display:inline-flex;padding:4px 7px;font-size:max(var(--spool-type-floor,16px),12px);line-height:1.4}
+body.simple-workspace .grid-mode .item-tag{font-size:max(var(--spool-type-floor,16px),12px);max-width:100%;overflow-wrap:anywhere;white-space:normal}
 body.simple-workspace .grid-mode .filament-row>.material{display:none}
 body.simple-workspace .grid-mode .weight{margin:0}
 body.simple-workspace .grid-mode .place{margin:0;line-height:1.5}
@@ -521,10 +521,10 @@ body.simple-workspace .grid-mode .reorder-controls [draggable]{margin-right:auto
  body.simple-workspace .grid-mode .filament-row{padding:28px 10px 12px;gap:9px}
  body.simple-workspace .grid-mode .product-image{height:130px;padding:6px}
  body.simple-workspace .grid-mode .product>div{gap:5px 6px}
- body.simple-workspace .grid-mode .card-material,body.simple-workspace .grid-mode .item-tag{font-size:11px}
- body.simple-workspace .reorder-hint{font-size:13px;padding:12px}
+ body.simple-workspace .grid-mode .card-material,body.simple-workspace .grid-mode .item-tag{font-size:max(var(--spool-type-floor,16px),11px)}
+ body.simple-workspace .reorder-hint{font-size:max(var(--spool-type-floor,16px),13px);padding:12px}
  body.simple-workspace .reorder-hint strong{display:block;margin:0}
- body.simple-workspace #bookingImportSource,body.simple-workspace .booking-quality select{font-size:16px}
+ body.simple-workspace #bookingImportSource,body.simple-workspace .booking-quality select{font-size:max(var(--spool-type-floor,16px),16px)}
 }
 
 body.simple-workspace .grid-mode>.empty-state{grid-column:1/-1}
@@ -536,27 +536,27 @@ body.simple-workspace .split-mode .actions .shop-link{flex:0 0 auto;margin:0}
 body.simple-workspace .split-mode .actions>button{flex:0 0 auto}
 @media(max-width:760px){body.simple-workspace .split-mode .actions .shop-links{flex-basis:100%;order:-1;justify-content:flex-end}}
 /* Readable type, calm spacing and a consistent green masthead. */
-body.simple-workspace{font-size:16px;--ink:#193b30;--muted:#465e51}
-body.simple-workspace .brand-name,body.simple-workspace .product .color-name,body.simple-workspace .place{color:#465e50;font-size:14px}
-body.simple-workspace .product h3{font-size:clamp(18px,1.2vw,23px)}
-body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag,body.simple-workspace .booking-card .item-tag{font-size:14px;padding:4px 8px;line-height:1.5;color:#34503d;background:#edf2e8}
-body.simple-workspace .search input,body.simple-workspace .toolbar select,body.simple-workspace .booking-tools select{font-size:16px}
-body.simple-workspace .tabs button,body.simple-workspace .booking-status-tabs button,body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{font-size:14px}
-body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:16px;color:#415b4d}
-body.simple-workspace .table-label,body.simple-workspace .table-footer,body.simple-workspace .batch-disclosure>summary,body.simple-workspace .filter-field>span{font-size:14px;color:#4d6253}
-body.simple-workspace .weight-number{font-size:24px}body.simple-workspace .weight-number small{font-size:13px;color:#4b6454}
-body.simple-workspace #editor .fields label,body.simple-workspace #bookingDialog label{font-size:15px;color:#36523f}
-body.simple-workspace #editor .fields input,body.simple-workspace #editor .fields select,body.simple-workspace #editor .fields textarea,body.simple-workspace #bookingDialog input,body.simple-workspace #bookingDialog select{font-size:16px}
-body.simple-workspace #editor small,body.simple-workspace #bookingDialog small,body.simple-workspace .field-feedback,body.simple-workspace .search-result-hint{font-size:13px;color:#526a55}
-body.simple-workspace .tag-suggestions button{font-size:14px;min-height:36px;padding:6px 10px}
-body.simple-workspace .page-actions>.primary{min-height:56px;padding:14px 24px;font-size:17px;font-weight:700;border-radius:11px}
-body.simple-workspace .stock-location{margin:16px 0}.stock-location label{display:grid;gap:8px;font-size:15px;color:#36523f}.stock-location input{font-size:16px;min-height:46px;width:100%}
+body.simple-workspace{font-size:max(var(--spool-type-floor,16px),16px);--ink:#193b30;--muted:#465e51}
+body.simple-workspace .brand-name,body.simple-workspace .product .color-name,body.simple-workspace .place{color:#465e50;font-size:max(var(--spool-type-floor,16px),14px)}
+body.simple-workspace .product h3{font-size:max(var(--spool-type-floor,18px),clamp(18px,1.2vw,23px))}
+body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag,body.simple-workspace .booking-card .item-tag{font-size:max(var(--spool-type-floor,16px),14px);padding:4px 8px;line-height:1.5;color:#34503d;background:#edf2e8}
+body.simple-workspace .search input,body.simple-workspace .toolbar select,body.simple-workspace .booking-tools select{font-size:max(var(--spool-type-floor,16px),16px)}
+body.simple-workspace .tabs button,body.simple-workspace .booking-status-tabs button,body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{font-size:max(var(--spool-type-floor,16px),14px)}
+body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:max(var(--spool-type-floor,16px),16px);color:#415b4d}
+body.simple-workspace .table-label,body.simple-workspace .table-footer,body.simple-workspace .batch-disclosure>summary,body.simple-workspace .filter-field>span{font-size:max(var(--spool-type-floor,16px),14px);color:#4d6253}
+body.simple-workspace .weight-number{font-size:24px}body.simple-workspace .weight-number small{font-size:max(var(--spool-type-floor,16px),13px);color:#4b6454}
+body.simple-workspace #editor .fields label,body.simple-workspace #bookingDialog label{font-size:max(var(--spool-type-floor,16px),15px);color:#36523f}
+body.simple-workspace #editor .fields input,body.simple-workspace #editor .fields select,body.simple-workspace #editor .fields textarea,body.simple-workspace #bookingDialog input,body.simple-workspace #bookingDialog select{font-size:max(var(--spool-type-floor,16px),16px)}
+body.simple-workspace #editor small,body.simple-workspace #bookingDialog small,body.simple-workspace .field-feedback,body.simple-workspace .search-result-hint{font-size:max(var(--spool-type-floor,16px),13px);color:#526a55}
+body.simple-workspace .tag-suggestions button{font-size:max(var(--spool-type-floor,16px),14px);min-height:36px;padding:6px 10px}
+body.simple-workspace .page-actions>.primary{min-height:56px;padding:14px 24px;font-size:max(var(--spool-type-floor,18px),17px);font-weight:700;border-radius:11px}
+body.simple-workspace .stock-location{margin:16px 0}.stock-location label{display:grid;gap:8px;font-size:max(var(--spool-type-floor,16px),15px);color:#36523f}.stock-location input{font-size:max(var(--spool-type-floor,16px),16px);min-height:46px;width:100%}
 body.simple-workspace #stockDetails>.fields{padding:16px;gap:16px}body.simple-workspace #filamentExtras{display:grid;grid-template-columns:1fr 1fr;gap:16px}body.simple-workspace #filamentExtras .full{grid-column:1/-1}
 body.simple-workspace #advancedProductFields:empty{display:none}body.simple-workspace #advancedProductFields{padding:0 16px}
 body.simple-workspace #colorPresets{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;max-height:300px;padding:2px}
 body.simple-workspace #colorPresets .color-preset{width:100%;min-height:88px;height:auto;padding:12px 8px;gap:8px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
 body.simple-workspace #colorPresets .color-preset i{width:34px;height:34px;flex:none}
-body.simple-workspace #colorPresets .color-preset span{font-size:14px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere;line-break:strict;color:#34563e}
+body.simple-workspace #colorPresets .color-preset span{font-size:max(var(--spool-type-floor,16px),14px);line-height:1.5;word-break:keep-all;overflow-wrap:anywhere;line-break:strict;color:#34563e}
 body.simple-workspace #colorPresets .color-preset small,body.simple-workspace #colorInfoHex{display:none}
 body.simple-workspace .color-selection-panel{padding:16px}body.simple-workspace .selected-color-preview{margin-bottom:10px;padding:10px 12px}body.simple-workspace .preset-search{margin:10px 0}
 /* Material is a derived tag, not another inventory column. */
@@ -566,39 +566,39 @@ body.simple-workspace .color-selection-panel{padding:16px}body.simple-workspace 
 body.simple-workspace .inventory #inventoryFilters[open]{flex-basis:100%;order:10;margin:4px 0 0;width:100%}
 body.simple-workspace .inventory #inventoryFilters .filter-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;padding:16px;background:#f6f8f2}
 body.simple-workspace .inventory #inventoryFilters .filter-field{grid-column:auto;min-width:0}
-body.simple-workspace .inventory #inventoryFilters select{width:100%;max-width:none;min-height:46px;font-size:15px}
-body.simple-workspace .inventory #inventoryFilters .filter-fields>button{align-self:end;min-height:46px;font-size:14px}
+body.simple-workspace .inventory #inventoryFilters select{width:100%;max-width:none;min-height:46px;font-size:max(var(--spool-type-floor,16px),15px)}
+body.simple-workspace .inventory #inventoryFilters .filter-fields>button{align-self:end;min-height:46px;font-size:max(var(--spool-type-floor,16px),14px)}
 @media(min-width:1280px){body.simple-workspace .inventory:has(#inventoryFilters[open]){grid-template-columns:minmax(0,1fr)}body.simple-workspace .inventory:has(#inventoryFilters[open])>.section-top{grid-column:1;grid-row:1}body.simple-workspace .inventory:has(#inventoryFilters[open])>.toolbar{grid-column:1;grid-row:2}}
 /* Inventory search results are image cards; booking results remain compact rows. */
 body.simple-workspace #foregroundResults.filament-search-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px 20px 20px}
 body.simple-workspace .filament-search-cards .search-result{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:start;gap:8px 14px;position:relative;padding:16px;border:1px solid #dbe3d4;border-radius:12px;min-height:132px;box-shadow:0 2px 6px #26492d05}
 body.simple-workspace .filament-search-cards .search-result>img{grid-column:1;grid-row:1/3;width:80px;height:96px;padding:4px}
 body.simple-workspace .filament-search-cards .search-result-copy{grid-column:2;grid-row:1;min-width:0}
-body.simple-workspace .filament-search-cards .search-result-copy strong{font-size:17px}.filament-search-cards .search-result-copy small{font-size:14px}
-body.simple-workspace .filament-search-cards .search-result-meta{grid-column:2;grid-row:2;font-size:15px;font-weight:600;align-self:end}
+body.simple-workspace .filament-search-cards .search-result-copy strong{font-size:max(var(--spool-type-floor,18px),17px)}.filament-search-cards .search-result-copy small{font-size:max(var(--spool-type-floor,16px),14px)}
+body.simple-workspace .filament-search-cards .search-result-meta{grid-column:2;grid-row:2;font-size:max(var(--spool-type-floor,16px),15px);font-weight:600;align-self:end}
 body.simple-workspace .filament-search-cards .search-result>span:last-child{display:none}
 body.simple-workspace .filament-search-cards>.search-panel-empty{grid-column:1/-1}
 body.simple-workspace .booking-overview-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 22px;border-bottom:1px solid #e1e7db}
 body.simple-workspace .booking-overview-header .booking-title{padding:0;border:0;min-width:0;display:block}
 body.simple-workspace .booking-overview-header .booking-title>div{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-body.simple-workspace .booking-overview-header h2,body.simple-workspace .booking-overview-header #bookingCount{margin:0}body.simple-workspace #bookingCount{font-size:14px;color:#4d6655}
+body.simple-workspace .booking-overview-header h2,body.simple-workspace .booking-overview-header #bookingCount{margin:0}body.simple-workspace #bookingCount{font-size:max(var(--spool-type-floor,16px),14px);color:#4d6655}
 body.simple-workspace .booking-overview-header .booking-status-tabs{padding:0;margin:0;display:flex;flex-wrap:wrap;gap:7px;border:0}
 body.simple-workspace .booking-status-tabs button{min-height:42px;padding:9px 12px;color:#425e49}.booking-overview-header .booking-sort-hint{display:none}
 body.simple-workspace .cloud-topbar,body.simple-workspace:not(.cloud-locked) .cloud-topbar,body.simple-workspace.cloud-locked .cloud-topbar{background:#183e31;border-color:#2e5142;box-shadow:0 1px 0 #ffffff16}
 body.simple-workspace .cloud-topbar .cloud-brand{color:#f2f6e9}body.simple-workspace .cloud-topbar .cloud-brand-icon{color:#d7e6bc;border-color:#7f9677;background:#254b3a}
 body.simple-workspace .cloud-topbar .cloud-brand>small,body.simple-workspace .cloud-topline,body.simple-workspace .cloud-offline-link{color:#ccdcbf}
-body.simple-workspace .cloud-topbar .cloud-navigation button{font-size:15px;color:#e0ead5}body.simple-workspace .cloud-topbar .cloud-navigation button.is-active{background:#e4edcb;color:#214633}
+body.simple-workspace .cloud-topbar .cloud-navigation button{font-size:max(var(--spool-type-floor,16px),15px);color:#e0ead5}body.simple-workspace .cloud-topbar .cloud-navigation button.is-active{background:#e4edcb;color:#214633}
 body.simple-workspace .cloud-topbar .cloud-account-trigger{color:#eef4e4;border-color:#84997a;background:#254b3b}body.simple-workspace .cloud-topbar .cloud-avatar{color:#f1f5e8;border-color:#aabf94;background:#365b41}
 @media(max-width:760px){
- body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag,body.simple-workspace .booking-card .item-tag{font-size:13px;padding:3px 7px}
- body.simple-workspace .product h3{font-size:17px}body.simple-workspace .product .color-name,body.simple-workspace .place{font-size:13px}body.simple-workspace .brand-name{font-size:12px}
- body.simple-workspace .inventory .tabs button{font-size:13px;padding:9px 8px}body.simple-workspace .inventory .view-switch button{width:36px;min-width:36px}
- body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{font-size:13px}
- body.simple-workspace .page-actions>.primary{min-height:54px;padding:14px 16px;font-size:16px}
- body.simple-workspace .booking-overview-header{padding:16px;gap:12px}body.simple-workspace .booking-overview-header .booking-status-tabs{width:100%;gap:6px}body.simple-workspace .booking-status-tabs button{font-size:13px;padding:8px 6px}
+ body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag,body.simple-workspace .booking-card .item-tag{font-size:max(var(--spool-type-floor,16px),13px);padding:3px 7px}
+ body.simple-workspace .product h3{font-size:max(var(--spool-type-floor,18px),17px)}body.simple-workspace .product .color-name,body.simple-workspace .place{font-size:max(var(--spool-type-floor,16px),13px)}body.simple-workspace .brand-name{font-size:max(var(--spool-type-floor,16px),12px)}
+ body.simple-workspace .inventory .tabs button{font-size:max(var(--spool-type-floor,16px),13px);padding:9px 8px}body.simple-workspace .inventory .view-switch button{width:36px;min-width:36px}
+ body.simple-workspace .filament-row .actions>button,body.simple-workspace .filament-row .actions .shop-link{font-size:max(var(--spool-type-floor,16px),13px)}
+ body.simple-workspace .page-actions>.primary{min-height:54px;padding:14px 16px;font-size:max(var(--spool-type-floor,16px),16px)}
+ body.simple-workspace .booking-overview-header{padding:16px;gap:12px}body.simple-workspace .booking-overview-header .booking-status-tabs{width:100%;gap:6px}body.simple-workspace .booking-status-tabs button{font-size:max(var(--spool-type-floor,16px),13px);padding:8px 6px}
  body.simple-workspace #foregroundResults.filament-search-cards{grid-template-columns:minmax(0,1fr);padding:10px 12px 14px}
  body.simple-workspace .inventory #inventoryFilters .filter-fields{grid-template-columns:minmax(0,1fr);padding:12px}
- body.simple-workspace .cloud-topbar .cloud-navigation button{font-size:13px}
+ body.simple-workspace .cloud-topbar .cloud-navigation button{font-size:max(var(--spool-type-floor,16px),13px)}
 }
 /* Account actions have distinct purposes and fewer decorative panels. */
 body.simple-workspace #cloud-account-dialog{width:min(680px,calc(100vw - 24px));max-height:90dvh;padding:0;color:#254633}
@@ -606,68 +606,68 @@ body.simple-workspace #cloud-account-dialog .cloud-dialog-head{padding:18px 22px
 body.simple-workspace #cloud-account-dialog .cloud-dialog-body{padding:20px 22px;display:flex;flex-direction:column;gap:16px}
 body.simple-workspace #cloud-account-dialog .account-identity{margin:0;padding:0 0 16px;border:0;border-bottom:1px solid #dce5d8;border-radius:0;background:none;gap:16px}
 body.simple-workspace #cloud-account-dialog .account-identity>.cloud-avatar{width:64px;height:64px;font-size:25px}
-body.simple-workspace #account-name{font-size:22px}body.simple-workspace #account-handle,body.simple-workspace #cloud-account-dialog p{font-size:14px;color:#4b6654;overflow-wrap:anywhere}
+body.simple-workspace #account-name{font-size:22px}body.simple-workspace #account-handle,body.simple-workspace #cloud-account-dialog p{font-size:max(var(--spool-type-floor,16px),14px);color:#4b6654;overflow-wrap:anywhere}
 body.simple-workspace #cloud-account-dialog .profile-editor{margin:0;border:1px solid #d2decc;border-radius:10px;background:#f8faf5}
-body.simple-workspace #cloud-account-dialog .profile-editor>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;font-size:16px;font-weight:600;cursor:pointer;color:#2e553b}
-body.simple-workspace #cloud-account-dialog .profile-editor>summary>span{font-size:13px;font-weight:400;color:#536d58}
-body.simple-workspace #profile-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px}body.simple-workspace #profile-form label{font-size:15px}body.simple-workspace #profile-form input{font-size:16px;min-height:46px;width:100%}
+body.simple-workspace #cloud-account-dialog .profile-editor>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;font-size:max(var(--spool-type-floor,16px),16px);font-weight:600;cursor:pointer;color:#2e553b}
+body.simple-workspace #cloud-account-dialog .profile-editor>summary>span{font-size:max(var(--spool-type-floor,16px),13px);font-weight:400;color:#536d58}
+body.simple-workspace #profile-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px}body.simple-workspace #profile-form label{font-size:max(var(--spool-type-floor,16px),15px)}body.simple-workspace #profile-form input{font-size:max(var(--spool-type-floor,16px),16px);min-height:46px;width:100%}
 body.simple-workspace #profile-form>p,body.simple-workspace #profile-form>.profile-photo-row,body.simple-workspace #profile-result{grid-column:1/-1;margin:0}
-body.simple-workspace #cloud-account-dialog .account-library{margin:0;padding:16px;border-radius:10px;background:#f6f8f1}.account-library h3{font-size:18px}
-body.simple-workspace #cloud-account-dialog .account-manage,body.simple-workspace #cloud-account-dialog .account-add-entry{min-height:48px;font-size:15px;margin:0;padding:12px 16px}
-body.simple-workspace #cloud-account-dialog .account-more{border:1px solid #e0e6d9;border-radius:8px;padding:0 14px}body.simple-workspace .account-more>summary{padding:12px 0;font-size:14px;cursor:pointer}.account-more .account-version{display:block;font-size:13px;color:#53694f;padding-bottom:12px}
-body.simple-workspace #cloud-account-dialog .account-session{margin:0;padding-top:16px;gap:12px;border-top:1px solid #dfe7d8}.account-session>span{font-size:13px;color:#4d6554}
+body.simple-workspace #cloud-account-dialog .account-library{margin:0;padding:16px;border-radius:10px;background:#f6f8f1}.account-library h3{font-size:max(var(--spool-type-floor,18px),18px)}
+body.simple-workspace #cloud-account-dialog .account-manage,body.simple-workspace #cloud-account-dialog .account-add-entry{min-height:48px;font-size:max(var(--spool-type-floor,16px),15px);margin:0;padding:12px 16px}
+body.simple-workspace #cloud-account-dialog .account-more{border:1px solid #e0e6d9;border-radius:8px;padding:0 14px}body.simple-workspace .account-more>summary{padding:12px 0;font-size:max(var(--spool-type-floor,16px),14px);cursor:pointer}.account-more .account-version{display:block;font-size:max(var(--spool-type-floor,16px),13px);color:#53694f;padding-bottom:12px}
+body.simple-workspace #cloud-account-dialog .account-session{margin:0;padding-top:16px;gap:12px;border-top:1px solid #dfe7d8}.account-session>span{font-size:max(var(--spool-type-floor,16px),13px);color:#4d6554}
 @media(max-width:600px){body.simple-workspace #profile-form{grid-template-columns:minmax(0,1fr)}body.simple-workspace #cloud-account-dialog .profile-editor>summary{flex-wrap:wrap}body.simple-workspace #cloud-account-dialog .cloud-dialog-body{padding:16px}body.simple-workspace #cloud-account-dialog .account-session{flex-wrap:wrap}}
 body.simple-workspace #editor[data-entry-mode=start]{width:min(760px,calc(100vw - 24px))}
 body.simple-workspace #editor[data-entry-mode=start] .editor-layout{display:block;min-height:0;padding:22px}
 body.simple-workspace #editor[data-entry-mode=start] .editor-fields>:not(.product-autofill),body.simple-workspace #editor[data-entry-mode=start] .editor-visual,body.simple-workspace #editor[data-entry-mode=start] .filament-workflow,body.simple-workspace #editor[data-entry-mode=start] .filament-entry-note{display:none}
 body.simple-workspace #editor .manual-entry-button{display:none}
-body.simple-workspace #editor[data-entry-mode=start] #productAutofillStatus{font-size:14px;color:#45634a;margin-bottom:0}
+body.simple-workspace #editor[data-entry-mode=start] #productAutofillStatus{font-size:max(var(--spool-type-floor,16px),14px);color:#45634a;margin-bottom:0}
 body.simple-workspace #editor .product-autofill{margin-bottom:16px;padding:16px;background:#f4f8ef}
-body.simple-workspace #editor #editorProduct{min-height:50px;font-size:16px}
+body.simple-workspace #editor #editorProduct{min-height:50px;font-size:max(var(--spool-type-floor,16px),16px)}
 body.simple-workspace #bookingExtraDetails .booking-quality{margin:0}
 @media(max-width:760px){body.simple-workspace #editor[data-entry-mode=start]{width:100vw}body.simple-workspace #editor[data-entry-mode=start] .editor-layout{padding:16px}}
-body.simple-workspace #bookingImportPick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:140px;border:2px dashed #90ac87;border-radius:12px;background:#f4f8ee;color:#294e37;padding:20px;text-align:center;font-size:16px}
+body.simple-workspace #bookingImportPick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:140px;border:2px dashed #90ac87;border-radius:12px;background:#f4f8ee;color:#294e37;padding:20px;text-align:center;font-size:max(var(--spool-type-floor,16px),16px)}
 body.simple-workspace #bookingImportPick:before{content:'↥';font-size:27px;line-height:1}
-body.simple-workspace #bookingImportPick strong{font-size:18px}body.simple-workspace #bookingImportPick small{font-size:14px;color:#425d45}
+body.simple-workspace #bookingImportPick strong{font-size:max(var(--spool-type-floor,18px),18px)}body.simple-workspace #bookingImportPick small{font-size:max(var(--spool-type-floor,16px),14px);color:#425d45}
 body.simple-workspace #bookingImportPick.is-drag-over{background:#e4efda;border-color:#315f3a;box-shadow:0 0 0 3px #a7c49355}
-body.simple-workspace #bookingDialog label{font-size:16px;color:#2c4936}body.simple-workspace #bookingDialog small,body.simple-workspace #bookingDialog .field-feedback,body.simple-workspace #bookingDialog .booking-color-choice small{font-size:14px;color:#425d49}
-body.simple-workspace #bookingDialog .form-section-heading h3{font-size:18px;color:#2c5039}body.simple-workspace #bookingDialog .disclosure>summary{font-size:16px;color:#35543c}
-body.simple-workspace .booking-color-choice strong{font-size:15px;color:#31503b}body.simple-workspace .booking-color-choice code{display:none}
+body.simple-workspace #bookingDialog label{font-size:max(var(--spool-type-floor,16px),16px);color:#2c4936}body.simple-workspace #bookingDialog small,body.simple-workspace #bookingDialog .field-feedback,body.simple-workspace #bookingDialog .booking-color-choice small{font-size:max(var(--spool-type-floor,16px),14px);color:#425d49}
+body.simple-workspace #bookingDialog .form-section-heading h3{font-size:max(var(--spool-type-floor,18px),18px);color:#2c5039}body.simple-workspace #bookingDialog .disclosure>summary{font-size:max(var(--spool-type-floor,16px),16px);color:#35543c}
+body.simple-workspace .booking-color-choice strong{font-size:max(var(--spool-type-floor,16px),15px);color:#31503b}body.simple-workspace .booking-color-choice code{display:none}
 body.simple-workspace #editor .filament-workflow{display:none}
 body.simple-workspace #editor #elegooLibrary:not([open]){display:none}
 body.simple-workspace #editor[data-entry-mode=start] #elegooLibrary[open]{display:block}
 body.simple-workspace #editor[data-entry-mode=start] .dialog-actions .primary,body.simple-workspace #editor[data-entry-mode=start] #saveAndContinue,body.simple-workspace #editor[data-entry-mode=start] .filament-save-summary{display:none}
 body.simple-workspace #editor .product-autofill{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px}
 body.simple-workspace #editor .product-autofill>label,body.simple-workspace #editor #productAutofillStatus,body.simple-workspace #editor #stockTemplateDetails{grid-column:1/-1}
-body.simple-workspace #editor #openLibrary{min-height:50px;margin:0;padding:10px 14px;font-size:14px}
+body.simple-workspace #editor #openLibrary{min-height:50px;margin:0;padding:10px 14px;font-size:max(var(--spool-type-floor,16px),14px)}
 body.simple-workspace #editor #editorProduct{min-width:0;width:100%}
 body.simple-workspace #editor[data-entry-mode=auto] #presetContext{display:none}
-@media(max-width:760px){body.simple-workspace #editor .product-autofill{grid-template-columns:minmax(0,1fr)}body.simple-workspace #editor #openLibrary{grid-column:1;font-size:14px}}
-body.simple-workspace .filament-search-cards .search-result-copy small{font-size:14px;line-height:1.6;color:#4a6451}
-body.simple-workspace .search-panel-head small,body.simple-workspace .search-panel-footer small{font-size:13px;color:#4d6654}
-body.simple-workspace #editor #productAutofillStatus,body.simple-workspace #editor #imageStatus{font-size:14px;color:#49624c;line-height:1.65}
-body.simple-workspace #editor .dialog-actions button,body.simple-workspace #bookingDialog .dialog-actions button{min-height:48px;font-size:16px;padding:11px 16px}
+@media(max-width:760px){body.simple-workspace #editor .product-autofill{grid-template-columns:minmax(0,1fr)}body.simple-workspace #editor #openLibrary{grid-column:1;font-size:max(var(--spool-type-floor,16px),14px)}}
+body.simple-workspace .filament-search-cards .search-result-copy small{font-size:max(var(--spool-type-floor,16px),14px);line-height:1.6;color:#4a6451}
+body.simple-workspace .search-panel-head small,body.simple-workspace .search-panel-footer small{font-size:max(var(--spool-type-floor,16px),13px);color:#4d6654}
+body.simple-workspace #editor #productAutofillStatus,body.simple-workspace #editor #imageStatus{font-size:max(var(--spool-type-floor,16px),14px);color:#49624c;line-height:1.65}
+body.simple-workspace #editor .dialog-actions button,body.simple-workspace #bookingDialog .dialog-actions button{min-height:48px;font-size:max(var(--spool-type-floor,16px),16px);padding:11px 16px}
 body.simple-workspace .booking-card h3{font-size:20px;color:#254833}
-body.simple-workspace .booking-card .booking-card-top,body.simple-workspace .booking-card .booking-card-footer small,body.simple-workspace .booking-card .booking-card-metrics>div>span,body.simple-workspace .booking-card .booking-row-details>summary{font-size:13px;color:#4a6250}
+body.simple-workspace .booking-card .booking-card-top,body.simple-workspace .booking-card .booking-card-footer small,body.simple-workspace .booking-card .booking-card-metrics>div>span,body.simple-workspace .booking-card .booking-row-details>summary{font-size:max(var(--spool-type-floor,16px),13px);color:#4a6250}
 body.simple-workspace .booking-card .booking-card-metrics{margin:12px 0;padding:12px}
-body.simple-workspace .booking-card .booking-card-metrics strong{font-size:18px;line-height:1.5}
+body.simple-workspace .booking-card .booking-card-metrics strong{font-size:max(var(--spool-type-floor,18px),18px);line-height:1.5}
 body.simple-workspace .booking-card .booking-card-footer{margin-top:0;padding-top:10px}
-body.simple-workspace .booking-card .booking-color-label{font-size:14px;color:#3e6048}
+body.simple-workspace .booking-card .booking-color-label{font-size:max(var(--spool-type-floor,16px),14px);color:#3e6048}
 body.simple-workspace .cloud-topbar #cloud-account-open .account-trigger-name,body.simple-workspace .cloud-topbar #cloud-account-open>span:last-child{color:#eef4e4}
 
 /* Readable inventory, compact field-local choices and clear dialog controls. */
-body.simple-workspace{font-size:16px;color:#203e30}
-body.simple-workspace :is(input,select,textarea){font-size:16px;color:#203e30}
+body.simple-workspace{font-size:max(var(--spool-type-floor,16px),16px);color:#203e30}
+body.simple-workspace :is(input,select,textarea){font-size:max(var(--spool-type-floor,16px),16px);color:#203e30}
 body.simple-workspace :is(input,textarea)::placeholder{color:#56685c;opacity:1}
-body.simple-workspace :is(label,.disclosure>summary,.stat-label,.filter-field>span){font-size:16px;color:#304c39}
-body.simple-workspace :is(small,.place,.color-name,.field-feedback,.library-note,.help-details,.search-panel-footer small){color:#435b4b;font-size:14px;line-height:1.6}
-body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:15px;color:#24452f;padding:4px 9px;line-height:1.5}
+body.simple-workspace :is(label,.disclosure>summary,.stat-label,.filter-field>span){font-size:max(var(--spool-type-floor,16px),16px);color:#304c39}
+body.simple-workspace :is(small,.place,.color-name,.field-feedback,.library-note,.help-details,.search-panel-footer small){color:#435b4b;font-size:max(var(--spool-type-floor,16px),14px);line-height:1.6}
+body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:max(var(--spool-type-floor,16px),15px);color:#24452f;padding:4px 9px;line-height:1.5}
 body.simple-workspace button.item-tag{border:1px solid #ccd9c7;min-height:32px;font-family:inherit;cursor:pointer;font-weight:600}
 body.simple-workspace button.item-tag:hover{background:#dbe9d5;border-color:#6e8c60}
-body.simple-workspace :is(.tag-suggestions button,.color-preset span,.color-name,.place){font-size:15px;color:#304f3a}
-body.simple-workspace :is(.brand-name,.library-brand-label){font-size:13px;color:#435b4b}
-body.simple-workspace :is(#editor,#bookingDialog) :is(label,.disclosure>summary){font-size:17px;color:#294733}
-body.simple-workspace :is(#editor,#bookingDialog) :is(small,#imageStatus,#productAutofillStatus,.field-feedback){font-size:14px;color:#435b4b}
+body.simple-workspace :is(.tag-suggestions button,.color-preset span,.color-name,.place){font-size:max(var(--spool-type-floor,16px),15px);color:#304f3a}
+body.simple-workspace :is(.brand-name,.library-brand-label){font-size:max(var(--spool-type-floor,16px),13px);color:#435b4b}
+body.simple-workspace :is(#editor,#bookingDialog) :is(label,.disclosure>summary){font-size:max(var(--spool-type-floor,18px),17px);color:#294733}
+body.simple-workspace :is(#editor,#bookingDialog) :is(small,#imageStatus,#productAutofillStatus,.field-feedback){font-size:max(var(--spool-type-floor,16px),14px);color:#435b4b}
 body.simple-workspace .product-photo,body.simple-workspace .product-title{border:0;background:transparent;padding:0;margin:0;box-shadow:none;text-align:left;color:inherit;font:inherit;min-width:0;line-height:inherit;cursor:pointer}
 body.simple-workspace .product-photo{flex:none;border-radius:12px;align-self:flex-start}
 body.simple-workspace .product-photo .product-image{display:block;margin:0}
@@ -678,121 +678,121 @@ body.simple-workspace .product-title:hover h3{text-decoration:underline;text-und
 body.simple-workspace #filamentDetails .dialog-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 16px;align-items:start}
 body.simple-workspace #filamentDetailsTitle{grid-column:1;grid-row:1;min-width:0;overflow-wrap:anywhere;margin:0}
 body.simple-workspace #closeFilamentDetails{grid-column:2;grid-row:1;justify-self:end;min-width:42px;min-height:42px;margin:0}
-body.simple-workspace #filamentDetails .editor-save-destination{grid-column:1/-1;grid-row:2;margin:0;width:100%;font-size:14px}
+body.simple-workspace #filamentDetails .editor-save-destination{grid-column:1/-1;grid-row:2;margin:0;width:100%;font-size:max(var(--spool-type-floor,16px),14px)}
 body.simple-workspace .weight-field{position:relative}
 body.simple-workspace #weightCandidates{position:absolute;z-index:15;inset:auto 0 auto 0;top:100%;margin:6px 0 0;padding:12px;background:#fff;border:1px solid #aabca0;border-radius:12px;box-shadow:0 8px 24px #1b38252b;display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:max-content;max-width:min(390px,100%)}
 body.simple-workspace #weightCandidates[hidden]{display:none}
 body.simple-workspace #weightCandidates.above{top:auto;bottom:100%;margin:0 0 6px}
-body.simple-workspace #weightCandidates>span{width:100%;font-size:14px;font-weight:600;color:#314b37}
+body.simple-workspace #weightCandidates>span{width:100%;font-size:max(var(--spool-type-floor,16px),14px);font-weight:600;color:#314b37}
 body.simple-workspace #weightCandidates>div{display:flex;flex-wrap:wrap;gap:8px}
-body.simple-workspace #weightCandidates button{font-size:15px;min-height:40px;padding:7px 11px;color:#294b34}
+body.simple-workspace #weightCandidates button{font-size:max(var(--spool-type-floor,16px),15px);min-height:40px;padding:7px 11px;color:#294b34}
 body.simple-workspace #weightCandidates button[hidden]{display:none}
 body.simple-workspace .automatic-tags:empty{display:none}
 body.simple-workspace .automatic-tags .tag-list{margin-bottom:6px}
 body.simple-workspace .active-inventory-filters{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 14px}
 body.simple-workspace .active-inventory-filters[hidden]{display:none}
-body.simple-workspace .active-inventory-filters button{font-size:14px;min-height:36px;background:#edf3e7;color:#2a4b34;border:1px solid #c7d6bc;padding:6px 11px;border-radius:20px;display:inline-flex;gap:10px;align-items:center}
+body.simple-workspace .active-inventory-filters button{font-size:max(var(--spool-type-floor,16px),14px);min-height:36px;background:#edf3e7;color:#2a4b34;border:1px solid #c7d6bc;padding:6px 11px;border-radius:20px;display:inline-flex;gap:10px;align-items:center}
 body.simple-workspace .active-inventory-filters .clear-all-filters{background:transparent;border-color:transparent;text-decoration:underline}
-@media(max-width:760px){body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag{font-size:14px}body.simple-workspace .active-inventory-filters{padding-inline:12px}body.simple-workspace #filamentDetails .dialog-head{gap:10px}}
-body.simple-workspace .product .color-name{font-size:15px;color:#304f3a}
-body.simple-workspace .product h3{font-size:clamp(18px,1.15vw,22px);color:#183e30;line-height:1.45}
-body.simple-workspace :is(.actions button,.shop-link,.tabs button,.booking-status-tabs button,.tag-suggestions button){font-size:15px;color:#2d4c39}
-body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:clamp(16px,1vw,18px);color:#334f3e}
-body.simple-workspace .inventory .tabs button{font-size:15px;color:#294c36}
-body.simple-workspace .inventory .toolbar :is(input,select,button),body.simple-workspace .inventory .filter-disclosure>summary{font-size:15px;color:#294c36}
-body.simple-workspace :is(.table-label,.table-footer,.batch-disclosure>summary,.reorder-hint){font-size:15px;color:#344f3e}
+@media(max-width:760px){body.simple-workspace .filament-row .item-tag,body.simple-workspace .search-result .item-tag{font-size:max(var(--spool-type-floor,16px),14px)}body.simple-workspace .active-inventory-filters{padding-inline:12px}body.simple-workspace #filamentDetails .dialog-head{gap:10px}}
+body.simple-workspace .product .color-name{font-size:max(var(--spool-type-floor,16px),15px);color:#304f3a}
+body.simple-workspace .product h3{font-size:max(var(--spool-type-floor,18px),clamp(18px,1.15vw,22px));color:#183e30;line-height:1.45}
+body.simple-workspace :is(.actions button,.shop-link,.tabs button,.booking-status-tabs button,.tag-suggestions button){font-size:max(var(--spool-type-floor,16px),15px);color:#2d4c39}
+body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:max(var(--spool-type-floor,18px),clamp(16px,1vw,18px));color:#334f3e}
+body.simple-workspace .inventory .tabs button{font-size:max(var(--spool-type-floor,16px),15px);color:#294c36}
+body.simple-workspace .inventory .toolbar :is(input,select,button),body.simple-workspace .inventory .filter-disclosure>summary{font-size:max(var(--spool-type-floor,16px),15px);color:#294c36}
+body.simple-workspace :is(.table-label,.table-footer,.batch-disclosure>summary,.reorder-hint){font-size:max(var(--spool-type-floor,16px),15px);color:#344f3e}
 body.simple-workspace .active-inventory-filters{grid-column:1/-1}
-body.simple-workspace #filamentDetails .item-tag{font-size:14px;color:#294b35}
-@media(max-width:760px){body.simple-workspace .inventory .tabs button{font-size:14px}body.simple-workspace .inventory .toolbar input{font-size:16px}}
+body.simple-workspace #filamentDetails .item-tag{font-size:max(var(--spool-type-floor,16px),14px);color:#294b35}
+@media(max-width:760px){body.simple-workspace .inventory .tabs button{font-size:max(var(--spool-type-floor,16px),14px)}body.simple-workspace .inventory .toolbar input{font-size:max(var(--spool-type-floor,16px),16px)}}
 
 /* Consistent reading sizes across inventory, booking and entry screens. */
-body.simple-workspace{--reading-text:#183c2a;--reading-secondary:#34513d;--reading-hint:#465d4b;font-size:17px;color:var(--reading-text)}
-body.simple-workspace :is(input,select,textarea){color:var(--reading-text);font-size:17px;line-height:1.55}
+body.simple-workspace{--reading-text:#183c2a;--reading-secondary:#34513d;--reading-hint:#465d4b;font-size:max(var(--spool-type-floor,18px),17px);color:var(--reading-text)}
+body.simple-workspace :is(input,select,textarea){color:var(--reading-text);font-size:max(var(--spool-type-floor,18px),17px);line-height:1.55}
 body.simple-workspace :is(input,textarea)::placeholder{color:var(--reading-hint);opacity:1}
 body.simple-workspace .product h3{font-size:clamp(20px,1.3vw,24px);font-weight:650;color:var(--reading-text)}
-body.simple-workspace .product :is(.brand-name,.color-name),body.simple-workspace .filament-row .place{font-size:16px;color:var(--reading-secondary);line-height:1.6}
-body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:16px;font-weight:600;color:#21442d;background:#e7efdf}
-body.simple-workspace .inventory .tabs button,body.simple-workspace .inventory .toolbar :is(input,select,button),body.simple-workspace .inventory .filter-disclosure>summary{font-size:16px;color:var(--reading-text)}
-body.simple-workspace :is(.table-label,.table-footer,.batch-disclosure>summary,.filter-field>span,.reorder-hint){font-size:16px;color:var(--reading-secondary)}
-body.simple-workspace .filament-row .actions :is(button,a){font-size:16px;color:#244a32;min-height:42px}
-body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:clamp(17px,1.1vw,20px);color:var(--reading-secondary)}
-body.simple-workspace :is(.stats,.weight,.booking-overview) small{font-size:15px;color:var(--reading-secondary)}
-body.simple-workspace :is(#editor,#bookingDialog,#usage,#bulkDialog) :is(label,.disclosure>summary){font-size:18px;color:var(--reading-text);line-height:1.55}
-body.simple-workspace :is(#editor,#bookingDialog,#usage,#bulkDialog) :is(input,select,textarea){font-size:18px;color:var(--reading-text)}
-body.simple-workspace :is(#editor,#bookingDialog) :is(small,.field-feedback,#productAutofillStatus,#imageStatus,#presetNotice,.help-details,#presetContext,.preset-search-result){font-size:16px;color:var(--reading-secondary);line-height:1.65}
-body.simple-workspace #editor :is(.color-preset span,.tag-suggestions button,#openLibrary,.library-products small,.library-note,.selected-color-preview){font-size:16px;color:var(--reading-text)}
-body.simple-workspace #editor :is(.filament-save-summary,#weightCandidates>span),body.simple-workspace #bookingDialog :is(.booking-file-drop small,.booking-color-choice small){font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace .product :is(.brand-name,.color-name),body.simple-workspace .filament-row .place{font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary);line-height:1.6}
+body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:max(var(--spool-type-floor,16px),16px);font-weight:600;color:#21442d;background:#e7efdf}
+body.simple-workspace .inventory .tabs button,body.simple-workspace .inventory .toolbar :is(input,select,button),body.simple-workspace .inventory .filter-disclosure>summary{font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-text)}
+body.simple-workspace :is(.table-label,.table-footer,.batch-disclosure>summary,.filter-field>span,.reorder-hint){font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary)}
+body.simple-workspace .filament-row .actions :is(button,a){font-size:max(var(--spool-type-floor,16px),16px);color:#244a32;min-height:42px}
+body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:max(var(--spool-type-floor,18px),clamp(17px,1.1vw,20px));color:var(--reading-secondary)}
+body.simple-workspace :is(.stats,.weight,.booking-overview) small{font-size:max(var(--spool-type-floor,16px),15px);color:var(--reading-secondary)}
+body.simple-workspace :is(#editor,#bookingDialog,#usage,#bulkDialog) :is(label,.disclosure>summary){font-size:max(var(--spool-type-floor,18px),18px);color:var(--reading-text);line-height:1.55}
+body.simple-workspace :is(#editor,#bookingDialog,#usage,#bulkDialog) :is(input,select,textarea){font-size:max(var(--spool-type-floor,18px),18px);color:var(--reading-text)}
+body.simple-workspace :is(#editor,#bookingDialog) :is(small,.field-feedback,#productAutofillStatus,#imageStatus,#presetNotice,.help-details,#presetContext,.preset-search-result){font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary);line-height:1.65}
+body.simple-workspace #editor :is(.color-preset span,.tag-suggestions button,#openLibrary,.library-products small,.library-note,.selected-color-preview){font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-text)}
+body.simple-workspace #editor :is(.filament-save-summary,#weightCandidates>span),body.simple-workspace #bookingDialog :is(.booking-file-drop small,.booking-color-choice small){font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary)}
 body.simple-workspace #editor .color-preset span{font-weight:550;line-height:1.5}
 body.simple-workspace #editor .color-presets{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
-body.simple-workspace #bookingView :is(.booking-status-tabs button,th,td,.booking-card-top,.booking-card-footer small,.booking-row-details>summary,.booking-color-label){font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #bookingView :is(.booking-status-tabs button,th,td,.booking-card-top,.booking-card-footer small,.booking-row-details>summary,.booking-color-label){font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary)}
 body.simple-workspace #bookingView :is(.work-title,.booking-card h3){font-size:21px;color:var(--reading-text)}
-body.simple-workspace #bookingView .booking-card-metrics>div>span{font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #bookingView .booking-card-metrics>div>span{font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary)}
 body.simple-workspace #bookingView .booking-card-metrics strong{font-size:20px;color:var(--reading-text)}
-body.simple-workspace #searchDialog :is(.search-result-copy small,.search-panel-footer small,.search-panel-head small){font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #searchDialog :is(.search-result-copy small,.search-panel-footer small,.search-panel-head small){font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary)}
 body.simple-workspace #searchDialog .search-result-copy strong{font-size:19px;color:var(--reading-text)}
-body.simple-workspace #filamentDetails :is(p,dt,dd,a){font-size:17px;color:var(--reading-text);line-height:1.7}
-body.simple-workspace #filamentDetails .item-tag{font-size:16px;color:var(--reading-secondary)}
+body.simple-workspace #filamentDetails :is(p,dt,dd,a){font-size:max(var(--spool-type-floor,18px),17px);color:var(--reading-text);line-height:1.7}
+body.simple-workspace #filamentDetails .item-tag{font-size:max(var(--spool-type-floor,16px),16px);color:var(--reading-secondary)}
 body.simple-workspace :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #477c46;outline-offset:3px}
 @media(max-width:760px){
- body.simple-workspace .inventory .tabs button{font-size:15px}
- body.simple-workspace :is(#editor,#bookingDialog) :is(label,input,select,textarea,.disclosure>summary){font-size:17px}
+ body.simple-workspace .inventory .tabs button{font-size:max(var(--spool-type-floor,16px),15px)}
+ body.simple-workspace :is(#editor,#bookingDialog) :is(label,input,select,textarea,.disclosure>summary){font-size:max(var(--spool-type-floor,18px),17px)}
  body.simple-workspace #editor .color-presets{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
- body.simple-workspace :is(.product .color-name,.filament-row .place){font-size:15px}
- body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:15px}
+ body.simple-workspace :is(.product .color-name,.filament-row .place){font-size:max(var(--spool-type-floor,16px),15px)}
+ body.simple-workspace :is(.filament-row,.search-result,.booking-card) .item-tag{font-size:max(var(--spool-type-floor,16px),15px)}
 }
 body.simple-workspace :is(#editor,#bookingDialog) .dialog-head h2{font-size:24px;color:var(--reading-text)}
 body.simple-workspace :is(#editor,#bookingDialog) :is(.color-selection-heading h3,.form-section-heading h3){font-size:20px;color:var(--reading-text)}
-body.simple-workspace #editor .selected-color-preview>span{font-size:17px;color:var(--reading-text)}
-body.simple-workspace #editor .color-selection-heading>span{font-size:14px;color:var(--reading-secondary)}
-body.simple-workspace :is(#form,#bookingForm) .dialog-actions button:not(.primary):not(:disabled){font-size:16px;color:#2c5136;border-color:#b7c8ae}
+body.simple-workspace #editor .selected-color-preview>span{font-size:max(var(--spool-type-floor,18px),17px);color:var(--reading-text)}
+body.simple-workspace #editor .color-selection-heading>span{font-size:max(var(--spool-type-floor,16px),14px);color:var(--reading-secondary)}
+body.simple-workspace :is(#form,#bookingForm) .dialog-actions button:not(.primary):not(:disabled){font-size:max(var(--spool-type-floor,16px),16px);color:#2c5136;border-color:#b7c8ae}
 @media(max-width:760px){body.simple-workspace :is(#editor,#bookingDialog) .dialog-head h2{font-size:22px}}
 
 /* Complete typography pass: cover nested labels that older component rules sized independently. */
-body.simple-workspace{--ink:#173a29;--muted:#425a48;--reading-text:#173a29;--reading-secondary:#304c38;font-size:18px;font-weight:450;line-height:1.65}
+body.simple-workspace{--ink:#173a29;--muted:#425a48;--reading-text:#173a29;--reading-secondary:#304c38;font-size:max(var(--spool-type-floor,18px),18px);font-weight:450;line-height:1.65}
 body.simple-workspace .content :is(p,li,dt,dd){line-height:1.7}
-body.simple-workspace>aside .nav,body.simple-workspace>aside .nav>span{font-size:16px;color:#e1ebd9}
+body.simple-workspace>aside .nav,body.simple-workspace>aside .nav>span{font-size:max(var(--spool-type-floor,16px),16px);color:#e1ebd9}
 body.simple-workspace>aside .nav.active,body.simple-workspace>aside .nav.active>span{color:#24492f}
-body.simple-workspace>aside :is(.nav-label,.side-bottom,.side-bottom small){font-size:14px;color:#d1dfc7;letter-spacing:.03em}
-body.simple-workspace .breadcrumb,body.simple-workspace .breadcrumb strong{font-size:15px;color:#34543e}
-body.simple-workspace :is(#saveStatusSummary,#quickSave,#manageData){font-size:15px;color:#304e38}
+body.simple-workspace>aside :is(.nav-label,.side-bottom,.side-bottom small){font-size:max(var(--spool-type-floor,16px),14px);color:#d1dfc7;letter-spacing:.03em}
+body.simple-workspace .breadcrumb,body.simple-workspace .breadcrumb strong{font-size:max(var(--spool-type-floor,16px),15px);color:#34543e}
+body.simple-workspace :is(#saveStatusSummary,#quickSave,#manageData){font-size:max(var(--spool-type-floor,16px),15px);color:#304e38}
 body.simple-workspace :is(#quickSave,#manageData){min-height:44px}
-body.simple-workspace .mobile-navigation button{font-size:16px;color:#34513c}
+body.simple-workspace .mobile-navigation button{font-size:max(var(--spool-type-floor,16px),16px);color:#34513c}
 body.simple-workspace .mobile-navigation button.selected{color:#fff}
-body.simple-workspace .inventory .tabs button span,body.simple-workspace #bookingView .booking-status-tabs button span{font-size:15px}
+body.simple-workspace .inventory .tabs button span,body.simple-workspace #bookingView .booking-status-tabs button span{font-size:max(var(--spool-type-floor,16px),15px)}
 body.simple-workspace #bookingView .booking-status-tabs button.selected,body.simple-workspace #bookingView .booking-status-tabs button.selected span{color:#fff}
-body.simple-workspace .inventory .view-switch #splitView{font-size:15px}
-body.simple-workspace .inventory .filament-row .actions .shop-links .shop-link{font-size:16px;color:#244b31;font-weight:550}
-body.simple-workspace .active-inventory-filters button{font-size:16px;color:#264a30}
-body.simple-workspace .app-footer :is(summary,p,a,small),body.simple-workspace footer :is(summary,p,a,small),body.simple-workspace #appVersion{font-size:15px;color:#405a44;line-height:1.6}
-body.simple-workspace #editor #productAutofillStatus{font-size:16px;color:#304f39}
-body.simple-workspace #editor :is(#presetDetails,#productInfoDetails,#colorInfoDetails,#stockDetails,#filamentTagDetails) > summary{font-size:17px;color:#21452e}
-body.simple-workspace #editor #presetDetails>summary span,body.simple-workspace #editor .help-details>summary{font-size:16px;color:#34543c}
-body.simple-workspace #editor :is(.optional-tag,.required-label){font-size:15px;color:#425a45}
-body.simple-workspace #editor #automaticFilamentTags .item-tag{font-size:16px;color:#294b32;background:#e7efdf}
-body.simple-workspace #editor #imageDrop :is(.upload-button,#clearPhoto){font-size:16px;color:#294d33;min-height:44px}
-body.simple-workspace #editor #saveAndContinue{font-size:16px;color:#294c32;min-height:44px}
-body.simple-workspace #searchDialog :is(#clearSearchQuery,#clearSearchFilters,#searchQueryTab,#searchFiltersTab,#applySearchPanel){font-size:17px;min-height:44px}
+body.simple-workspace .inventory .view-switch #splitView{font-size:max(var(--spool-type-floor,16px),15px)}
+body.simple-workspace .inventory .filament-row .actions .shop-links .shop-link{font-size:max(var(--spool-type-floor,16px),16px);color:#244b31;font-weight:550}
+body.simple-workspace .active-inventory-filters button{font-size:max(var(--spool-type-floor,16px),16px);color:#264a30}
+body.simple-workspace .app-footer :is(summary,p,a,small),body.simple-workspace footer :is(summary,p,a,small),body.simple-workspace #appVersion{font-size:max(var(--spool-type-floor,16px),15px);color:#405a44;line-height:1.6}
+body.simple-workspace #editor #productAutofillStatus{font-size:max(var(--spool-type-floor,16px),16px);color:#304f39}
+body.simple-workspace #editor :is(#presetDetails,#productInfoDetails,#colorInfoDetails,#stockDetails,#filamentTagDetails) > summary{font-size:max(var(--spool-type-floor,18px),17px);color:#21452e}
+body.simple-workspace #editor #presetDetails>summary span,body.simple-workspace #editor .help-details>summary{font-size:max(var(--spool-type-floor,16px),16px);color:#34543c}
+body.simple-workspace #editor :is(.optional-tag,.required-label){font-size:max(var(--spool-type-floor,16px),15px);color:#425a45}
+body.simple-workspace #editor #automaticFilamentTags .item-tag{font-size:max(var(--spool-type-floor,16px),16px);color:#294b32;background:#e7efdf}
+body.simple-workspace #editor #imageDrop :is(.upload-button,#clearPhoto){font-size:max(var(--spool-type-floor,16px),16px);color:#294d33;min-height:44px}
+body.simple-workspace #editor #saveAndContinue{font-size:max(var(--spool-type-floor,16px),16px);color:#294c32;min-height:44px}
+body.simple-workspace #searchDialog :is(#clearSearchQuery,#clearSearchFilters,#searchQueryTab,#searchFiltersTab,#applySearchPanel){font-size:max(var(--spool-type-floor,18px),17px);min-height:44px}
 body.simple-workspace #searchDialog :is(#clearSearchQuery,#clearSearchFilters,#searchFiltersTab){color:#304f38}
 body.simple-workspace #searchDialog :is(#searchQueryTab,#searchFiltersTab)[aria-selected=true],body.simple-workspace #searchDialog #applySearchPanel{color:#fff}
-body.simple-workspace #searchDialog :is(#foregroundResultCount,#foregroundFilterCount){font-size:15px}
-body.simple-workspace #searchDialog :is(#searchResultHint,.search-result-hint){font-size:16px;color:#3b553f}
-body.simple-workspace :is(#bookingDialog,#dataDialog,#bulkDialog,#usage) :is(small,.help-details>summary,.optional-tag,.field-feedback){font-size:16px;color:#38543d;line-height:1.65}
-body.simple-workspace #bookingView :is(.booking-weekday,.booking-status,.booking-due,.booking-duration,.booking-file-link,.booking-row-details,.booking-count,#bookingCount){font-size:16px;color:#304e38}
-body.simple-workspace #dataDialog :is(p,label,summary,button,select,input){font-size:17px;color:#264730}
+body.simple-workspace #searchDialog :is(#foregroundResultCount,#foregroundFilterCount){font-size:max(var(--spool-type-floor,16px),15px)}
+body.simple-workspace #searchDialog :is(#searchResultHint,.search-result-hint){font-size:max(var(--spool-type-floor,16px),16px);color:#3b553f}
+body.simple-workspace :is(#bookingDialog,#dataDialog,#bulkDialog,#usage) :is(small,.help-details>summary,.optional-tag,.field-feedback){font-size:max(var(--spool-type-floor,16px),16px);color:#38543d;line-height:1.65}
+body.simple-workspace #bookingView :is(.booking-weekday,.booking-status,.booking-due,.booking-duration,.booking-file-link,.booking-row-details,.booking-count,#bookingCount){font-size:max(var(--spool-type-floor,16px),16px);color:#304e38}
+body.simple-workspace #dataDialog :is(p,label,summary,button,select,input){font-size:max(var(--spool-type-floor,18px),17px);color:#264730}
 @media(max-width:760px){
- body.simple-workspace{font-size:17px}
+ body.simple-workspace{font-size:max(var(--spool-type-floor,18px),17px)}
  body.simple-workspace>main>header{height:auto;min-height:60px;flex-wrap:wrap;padding-block:8px;gap:8px}
  body.simple-workspace>main>header .breadcrumb{display:none}
  body.simple-workspace .header-right{width:100%;display:flex;justify-content:flex-end;gap:8px;min-width:0}
- body.simple-workspace #saveStatusSummary{font-size:14px;min-width:0;white-space:normal;margin-right:auto;line-height:1.4}
- body.simple-workspace :is(#quickSave,#manageData){font-size:15px;flex:none;padding-inline:9px}
- body.simple-workspace #editor #saveAndContinue{grid-column:1/-1;width:100%;font-size:16px}
+ body.simple-workspace #saveStatusSummary{font-size:max(var(--spool-type-floor,16px),14px);min-width:0;white-space:normal;margin-right:auto;line-height:1.4}
+ body.simple-workspace :is(#quickSave,#manageData){font-size:max(var(--spool-type-floor,16px),15px);flex:none;padding-inline:9px}
+ body.simple-workspace #editor #saveAndContinue{grid-column:1/-1;width:100%;font-size:max(var(--spool-type-floor,16px),16px)}
 }
-body.simple-workspace #editor #form #productAutofillStatus,body.simple-workspace #editor #form #saveAndContinue{font-size:16px;color:#304e38}
-body.simple-workspace #editor .color-selection-heading>span{font-size:15px;color:#3c553f}
-body.simple-workspace #searchDialog #foregroundResults .search-result-meta{font-size:16px;color:#2c4f35}
-body.simple-workspace #bookingView .print-state{font-size:16px;font-weight:600;color:#284b32;line-height:1.55}
-body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) :is(.item-tag,.booking-color-label,.booking-edit,.booking-card-weekday,.booking-quality-label,small){font-size:16px;color:#34513c;line-height:1.6}
+body.simple-workspace #editor #form #productAutofillStatus,body.simple-workspace #editor #form #saveAndContinue{font-size:max(var(--spool-type-floor,16px),16px);color:#304e38}
+body.simple-workspace #editor .color-selection-heading>span{font-size:max(var(--spool-type-floor,16px),15px);color:#3c553f}
+body.simple-workspace #searchDialog #foregroundResults .search-result-meta{font-size:max(var(--spool-type-floor,16px),16px);color:#2c4f35}
+body.simple-workspace #bookingView .print-state{font-size:max(var(--spool-type-floor,16px),16px);font-weight:600;color:#284b32;line-height:1.55}
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) :is(.item-tag,.booking-color-label,.booking-edit,.booking-card-weekday,.booking-quality-label,small){font-size:max(var(--spool-type-floor,16px),16px);color:#34513c;line-height:1.6}
 body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) .booking-edit{min-height:44px}
 
 /* Stronger boundaries and state contrast complement the readable type scale. */
@@ -846,45 +846,45 @@ body.simple-workspace .grid-mode .actions>button,body.simple-workspace .grid-mod
  body.simple-workspace .page-title .eyebrow{display:none}
  body.simple-workspace .page-title h1{font-size:26px;line-height:1.25;margin:0}
  body.simple-workspace .page-title .page-actions{display:flex;margin:0;gap:8px;flex:none;width:auto;min-width:0}
- body.simple-workspace .page-actions>.primary{min-height:44px;padding:8px 14px;font-size:16px;border-radius:9px}
+ body.simple-workspace .page-actions>.primary{min-height:44px;padding:8px 14px;font-size:max(var(--spool-type-floor,16px),16px);border-radius:9px}
  .page-actions .desktop-action-label{display:none}
  .page-actions .mobile-action-label{display:inline}
  body.simple-workspace :is(.stats,.booking-overview){margin-bottom:14px}
  body.simple-workspace :is(.stats,.booking-overview) article{padding:10px 12px;min-width:0}
- body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:13px;line-height:1.4;margin-bottom:4px}
+ body.simple-workspace .stats article>div,body.simple-workspace .booking-overview article>span{font-size:max(var(--spool-type-floor,16px),13px);line-height:1.4;margin-bottom:4px}
  body.simple-workspace :is(.stats,.booking-overview) strong{font-size:24px;line-height:1.25}
- body.simple-workspace :is(.stats,.booking-overview) small{font-size:12px}
+ body.simple-workspace :is(.stats,.booking-overview) small{font-size:max(var(--spool-type-floor,16px),12px)}
  body.simple-workspace .booking-overview article:nth-child(3) strong{font-size:19px}
  body.simple-workspace .inventory .toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px}
  body.simple-workspace .inventory .toolbar>.search{grid-column:1/-1;grid-row:1;width:100%;min-width:0;margin:0}
- body.simple-workspace .inventory .toolbar>#sort{grid-column:1;grid-row:2;width:100%;min-width:0;max-width:none;font-size:16px;min-height:44px}
+ body.simple-workspace .inventory .toolbar>#sort{grid-column:1;grid-row:2;width:100%;min-width:0;max-width:none;font-size:max(var(--spool-type-floor,16px),16px);min-height:44px}
  body.simple-workspace .inventory .toolbar>.filter-disclosure{grid-column:2;grid-row:2;margin:0;min-width:0}
  body.simple-workspace .inventory .toolbar>.filter-disclosure[open]{grid-column:1/-1;grid-row:3;width:100%;max-width:none}
  body.simple-workspace .inventory .filter-fields{max-width:100%;width:100%;min-width:0}
- body.simple-workspace .inventory .toolbar .filter-disclosure>summary{font-size:14px;min-height:44px;padding:8px}
- body.simple-workspace .search input{font-size:16px;min-width:0;min-height:44px}
+ body.simple-workspace .inventory .toolbar .filter-disclosure>summary{font-size:max(var(--spool-type-floor,16px),14px);min-height:44px;padding:8px}
+ body.simple-workspace .search input{font-size:max(var(--spool-type-floor,16px),16px);min-width:0;min-height:44px}
  body.simple-workspace .inventory .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;overflow:visible;padding:10px 0}
- body.simple-workspace .inventory .tabs button{min-height:44px;width:100%;padding:8px;font-size:14px;text-align:center;white-space:normal}
- body.simple-workspace .inventory .tabs button span{font-size:13px}
+ body.simple-workspace .inventory .tabs button{min-height:44px;width:100%;padding:8px;font-size:max(var(--spool-type-floor,16px),14px);text-align:center;white-space:normal}
+ body.simple-workspace .inventory .tabs button span{font-size:max(var(--spool-type-floor,16px),13px)}
  body.simple-workspace .booking-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px}
  body.simple-workspace .booking-tools>.search{grid-column:1/-1;grid-row:1;min-width:0;width:100%;margin:0}
- body.simple-workspace .booking-tools>#bookingSort{grid-column:1;grid-row:2;width:100%;min-width:0;font-size:16px;min-height:44px}
+ body.simple-workspace .booking-tools>#bookingSort{grid-column:1;grid-row:2;width:100%;min-width:0;font-size:max(var(--spool-type-floor,16px),16px);min-height:44px}
  body.simple-workspace .booking-tools>.filter-disclosure{grid-column:2;grid-row:2;min-width:0}
  body.simple-workspace .booking-tools>.filter-disclosure[open]{grid-column:1/-1;grid-row:3;width:100%}
  body.simple-workspace .booking-tools>.filter-disclosure .filter-fields{width:100%;min-width:0;max-width:100%}
  body.simple-workspace #bookingView .booking-status-tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;scroll-padding-inline:8px;padding:0 12px 10px;max-width:100%}
- body.simple-workspace #bookingView .booking-status-tabs button{flex:none;min-height:44px;font-size:14px;padding:8px 10px;white-space:nowrap}
- body.simple-workspace #bookingView .booking-status-tabs button span{font-size:13px}
+ body.simple-workspace #bookingView .booking-status-tabs button{flex:none;min-height:44px;font-size:max(var(--spool-type-floor,16px),14px);padding:8px 10px;white-space:nowrap}
+ body.simple-workspace #bookingView .booking-status-tabs button span{font-size:max(var(--spool-type-floor,16px),13px)}
  body.simple-workspace :is(#editor,#bookingDialog) .dialog-head{padding:12px 16px;gap:8px}
  body.simple-workspace :is(#editor,#bookingDialog) .dialog-head h2{font-size:20px}
  body.simple-workspace :is(#editor .editor-layout,.booking-form-scroll){padding:14px 16px;scroll-padding-block:16px 100px}
- body.simple-workspace :is(#editor,#bookingDialog) :is(input,select,textarea){font-size:16px;scroll-margin-block:20px 100px}
- body.simple-workspace :is(#editor,#bookingDialog) :is(label,.disclosure>summary){font-size:16px}
+ body.simple-workspace :is(#editor,#bookingDialog) :is(input,select,textarea){font-size:max(var(--spool-type-floor,16px),16px);scroll-margin-block:20px 100px}
+ body.simple-workspace :is(#editor,#bookingDialog) :is(label,.disclosure>summary){font-size:max(var(--spool-type-floor,16px),16px)}
  body.simple-workspace :is(#editor,#bookingDialog) .fields{gap:14px}
  body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions{padding:10px 12px max(10px,env(safe-area-inset-bottom))}
- body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions button{min-height:44px;padding:10px 12px;font-size:16px}
+ body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions button{min-height:44px;padding:10px 12px;font-size:max(var(--spool-type-floor,16px),16px)}
  body.simple-workspace #searchDialog .search-panel-head{padding:14px}
- body.simple-workspace #searchDialog :is(input,select){font-size:16px;min-height:44px}
+ body.simple-workspace #searchDialog :is(input,select){font-size:max(var(--spool-type-floor,16px),16px);min-height:44px}
 }
 @media(max-width:760px){
  body.simple-workspace :is(#editor,#bookingDialog,#filamentDetails) .dialog-head>button,body.simple-workspace #searchDialog #closeSearchPanel{min-width:44px;min-height:44px}
@@ -896,7 +896,7 @@ body.simple-workspace .product .color-name>.color-chip{flex:0 0 auto;margin-top:
 body.simple-workspace .color-name-text{min-width:0;flex:1;line-height:inherit}
 body.simple-workspace .color-name-part{display:inline-block;vertical-align:top;max-width:100%;word-break:normal;line-break:strict;overflow-wrap:anywhere;text-wrap:balance}
 
-body.simple-workspace .view-switch #simpleView{min-width:44px;width:auto;padding:0 8px;font-size:14px}
+body.simple-workspace .view-switch #simpleView{min-width:44px;width:auto;padding:0 8px;font-size:max(var(--spool-type-floor,16px),14px)}
 body.simple-workspace #items.simple-mode{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;padding:16px}
 body.simple-workspace .simple-mode .filament-row{display:flex;min-height:0;padding:14px;border:1px solid #cbd8c7;border-radius:10px;min-width:0}
 body.simple-workspace .simple-mode :is(.row-select,.product-title,.tag-list,.purchase-badge,.filament-sharing-label,.shared-source-label,.variant-tag,.material,.weight,.place,.actions,.reorder-controls){display:none!important}
@@ -904,7 +904,7 @@ body.simple-workspace .simple-mode .product{display:flex;flex-direction:column;w
 body.simple-workspace .simple-mode .product-photo{width:100%;flex:none}
 body.simple-workspace .simple-mode .product-image{width:100%;height:160px;object-fit:contain}
 body.simple-workspace .simple-mode .product>div{width:100%;min-width:0}
-body.simple-workspace .simple-mode .color-name{margin:0;font-size:17px}
+body.simple-workspace .simple-mode .color-name{margin:0;font-size:max(var(--spool-type-floor,18px),17px)}
 @media(max-width:1000px){body.simple-workspace #items.simple-mode{grid-template-columns:minmax(0,1fr)}body.simple-workspace .inventory .toolbar>.view-switch{display:flex;grid-column:1/-1;grid-row:3;justify-self:end;width:auto}body.simple-workspace .view-switch>#gridView,body.simple-workspace .view-switch>#splitView{display:none}body.simple-workspace .view-switch button{min-width:44px;min-height:44px}body.simple-workspace .inventory .toolbar>.filter-disclosure[open]{grid-row:4}body.simple-workspace .simple-mode .product{flex-direction:row;align-items:center;gap:16px}body.simple-workspace .simple-mode .product-photo{width:96px}body.simple-workspace .simple-mode .product-image{height:100px}body.simple-workspace .simple-mode .product>div{flex:1}}
 
 /* Filament details: compact overview, clear stock summary and grouped secondary information. */
@@ -916,40 +916,40 @@ body.simple-workspace .detail-overview{display:grid;grid-template-columns:220px 
 body.simple-workspace .detail-hero{margin:0;padding:12px;border:1px solid #e1e8dc;border-radius:12px;background:#f8faf6;min-width:0}
 body.simple-workspace .detail-hero .detail-product-image{width:100%;height:200px;object-fit:contain;margin:0}
 body.simple-workspace .detail-summary{min-width:0;display:grid;gap:16px}
-body.simple-workspace #filamentDetails .detail-maker{display:grid;gap:4px;margin:0;font-size:16px}
+body.simple-workspace #filamentDetails .detail-maker{display:grid;gap:4px;margin:0;font-size:max(var(--spool-type-floor,16px),16px)}
 body.simple-workspace .detail-maker>strong{font-size:19px;overflow-wrap:anywhere}
-body.simple-workspace .detail-maker>span{font-size:15px;color:#49604e}
+body.simple-workspace .detail-maker>span{font-size:max(var(--spool-type-floor,16px),15px);color:#49604e}
 body.simple-workspace .detail-color{display:flex;align-items:flex-start;gap:12px;min-width:0}
 body.simple-workspace .detail-color>.color-chip{width:26px;height:26px;flex:none;border:1px solid #bacab4;margin-top:25px}
 body.simple-workspace .detail-color>div{min-width:0;display:grid;gap:4px}
-body.simple-workspace .detail-label{display:block;font-size:13px;line-height:1.5;color:#4e6451}
+body.simple-workspace .detail-label{display:block;font-size:max(var(--spool-type-floor,16px),13px);line-height:1.5;color:#4e6451}
 body.simple-workspace .detail-color strong{font-size:22px;line-height:1.45;min-width:0}
-body.simple-workspace .detail-color code{font-size:13px;color:#4e6451}
+body.simple-workspace .detail-color code{font-size:max(var(--spool-type-floor,16px),13px);color:#4e6451}
 body.simple-workspace .detail-tags .tag-list{margin:0;display:flex;flex-wrap:wrap;gap:6px}
-body.simple-workspace #filamentDetails .detail-tags .item-tag{font-size:14px}
+body.simple-workspace #filamentDetails .detail-tags .item-tag{font-size:max(var(--spool-type-floor,16px),14px)}
 body.simple-workspace .detail-stock{padding:16px 18px;border:1px solid #cbdac4;border-radius:12px;background:#f4f8f0}
 body.simple-workspace .detail-stock-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-body.simple-workspace #filamentDetails h3{font-size:16px;margin:0 0 8px;color:#294c34}
+body.simple-workspace #filamentDetails h3{font-size:max(var(--spool-type-floor,16px),16px);margin:0 0 8px;color:#294c34}
 body.simple-workspace #filamentDetails .detail-stock-heading h3{margin:0}
-body.simple-workspace .detail-status{font-size:13px;padding:4px 9px;border-radius:6px;background:#dfecd8;color:#294f34;white-space:nowrap}
+body.simple-workspace .detail-status{font-size:max(var(--spool-type-floor,16px),13px);padding:4px 9px;border-radius:6px;background:#dfecd8;color:#294f34;white-space:nowrap}
 body.simple-workspace .detail-status.is-planned{background:#f4e9c9;color:#695018}
 body.simple-workspace .detail-stock-content{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center}
 body.simple-workspace .detail-remaining>strong{display:block;font-size:34px;line-height:1.35;color:#234d32;font-variant-numeric:tabular-nums}
-body.simple-workspace .detail-remaining>strong small{font-size:16px;font-weight:500}
-body.simple-workspace .detail-capacity{display:block;font-size:14px;line-height:1.6;color:#49604e}
+body.simple-workspace .detail-remaining>strong small{font-size:max(var(--spool-type-floor,16px),16px);font-weight:500}
+body.simple-workspace .detail-capacity{display:block;font-size:max(var(--spool-type-floor,16px),14px);line-height:1.6;color:#49604e}
 body.simple-workspace .detail-stock-bar{height:6px;margin-top:10px;border-radius:4px;background:#dce6d5;overflow:hidden}
 body.simple-workspace .detail-stock-bar>i{display:block;height:100%;background:#537f48;border-radius:4px}
 body.simple-workspace .detail-storage{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px 12px;margin:0;min-width:0}
-body.simple-workspace #filamentDetails .detail-storage :is(dt,dd){font-size:15px;line-height:1.6;margin:0;overflow-wrap:anywhere}
+body.simple-workspace #filamentDetails .detail-storage :is(dt,dd){font-size:max(var(--spool-type-floor,16px),15px);line-height:1.6;margin:0;overflow-wrap:anywhere}
 body.simple-workspace .detail-storage dt{color:#4e6451}
 body.simple-workspace .detail-notes,body.simple-workspace .detail-purchase{padding-top:16px;border-top:1px solid #dfe7d9}
-body.simple-workspace #filamentDetails .detail-note{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;margin:0;line-height:1.7}
-body.simple-workspace #filamentDetails .detail-sharing p{font-size:16px;margin:0}
-body.simple-workspace .detail-sharing small{font-size:14px;color:#4c634e}
+body.simple-workspace #filamentDetails .detail-note{white-space:pre-wrap;overflow-wrap:anywhere;font-size:max(var(--spool-type-floor,16px),16px);margin:0;line-height:1.7}
+body.simple-workspace #filamentDetails .detail-sharing p{font-size:max(var(--spool-type-floor,16px),16px);margin:0}
+body.simple-workspace .detail-sharing small{font-size:max(var(--spool-type-floor,16px),14px);color:#4c634e}
 body.simple-workspace .detail-shop-links{display:flex;flex-wrap:wrap;gap:10px}
-body.simple-workspace #filamentDetails .detail-shop-links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:120px;padding:8px 16px;border:1px solid #a8bea0;border-radius:8px;font-size:16px;color:#294f35;text-decoration:none;background:#fff}
+body.simple-workspace #filamentDetails .detail-shop-links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:120px;padding:8px 16px;border:1px solid #a8bea0;border-radius:8px;font-size:max(var(--spool-type-floor,16px),16px);color:#294f35;text-decoration:none;background:#fff}
 body.simple-workspace #filamentDetails .dialog-actions{position:relative;flex:none;margin:0;padding:12px 20px;gap:10px}
-body.simple-workspace #filamentDetails .dialog-actions button{min-height:44px;min-width:100px;font-size:16px}
+body.simple-workspace #filamentDetails .dialog-actions button{min-height:44px;min-width:100px;font-size:max(var(--spool-type-floor,16px),16px)}
 @media(max-width:600px){
  body.simple-workspace #filamentDetailsBody{padding:16px;gap:16px}
  body.simple-workspace .detail-overview{grid-template-columns:minmax(0,1fr);gap:14px}
@@ -976,14 +976,14 @@ body.simple-workspace .inventory .filament-row .actions .shop-links .shop-link{d
 /* Keep the simple view minimal until bulk selection is opened. */
 body.simple-workspace .simple-mode[data-selecting=true] .row-select{display:block!important;width:24px;height:24px}
 body.simple-workspace .simple-mode[data-selecting=true] .filament-row{padding-left:46px}
-body.simple-workspace .batch-disclosure>summary{min-height:44px;padding-block:11px;font-size:16px;color:#244b32}
-body.simple-workspace .bulk-toolbar{font-size:16px;line-height:1.5;padding:14px 18px;gap:10px;background:#f6f8f1}
+body.simple-workspace .batch-disclosure>summary{min-height:44px;padding-block:11px;font-size:max(var(--spool-type-floor,16px),16px);color:#244b32}
+body.simple-workspace .bulk-toolbar{font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;padding:14px 18px;gap:10px;background:#f6f8f1}
 body.simple-workspace .bulk-toolbar.has-selection{background:#edf4e7}
-body.simple-workspace .bulk-toolbar .select-all{font-size:16px;min-height:44px;gap:10px;color:#244b32;font-weight:600}
+body.simple-workspace .bulk-toolbar .select-all{font-size:max(var(--spool-type-floor,16px),16px);min-height:44px;gap:10px;color:#244b32;font-weight:600}
 body.simple-workspace .bulk-toolbar .select-all input{width:24px;height:24px}
-body.simple-workspace .bulk-toolbar #selectionCount{font-size:16px;font-weight:700;color:#193e31;padding:6px 10px;background:#fff;border:1px solid #b9ceb1;border-radius:6px}
-body.simple-workspace #batchCount{font-size:16px;font-weight:700;color:#193e31}
-body.simple-workspace .bulk-toolbar button{min-height:44px;font-size:16px;font-weight:600;line-height:1.5;padding:10px 14px;white-space:normal;color:#244b32;background:#fff;border:1px solid #88a581;border-radius:7px}
+body.simple-workspace .bulk-toolbar #selectionCount{font-size:max(var(--spool-type-floor,16px),16px);font-weight:700;color:#193e31;padding:6px 10px;background:#fff;border:1px solid #b9ceb1;border-radius:6px}
+body.simple-workspace #batchCount{font-size:max(var(--spool-type-floor,16px),16px);font-weight:700;color:#193e31}
+body.simple-workspace .bulk-toolbar button{min-height:44px;font-size:max(var(--spool-type-floor,16px),16px);font-weight:600;line-height:1.5;padding:10px 14px;white-space:normal;color:#244b32;background:#fff;border:1px solid #88a581;border-radius:7px}
 body.simple-workspace .bulk-toolbar button.danger{color:#8b302b;background:#fff7f4;border-color:#cba39b}
 body.simple-workspace .bulk-toolbar button:disabled{opacity:.65;cursor:default}
 @media(max-width:600px){body.simple-workspace .bulk-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;align-items:stretch}body.simple-workspace .bulk-toolbar .select-all{grid-column:1/-1}body.simple-workspace .bulk-toolbar #selectionCount{display:flex;align-items:center;justify-content:center}body.simple-workspace .bulk-toolbar :is(#bulkAdd,#bulkDelete,#cloud-share-selected){grid-column:1/-1;width:100%}body.simple-workspace .bulk-toolbar button{min-width:0}}
@@ -997,58 +997,58 @@ body.simple-workspace .bulk-toolbar button:disabled{opacity:.65;cursor:default}
 #bookingStatusDialog .booking-status-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
 #bookingStatusTitle{font-size:19px;margin:0;color:#173a29}
 #closeBookingStatus{min-width:44px;min-height:44px;border:0;border-radius:8px;background:#f0f5ef;color:#284e37;font-size:24px}
-#bookingStatusWork{font-size:16px;line-height:1.5;color:#3c5747;margin:4px 0 14px;overflow-wrap:anywhere}
+#bookingStatusWork{font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;color:#3c5747;margin:4px 0 14px;overflow-wrap:anywhere}
 #bookingStatusDialog .booking-status-options{display:grid;gap:8px}
-#bookingStatusDialog .booking-status-options button{display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 14px;text-align:left;font-size:17px;font-weight:600;color:#244a34;background:#fff;border:1px solid #c3d3c2;border-radius:9px}
+#bookingStatusDialog .booking-status-options button{display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 14px;text-align:left;font-size:max(var(--spool-type-floor,18px),17px);font-weight:600;color:#244a34;background:#fff;border:1px solid #c3d3c2;border-radius:9px}
 #bookingStatusDialog .booking-status-options button[aria-pressed=true]{background:#e2eedc;border-color:#567e59;box-shadow:inset 3px 0 #32694d}
 #bookingStatusDialog .booking-status-options button:hover{background:#eff5eb}
-#bookingStatusError{margin:10px 0 0;font-size:16px;line-height:1.5;color:#982f2b}
+#bookingStatusError{margin:10px 0 0;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;color:#982f2b}
 #bookingStatusError:empty{display:none}
 body.simple-workspace{--reading-text:#102f21;--reading-secondary:#294532}
 body.simple-workspace main :is(p,small,label,.item-tag,.color-name,.meta){color:#294532}
-@media(min-width:1200px){body.simple-workspace main :is(p,small,label,input,select,textarea,.item-tag,.color-name,.meta){font-size:17px}body.simple-workspace main button{font-size:18px}body.simple-workspace .page-title h1{font-size:38px}}
+@media(min-width:1200px){body.simple-workspace main :is(p,small,label,input,select,textarea,.item-tag,.color-name,.meta){font-size:max(var(--spool-type-floor,18px),17px)}body.simple-workspace main button{font-size:max(var(--spool-type-floor,18px),18px)}body.simple-workspace .page-title h1{font-size:38px}}
 
 /* Keep the important booking facts readable without opening details. */
-body.simple-workspace #bookingView .booking-table th{font-size:17px;color:#254936;background:#edf3e9;padding:16px;font-weight:700}
+body.simple-workspace #bookingView .booking-table th{font-size:max(var(--spool-type-floor,18px),17px);color:#254936;background:#edf3e9;padding:16px;font-weight:700}
 body.simple-workspace #bookingView .booking-table th:nth-child(6),body.simple-workspace #bookingView .booking-table .booking-registered{display:table-cell}
 body.simple-workspace #bookingView .booking-table{min-width:1080px}
-body.simple-workspace #bookingView .booking-table td{padding:20px 16px;color:#193d2c;font-size:18px;line-height:1.6}
+body.simple-workspace #bookingView .booking-table td{padding:20px 16px;color:#193d2c;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.6}
 body.simple-workspace #bookingView .booking-table .work-cell{width:28%;min-width:220px}
 body.simple-workspace #bookingView :is(.work-title,.booking-card h3){font-size:23px;font-weight:700;color:#153b29;line-height:1.5;margin:0 0 10px}
 body.simple-workspace #bookingView .booking-work-meta{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
 body.simple-workspace #bookingView .booking-work-meta .tags{margin:0}
-body.simple-workspace #bookingView .booking-color-label{font-size:17px!important;color:#284b37!important;margin:0;line-height:1.6}
-body.simple-workspace #bookingView :is(.booking-weekday,.booking-card-weekday){font-size:17px;color:#284b37;margin:0;white-space:nowrap}
+body.simple-workspace #bookingView .booking-color-label{font-size:max(var(--spool-type-floor,18px),17px)!important;color:#284b37!important;margin:0;line-height:1.6}
+body.simple-workspace #bookingView :is(.booking-weekday,.booking-card-weekday){font-size:max(var(--spool-type-floor,18px),17px);color:#284b37;margin:0;white-space:nowrap}
 body.simple-workspace #bookingView :is(.booking-duration,.booking-deadline time,.booking-card-metrics strong){font-size:20px;font-weight:650;color:#173e2a!important;line-height:1.55}
-body.simple-workspace #bookingView :is(.booking-quality-label,.booking-deadline small){display:block;font-size:16px;color:#38533f;margin-top:4px}
+body.simple-workspace #bookingView :is(.booking-quality-label,.booking-deadline small){display:block;font-size:max(var(--spool-type-floor,16px),16px);color:#38533f;margin-top:4px}
 body.simple-workspace #bookingView .booking-deadline.overdue :is(time,small){color:#9b352b!important}
 body.simple-workspace #bookingView .booking-deadline.soon :is(time,small){color:#825414!important}
-body.simple-workspace #bookingView .deadline-undecided{font-size:18px;font-weight:500;color:#294a36}
-body.simple-workspace #bookingView .booking-registered time{display:grid;gap:2px;white-space:nowrap;font-size:17px;color:#294a36;font-weight:500;line-height:1.6;font-variant-numeric:tabular-nums}
-body.simple-workspace #bookingView .booking-registered-time{font-size:17px;color:#294a36;font-variant-numeric:tabular-nums}
-body.simple-workspace #bookingView .booking-status-trigger{font-size:17px;text-decoration:none}
-body.simple-workspace #bookingView .booking-edit{font-size:17px;min-height:44px;color:#234d35;border-color:#9bb29b}
+body.simple-workspace #bookingView .deadline-undecided{font-size:max(var(--spool-type-floor,18px),18px);font-weight:500;color:#294a36}
+body.simple-workspace #bookingView .booking-registered time{display:grid;gap:2px;white-space:nowrap;font-size:max(var(--spool-type-floor,18px),17px);color:#294a36;font-weight:500;line-height:1.6;font-variant-numeric:tabular-nums}
+body.simple-workspace #bookingView .booking-registered-time{font-size:max(var(--spool-type-floor,18px),17px);color:#294a36;font-variant-numeric:tabular-nums}
+body.simple-workspace #bookingView .booking-status-trigger{font-size:max(var(--spool-type-floor,18px),17px);text-decoration:none}
+body.simple-workspace #bookingView .booking-edit{font-size:max(var(--spool-type-floor,18px),17px);min-height:44px;color:#234d35;border-color:#9bb29b}
 body.simple-workspace #bookingView .booking-row-details{margin-top:10px}
-body.simple-workspace #bookingView .booking-row-details>summary{font-size:16px;color:#34553f;padding:4px 0}
-body.simple-workspace #bookingView .booking-card-registration{display:grid;gap:3px;font-size:17px;color:#284b37;line-height:1.5}
-body.simple-workspace #bookingView .booking-card-registration>span{font-size:16px;color:#38533f}
+body.simple-workspace #bookingView .booking-row-details>summary{font-size:max(var(--spool-type-floor,16px),16px);color:#34553f;padding:4px 0}
+body.simple-workspace #bookingView .booking-card-registration{display:grid;gap:3px;font-size:max(var(--spool-type-floor,18px),17px);color:#284b37;line-height:1.5}
+body.simple-workspace #bookingView .booking-card-registration>span{font-size:max(var(--spool-type-floor,16px),16px);color:#38533f}
 body.simple-workspace #bookingView .booking-card-registration time{display:flex;flex-wrap:wrap;gap:4px 10px;font-variant-numeric:tabular-nums}
 body.simple-workspace #bookingView .booking-card-footer{align-items:center;gap:12px;padding-top:14px;margin-top:14px;border-top:1px solid #d7e1d3}
-body.simple-workspace #bookingView .booking-card-metrics>div>span{color:#38533f;font-size:16px}
+body.simple-workspace #bookingView .booking-card-metrics>div>span{color:#38533f;font-size:max(var(--spool-type-floor,16px),16px)}
 @media(min-width:761px) and (max-width:1199px){body.simple-workspace #bookingView .booking-table-scroll{display:none}body.simple-workspace #bookingCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:16px}}
 @media(max-width:760px){body.simple-workspace #bookingView .booking-card{padding:18px}body.simple-workspace #bookingView .booking-card h3{font-size:22px}body.simple-workspace #bookingView .booking-card-top{gap:10px;margin-bottom:12px}body.simple-workspace #bookingView .booking-card-metrics{gap:10px;padding:12px;margin:16px 0}}
-#purchaseIntentFilter{min-height:44px;max-width:100%;padding:9px 36px 9px 12px;border:1px solid #91a78f;border-radius:9px;background:#f7faf3;color:#193f2b;font:inherit;font-size:16px;line-height:1.4;cursor:pointer}
+#purchaseIntentFilter{min-height:44px;max-width:100%;padding:9px 36px 9px 12px;border:1px solid #91a78f;border-radius:9px;background:#f7faf3;color:#193f2b;font:inherit;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.4;cursor:pointer}
 #purchaseIntentFilter:focus-visible{outline:3px solid #86ab69;outline-offset:2px}
 .purchase-planned .planned-capacity{display:block;white-space:nowrap;font-weight:600}
 @media(max-width:760px){#purchaseIntentFilter{grid-column:1/-1;width:100%;margin-top:4px}}
-.model-file-limit{display:block;margin:12px 0;color:#314f3b;font-size:15px;line-height:1.7}
+.model-file-limit{display:block;margin:12px 0;color:#314f3b;font-size:max(var(--spool-type-floor,16px),15px);line-height:1.7}
 .model-file-list-heading{display:flex;justify-content:space-between;gap:12px;margin-top:18px;color:#193e2c;flex-wrap:wrap}
 .model-file-list-heading[hidden]{display:none}
 .model-file-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #dce4d8;flex-wrap:wrap}
 .model-file-name{min-width:0;overflow-wrap:anywhere;flex:1 1 180px;font-weight:600}
 .model-file-name small{display:block;font-weight:400;margin-top:6px}
 .model-file-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.model-file-actions :is(button,a),.model-file-row>a{min-height:44px;padding:10px 12px!important;border:1px solid #a7b99d;border-radius:8px;background:#f6f9ef;color:#244730;text-decoration:none;font-size:16px!important;width:auto!important;height:auto!important;display:inline-flex;align-items:center}
+.model-file-actions :is(button,a),.model-file-row>a{min-height:44px;padding:10px 12px!important;border:1px solid #a7b99d;border-radius:8px;background:#f6f9ef;color:#244730;text-decoration:none;font-size:max(var(--spool-type-floor,16px),16px)!important;width:auto!important;height:auto!important;display:inline-flex;align-items:center}
 .booking-pending-files li{flex-wrap:wrap;gap:12px}
 .booking-pending-files li>button{min-width:44px;min-height:44px}
 .model-open-dialog{width:min(620px,calc(100vw - 24px));padding:0}
@@ -1059,7 +1059,7 @@ body.simple-workspace #bookingView .booking-card-metrics>div>span{color:#38533f;
 .model-open-body>a.primary{background:#194d3c;color:white}
 .model-helper-help{margin-top:20px;padding-top:14px;border-top:1px solid #dce5d5}
 .model-helper-help summary{cursor:pointer;padding:8px 0;font-weight:600}
-@media(max-width:760px){.model-file-actions{width:100%}.booking-pending-files li>.model-file-actions{padding-left:44px}.model-open-body{font-size:16px}}
+@media(max-width:760px){.model-file-actions{width:100%}.booking-pending-files li>.model-file-actions{padding-left:44px}.model-open-body{font-size:max(var(--spool-type-floor,16px),16px)}}
 .tag-editor{display:grid;gap:10px;min-width:0;width:100%}
 .selected-tags{display:flex;flex-wrap:wrap;gap:8px}
 .selected-tags:empty{display:none}
@@ -1075,8 +1075,8 @@ body.simple-workspace #bookingView .booking-card-metrics>div>span{color:#38533f;
 body.simple-workspace #bookingView .booking-color-label{display:inline-flex;align-items:center;gap:10px;max-width:100%;padding:9px 12px;border:1px solid #bdcebf;border-radius:12px;background:#f4f8f1;box-sizing:border-box}
 body.simple-workspace #bookingView .booking-color-label .booking-color-chip{display:block;width:30px;height:30px;min-width:30px;flex:none;border:1px solid #6b7e70;box-shadow:inset 0 0 0 2px #ffffff80;border-radius:8px}
 .booking-color-caption{display:grid;gap:2px;min-width:0;overflow-wrap:anywhere}
-body.simple-workspace #bookingView .booking-color-caption small{font-size:13px;line-height:1.3;color:#45614e}
-body.simple-workspace #bookingView .booking-color-caption strong{font-size:17px;line-height:1.5;color:#173e2c}
+body.simple-workspace #bookingView .booking-color-caption small{font-size:max(var(--spool-type-floor,16px),13px);line-height:1.3;color:#45614e}
+body.simple-workspace #bookingView .booking-color-caption strong{font-size:max(var(--spool-type-floor,18px),17px);line-height:1.5;color:#173e2c}
 body.simple-workspace #bookingView .booking-color-label.is-no-preference{padding:4px 0;background:none;border-color:transparent}
 body.simple-workspace #bookingView .is-no-preference .booking-color-chip{width:22px;height:22px;min-width:22px;box-shadow:none}
 @media(max-width:760px){
@@ -1090,7 +1090,7 @@ body.simple-workspace .primary:hover{transform:none}
 @media(max-width:1000px){
  body.simple-workspace .page-title{flex-wrap:wrap;gap:12px}
  body.simple-workspace .page-title .page-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;flex-basis:100%;align-items:stretch;margin:0}
- body.simple-workspace .page-title .page-actions>button{box-sizing:border-box;min-width:0;width:100%;min-height:44px;height:auto;margin:0;padding:10px 8px;font-size:16px;line-height:1.5;white-space:nowrap;overflow-wrap:normal;text-wrap:nowrap;align-self:stretch}
+ body.simple-workspace .page-title .page-actions>button{box-sizing:border-box;min-width:0;width:100%;min-height:44px;height:auto;margin:0;padding:10px 8px;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;white-space:nowrap;overflow-wrap:normal;text-wrap:nowrap;align-self:stretch}
  body.simple-workspace .page-actions .desktop-action-label{display:none}
  body.simple-workspace .page-actions .mobile-action-label{display:inline;white-space:nowrap}
  body.simple-workspace .page-actions>#spool-help-entry:last-child{grid-column:1/-1}
@@ -1114,13 +1114,13 @@ body.simple-workspace .primary:hover{transform:none}
 }
 
 /* Event information uses local artwork and remains available offline. */
-.event-view{display:grid;gap:24px;color:#183c30;min-width:0}.event-view[hidden]{display:none}.event-hero{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:24px;background:#173f32;color:#fff8e8;padding:clamp(24px,4vw,56px);border-radius:22px;overflow:hidden}.event-kicker{font-size:14px;font-weight:750;letter-spacing:.13em}.event-catch{font-size:clamp(28px,3.2vw,48px)!important;line-height:1.45!important;font-weight:800;letter-spacing:.02em;margin:22px 0!important;color:inherit!important}.event-view h2{font-size:clamp(20px,2vw,26px);line-height:1.6;margin:0 0 16px;color:inherit}.event-view p{font-size:18px;line-height:1.85;color:inherit}.event-highlights{display:flex;gap:24px;flex-wrap:wrap;margin-top:28px;border-top:1px solid #6e8974;padding-top:24px}.event-highlights span{font-size:15px;color:#e0e8ce}.event-highlights strong{display:block;font-size:20px;margin-top:8px;color:#fff8e8}.event-art{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;min-height:300px}.event-art>span{position:absolute;top:0;left:45%;font-size:54px;color:#ecd291}.event-art i{display:flex;align-items:center;justify-content:center;border:2px solid #f5dba1;border-radius:50%;width:78px;height:100px;font-size:45px;font-style:normal;background:#9b453d;color:#fff3c9;box-shadow:inset 0 0 0 6px #173f32;position:relative;transform:rotate(-12deg)}.event-art i:before{content:'';position:absolute;height:72px;bottom:100%;border-left:1px solid #f5dba1;left:50%}.event-art i:nth-of-type(2){background:#d8dcb3;color:#173f32;margin-top:70px;transform:rotate(8deg)}.event-art i:nth-of-type(3){background:#b2904d;margin-top:-20px;transform:rotate(15deg)}.event-art small{position:absolute;bottom:8px;letter-spacing:.12em;font-size:12px;color:#e7d7af}.event-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.event-card{padding:28px;background:#fff;border:1px solid #c9d4c6;border-radius:16px;min-width:0}.event-card h3{font-size:23px;margin:0 0 16px;line-height:1.5}.event-prize{background:#f2efdf}.event-prize h3{margin-top:16px}.event-examples{display:flex;flex-wrap:wrap;gap:8px}.event-examples span{padding:7px 14px;border-radius:30px;background:#eaf0df;font-size:16px;font-weight:650}.event-facts{margin:0}.event-facts>div{display:grid;grid-template-columns:180px 1fr;gap:20px;padding:16px 0;border-bottom:1px solid #e0e6db;font-size:18px;line-height:1.7}.event-facts>div:last-child{border:0}.event-facts dt{font-weight:750}.event-facts dd{margin:0}.event-facts small{display:block;font-size:16px;color:#425b4c}.event-details summary{cursor:pointer;font-size:19px;font-weight:750;min-height:32px}.event-details[open]>div{padding-top:24px}.event-details li{font-size:18px;line-height:1.9}.event-details h3:not(:first-child){margin-top:28px}
-@media(max-width:760px){.event-grid{grid-template-columns:1fr}.event-hero{grid-template-columns:1fr}.event-art{min-height:180px;margin-top:20px}.event-art>span{top:-26px;font-size:36px}.event-art i{width:60px;height:76px;font-size:34px}.event-art i:before{height:35px}.event-art small{bottom:-8px}.event-view p{font-size:17px}.event-card{padding:22px}.event-facts>div{grid-template-columns:1fr;gap:4px;font-size:17px}.event-highlights{gap:20px}.event-view{gap:18px}.event-catch{font-size:30px!important}}
+.event-view{display:grid;gap:24px;color:#183c30;min-width:0}.event-view[hidden]{display:none}.event-hero{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:24px;background:#173f32;color:#fff8e8;padding:clamp(24px,4vw,56px);border-radius:22px;overflow:hidden}.event-kicker{font-size:max(var(--spool-type-floor,16px),14px);font-weight:750;letter-spacing:.13em}.event-catch{font-size:clamp(28px,3.2vw,48px)!important;line-height:1.45!important;font-weight:800;letter-spacing:.02em;margin:22px 0!important;color:inherit!important}.event-view h2{font-size:clamp(20px,2vw,26px);line-height:1.6;margin:0 0 16px;color:inherit}.event-view p{font-size:max(var(--spool-type-floor,18px),18px);line-height:1.85;color:inherit}.event-highlights{display:flex;gap:24px;flex-wrap:wrap;margin-top:28px;border-top:1px solid #6e8974;padding-top:24px}.event-highlights span{font-size:max(var(--spool-type-floor,16px),15px);color:#e0e8ce}.event-highlights strong{display:block;font-size:20px;margin-top:8px;color:#fff8e8}.event-art{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;min-height:300px}.event-art>span{position:absolute;top:0;left:45%;font-size:54px;color:#ecd291}.event-art i{display:flex;align-items:center;justify-content:center;border:2px solid #f5dba1;border-radius:50%;width:78px;height:100px;font-size:45px;font-style:normal;background:#9b453d;color:#fff3c9;box-shadow:inset 0 0 0 6px #173f32;position:relative;transform:rotate(-12deg)}.event-art i:before{content:'';position:absolute;height:72px;bottom:100%;border-left:1px solid #f5dba1;left:50%}.event-art i:nth-of-type(2){background:#d8dcb3;color:#173f32;margin-top:70px;transform:rotate(8deg)}.event-art i:nth-of-type(3){background:#b2904d;margin-top:-20px;transform:rotate(15deg)}.event-art small{position:absolute;bottom:8px;letter-spacing:.12em;font-size:max(var(--spool-type-floor,16px),12px);color:#e7d7af}.event-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.event-card{padding:28px;background:#fff;border:1px solid #c9d4c6;border-radius:16px;min-width:0}.event-card h3{font-size:23px;margin:0 0 16px;line-height:1.5}.event-prize{background:#f2efdf}.event-prize h3{margin-top:16px}.event-examples{display:flex;flex-wrap:wrap;gap:8px}.event-examples span{padding:7px 14px;border-radius:30px;background:#eaf0df;font-size:max(var(--spool-type-floor,16px),16px);font-weight:650}.event-facts{margin:0}.event-facts>div{display:grid;grid-template-columns:180px 1fr;gap:20px;padding:16px 0;border-bottom:1px solid #e0e6db;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.7}.event-facts>div:last-child{border:0}.event-facts dt{font-weight:750}.event-facts dd{margin:0}.event-facts small{display:block;font-size:max(var(--spool-type-floor,16px),16px);color:#425b4c}.event-details summary{cursor:pointer;font-size:19px;font-weight:750;min-height:32px}.event-details[open]>div{padding-top:24px}.event-details li{font-size:max(var(--spool-type-floor,18px),18px);line-height:1.9}.event-details h3:not(:first-child){margin-top:28px}
+@media(max-width:760px){.event-grid{grid-template-columns:1fr}.event-hero{grid-template-columns:1fr}.event-art{min-height:180px;margin-top:20px}.event-art>span{top:-26px;font-size:36px}.event-art i{width:60px;height:76px;font-size:34px}.event-art i:before{height:35px}.event-art small{bottom:-8px}.event-view p{font-size:max(var(--spool-type-floor,18px),17px)}.event-card{padding:22px}.event-facts>div{grid-template-columns:1fr;gap:4px;font-size:max(var(--spool-type-floor,18px),17px)}.event-highlights{gap:20px}.event-view{gap:18px}.event-catch{font-size:30px!important}}
 
 body.simple-workspace .event-hero p,body.simple-workspace .event-hero h2{color:#fff8e8}body.simple-workspace .event-art small{color:#e7d7af}
 
 /* Make the contest reward a distinct focal point. */
-.event-highlights .event-award-banner{flex:1 1 320px;min-width:0;padding:20px 24px;border:2px solid #edcf83;border-radius:14px;background:#fff0c5;box-shadow:0 8px 24px #0002;color:#233d2d}.event-highlights .event-award-label{display:inline-block;font-size:17px;font-weight:800;color:#514018}.event-highlights .event-award-banner strong{font-size:clamp(22px,2.3vw,30px);line-height:1.55;color:#183c30;margin-top:6px}.event-highlights .event-award-emphasis{display:inline-block;margin-left:.2em;font:inherit;color:#814719}.event-prize{border:2px solid #bb923b;background:linear-gradient(135deg,#fff7dc,#f1e4b7);box-shadow:0 5px 20px #8d6c1710}.event-prize-badge{display:inline-block;padding:7px 14px;border-radius:30px;background:#79551a;color:#fff8df;font-size:17px;font-weight:800}.event-card .event-prize-title{font-size:clamp(24px,2.3vw,32px);line-height:1.55;margin:20px 0 12px;color:#183c30}.event-prize-title em{font-size:clamp(38px,4vw,54px);font-style:normal;font-weight:850;color:#825018;letter-spacing:.05em}body.simple-workspace .event-prize-lead{font-size:21px;font-weight:750;color:#233d2d}
+.event-highlights .event-award-banner{flex:1 1 320px;min-width:0;padding:20px 24px;border:2px solid #edcf83;border-radius:14px;background:#fff0c5;box-shadow:0 8px 24px #0002;color:#233d2d}.event-highlights .event-award-label{display:inline-block;font-size:max(var(--spool-type-floor,18px),17px);font-weight:800;color:#514018}.event-highlights .event-award-banner strong{font-size:clamp(22px,2.3vw,30px);line-height:1.55;color:#183c30;margin-top:6px}.event-highlights .event-award-emphasis{display:inline-block;margin-left:.2em;font:inherit;color:#814719}.event-prize{border:2px solid #bb923b;background:linear-gradient(135deg,#fff7dc,#f1e4b7);box-shadow:0 5px 20px #8d6c1710}.event-prize-badge{display:inline-block;padding:7px 14px;border-radius:30px;background:#79551a;color:#fff8df;font-size:max(var(--spool-type-floor,18px),17px);font-weight:800}.event-card .event-prize-title{font-size:clamp(24px,2.3vw,32px);line-height:1.55;margin:20px 0 12px;color:#183c30}.event-prize-title em{font-size:clamp(38px,4vw,54px);font-style:normal;font-weight:850;color:#825018;letter-spacing:.05em}body.simple-workspace .event-prize-lead{font-size:21px;font-weight:750;color:#233d2d}
 @media(max-width:760px){.event-highlights .event-award-banner{flex-basis:100%;padding:16px}.event-highlights .event-award-banner strong{font-size:23px}.event-highlights .event-award-emphasis{margin-left:0}.event-card .event-prize-title{font-size:24px}.event-prize-title em{font-size:42px}}
 
 .event-poster-hero{display:block;padding:0;background:#173f32}.event-poster-hero>img{display:block;width:100%;height:auto;aspect-ratio:3/1;object-fit:contain}.event-poster-copy{padding:24px 32px 28px}.event-poster-copy>p{margin:0}.event-poster-copy .event-highlights{margin-top:20px;padding-top:20px;align-items:center}.event-poster-copy .event-award-banner{flex:0 1 auto;min-width:0}.event-poster-copy .event-award-banner strong{font-size:24px}.event-poster-copy h2{margin-bottom:6px}
@@ -1128,14 +1128,14 @@ body.simple-workspace .event-hero p,body.simple-workspace .event-hero h2{color:#
 /* More room for material selection while keeping readable, single-column phone controls. */
 body.simple-workspace #bookingDialog .booking-plan-section{padding:20px;border:1px solid #bdcdb8;border-radius:14px;background:#f8faf4}
 body.simple-workspace #bookingDialog .booking-plan-section h3{font-size:22px;line-height:1.4}
-body.simple-workspace #bookingDialog .booking-plan-section :is(label,.color-field-heading>span){font-size:18px}
-body.simple-workspace #bookingDialog .booking-plan-section :is(input,select){font-size:18px;min-height:48px}
-body.simple-workspace #bookingDialog .booking-color-count{margin:8px 0;color:#38543d;font-size:15px}
+body.simple-workspace #bookingDialog .booking-plan-section :is(label,.color-field-heading>span){font-size:max(var(--spool-type-floor,18px),18px)}
+body.simple-workspace #bookingDialog .booking-plan-section :is(input,select){font-size:max(var(--spool-type-floor,18px),18px);min-height:48px}
+body.simple-workspace #bookingDialog .booking-color-count{margin:8px 0;color:#38543d;font-size:max(var(--spool-type-floor,16px),15px)}
 body.simple-workspace #bookingDialog .booking-color-choices{grid-template-columns:repeat(3,minmax(0,1fr));max-height:480px;gap:8px;overscroll-behavior:contain;scroll-padding:8px}
 body.simple-workspace #bookingDialog .booking-color-choice{min-width:0;min-height:80px;padding:10px;gap:10px;align-items:center}
 body.simple-workspace #bookingDialog .booking-color-choice>span{min-width:0;overflow-wrap:anywhere}
-body.simple-workspace #bookingDialog .booking-color-choice strong{font-size:17px;line-height:1.4}
-body.simple-workspace #bookingDialog .booking-color-choice small{font-size:15px;line-height:1.5}
+body.simple-workspace #bookingDialog .booking-color-choice strong{font-size:max(var(--spool-type-floor,18px),17px);line-height:1.4}
+body.simple-workspace #bookingDialog .booking-color-choice small{font-size:max(var(--spool-type-floor,16px),15px);line-height:1.5}
 body.simple-workspace .model-file-note .model-file-name{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(min-width:1001px){body.simple-workspace #bookingDialog{width:min(1180px,calc(100vw - 48px))}}
 @media(max-width:1000px){body.simple-workspace #bookingDialog .booking-color-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -1143,33 +1143,74 @@ body.simple-workspace .model-file-note .model-file-name{white-space:pre-wrap;ove
 body.simple-workspace .booking-model-colors{padding:16px;border:1px solid #b8cab0;border-radius:12px;margin:16px 0;background:#f8faf4}
 body.simple-workspace .booking-model-color-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #dbe3d5}
 .booking-model-color-row>span,.booking-model-color-summary>span{display:flex;gap:8px;align-items:center;min-width:0}.booking-model-color-row strong,.booking-model-color-summary strong{overflow-wrap:anywhere}
-body.simple-workspace .booking-model-color-row select{min-width:0;width:100%;min-height:48px;font-size:16px}.booking-model-color-summary{display:grid;gap:6px;margin:10px 0}
+body.simple-workspace .booking-model-color-row select{min-width:0;width:100%;min-height:48px;font-size:max(var(--spool-type-floor,16px),16px)}.booking-model-color-summary{display:grid;gap:6px;margin:10px 0}
 .booking-model-color-row .booking-color-chip,.booking-model-color-summary .booking-color-chip{width:22px;height:22px;flex:none;border:1px solid #839780;border-radius:6px}
 @media(max-width:760px){body.simple-workspace .booking-model-color-row{grid-template-columns:minmax(0,1fr)}}
 body.simple-workspace #bookingSavingDialog{padding:30px 26px;border:1px solid #9bb394;border-radius:18px;width:min(360px,calc(100vw - 40px));text-align:center;background:#fffef8;color:#173f30;box-shadow:0 15px 70px #123e3240}
 #bookingSavingDialog::backdrop{background:#112e286e;backdrop-filter:blur(3px)}
-body.simple-workspace #bookingSavingDialog h2{font-size:23px;margin:16px 0 10px}body.simple-workspace #bookingSavingDialog p{font-size:16px;line-height:1.6;margin:0}
+body.simple-workspace #bookingSavingDialog h2{font-size:23px;margin:16px 0 10px}body.simple-workspace #bookingSavingDialog p{font-size:max(var(--spool-type-floor,16px),16px);line-height:1.6;margin:0}
 .booking-saving-spinner{display:inline-block;width:36px;height:36px;border:4px solid #d7e5cd;border-top-color:#25644a;border-radius:50%;animation:booking-saving-turn 1s linear infinite}
 @keyframes booking-saving-turn{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.booking-saving-spinner{animation:none}}
 .booking-quick-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid #d9e2d5}
-body.simple-workspace .booking-quick-filters button{min-height:44px;font-size:16px;padding:8px 12px;white-space:nowrap}
+body.simple-workspace .booking-quick-filters button{min-height:44px;font-size:max(var(--spool-type-floor,16px),16px);padding:8px 12px;white-space:nowrap}
 .booking-quick-filters [aria-pressed=true]{background:#1c503d;color:#fff;border-color:#1c503d}
-.booking-draft-banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px;padding:14px;background:#fff6da;border:1px solid #b8a971;border-radius:12px;color:#4a4328}.booking-draft-banner select{min-width:0;flex:1;max-width:100%;font-size:16px;min-height:44px}.booking-draft-banner small{flex-basis:100%;font-size:14px}.booking-draft-banner button{font-size:16px;min-height:44px}
-body.simple-workspace #bookingDraftStatus{margin:0;padding:8px 18px;font-size:14px;color:#425c42;background:#f5f7f1;line-height:1.5}.booking-sharing-state{display:block;flex-basis:100%;color:#294e39;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.booking-draft-banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px;padding:14px;background:#fff6da;border:1px solid #b8a971;border-radius:12px;color:#4a4328}.booking-draft-banner select{min-width:0;flex:1;max-width:100%;font-size:max(var(--spool-type-floor,16px),16px);min-height:44px}.booking-draft-banner small{flex-basis:100%;font-size:max(var(--spool-type-floor,16px),14px)}.booking-draft-banner button{font-size:max(var(--spool-type-floor,16px),16px);min-height:44px}
+body.simple-workspace #bookingDraftStatus{margin:0;padding:8px 18px;font-size:max(var(--spool-type-floor,16px),14px);color:#425c42;background:#f5f7f1;line-height:1.5}.booking-sharing-state{display:block;flex-basis:100%;color:#294e39;font-size:max(var(--spool-type-floor,16px),14px);line-height:1.6;overflow-wrap:anywhere}
 #bookingSavingProgress{width:100%;height:16px;accent-color:#24624a;margin:12px 0}#bookingSavingCopy{white-space:pre-line;overflow-wrap:anywhere}
 body.simple-workspace #bookingReviewDialog{padding:0;width:min(850px,calc(100vw - 24px));max-height:94dvh;border:1px solid #b4c6ae;border-radius:16px;background:#fffef8;color:#173c2c;overflow:hidden}
-#bookingReviewDialog[open]{display:flex;flex-direction:column}.booking-review-body{padding:16px 22px;overflow:auto;min-height:0}.booking-review-scope{padding:10px 22px;margin:0;background:#eaf1e2;overflow-wrap:anywhere;font-size:16px}
-.booking-review-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.booking-review-facts>div{min-width:0}.booking-review-facts dt{font-size:14px;color:#4b6250}.booking-review-facts dd{font-size:18px;margin:4px 0;overflow-wrap:anywhere}
+#bookingReviewDialog[open]{display:flex;flex-direction:column}.booking-review-body{padding:16px 22px;overflow:auto;min-height:0}.booking-review-scope{padding:10px 22px;margin:0;background:#eaf1e2;overflow-wrap:anywhere;font-size:max(var(--spool-type-floor,16px),16px)}
+.booking-review-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.booking-review-facts>div{min-width:0}.booking-review-facts dt{font-size:max(var(--spool-type-floor,16px),14px);color:#4b6250}.booking-review-facts dd{font-size:max(var(--spool-type-floor,18px),18px);margin:4px 0;overflow-wrap:anywhere}
 .booking-review-model{display:grid;gap:8px;padding:12px 0;border-bottom:1px solid #d8e2d3;overflow-wrap:anywhere}.booking-review-model>span{display:flex;align-items:center;gap:8px}.booking-review-model .booking-color-chip{width:26px;height:26px;border:1px solid #879c7c;border-radius:6px;flex:none}
-#bookingReviewDialog .dialog-head,#bookingReviewDialog .dialog-actions{flex:none;margin:0;padding:14px 18px}#bookingReviewDialog .dialog-actions button{min-height:44px;font-size:16px}#bookingReviewDialog .dialog-head h2{font-size:23px}
+#bookingReviewDialog .dialog-head,#bookingReviewDialog .dialog-actions{flex:none;margin:0;padding:14px 18px}#bookingReviewDialog .dialog-actions button{min-height:44px;font-size:max(var(--spool-type-floor,16px),16px)}#bookingReviewDialog .dialog-head h2{font-size:23px}
 @media(max-width:760px){.booking-draft-banner strong,.booking-draft-banner select{flex-basis:100%}.booking-review-facts{grid-template-columns:minmax(0,1fr)}.booking-review-body{padding:14px 16px}.booking-quick-filters{gap:6px}.booking-quick-filters>span{flex-basis:100%}body.simple-workspace #bookingReviewDialog{width:calc(100vw - 16px);max-height:96dvh}}
 body.simple-workspace #bookingReviewClose{min-width:44px;min-height:44px;font-size:22px;color:#254e38}body.simple-workspace #bookingReviewEdit,body.simple-workspace .booking-draft-banner button{color:#214c34;border-color:#98b08c;background:#edf3e5}
-.booking-review-work{overflow-wrap:anywhere;line-height:1.6}.booking-review-dialog .dialog-head>div{min-width:0}body.simple-workspace #bookingDraftStatus{font-size:16px}
+.booking-review-work{overflow-wrap:anywhere;line-height:1.6}.booking-review-dialog .dialog-head>div{min-width:0}body.simple-workspace #bookingDraftStatus{font-size:max(var(--spool-type-floor,16px),16px)}
 body.simple-workspace #bookingPendingFiles .booking-draft-missing-file{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;border:1px dashed #9a9d66;background:#fff9e9;padding:12px;border-radius:10px}
-.booking-draft-missing-file>span{min-width:0;overflow-wrap:anywhere}.booking-draft-missing-file small{display:block;margin-top:6px}body.simple-workspace #bookingPendingFiles .booking-draft-missing-file button{min-width:76px;min-height:44px;width:auto;height:auto;padding:8px;font-size:16px;align-self:center}
+.booking-draft-missing-file>span{min-width:0;overflow-wrap:anywhere}.booking-draft-missing-file small{display:block;margin-top:6px}body.simple-workspace #bookingPendingFiles .booking-draft-missing-file button{min-width:76px;min-height:44px;width:auto;height:auto;padding:8px;font-size:max(var(--spool-type-floor,16px),16px);align-self:center}
 
-.booking-usage-rows{display:grid;gap:8px;margin-top:16px}.booking-usage-rows>span{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px;background:#f0f4e9;border-radius:8px;font-size:16px;color:#193c2c}.booking-usage-rows strong{margin-left:auto}.booking-usage-summary{display:block;margin-top:10px;font-size:16px;font-weight:650;color:#244a35}#bookingUsageDetails>p{font-size:15px;color:#34513c}
+.booking-usage-rows{display:grid;gap:8px;margin-top:16px}.booking-usage-rows>span{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px;background:#f0f4e9;border-radius:8px;font-size:max(var(--spool-type-floor,16px),16px);color:#193c2c}.booking-usage-rows strong{margin-left:auto}.booking-usage-summary{display:block;margin-top:10px;font-size:max(var(--spool-type-floor,16px),16px);font-weight:650;color:#244a35}#bookingUsageDetails>p{font-size:max(var(--spool-type-floor,16px),15px);color:#34513c}
 
-body.simple-workspace .booking-work-meta .booking-color-label{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;max-width:100%;min-width:0}body.simple-workspace .booking-color-label .booking-color-samples{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;max-width:100%}.booking-color-pill{display:inline-flex;align-items:center;gap:9px;min-height:40px;max-width:100%;box-sizing:border-box;padding:7px 11px;border:1px solid #ccd8c6;border-radius:10px;background:#f5f8f0;color:#193e2d}.booking-color-pill .booking-color-chip{width:24px;height:24px;flex:0 0 24px;margin:0;border-radius:50%}.booking-color-pill strong{font-size:16px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}.booking-random-label{color:#36543d;font-size:14px}.is-no-preference .booking-color-pill{background:#f7f8f5;border-style:dashed}.booking-work-meta{row-gap:10px}
+body.simple-workspace .booking-work-meta .booking-color-label{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;max-width:100%;min-width:0}body.simple-workspace .booking-color-label .booking-color-samples{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;max-width:100%}.booking-color-pill{display:inline-flex;align-items:center;gap:9px;min-height:40px;max-width:100%;box-sizing:border-box;padding:7px 11px;border:1px solid #ccd8c6;border-radius:10px;background:#f5f8f0;color:#193e2d}.booking-color-pill .booking-color-chip{width:24px;height:24px;flex:0 0 24px;margin:0;border-radius:50%}.booking-color-pill strong{font-size:max(var(--spool-type-floor,16px),16px);font-weight:650;line-height:1.5;overflow-wrap:anywhere}.booking-random-label{color:#36543d;font-size:max(var(--spool-type-floor,16px),14px)}.is-no-preference .booking-color-pill{background:#f7f8f5;border-style:dashed}.booking-work-meta{row-gap:10px}
 
 body.simple-workspace #bookingView .booking-color-label{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;max-width:100%;min-width:0}body.simple-workspace #bookingView .booking-color-label .booking-color-pill .booking-color-chip{width:24px;height:24px;min-width:24px;flex:0 0 24px;margin:0;border-radius:50%}
+
+/* Clear deadline attention, legible authors and balanced reservation titles. */
+body.simple-workspace #bookingView .booking-deadline.is-today{display:inline-grid;gap:6px;padding:9px 11px;border:1px solid #a44b29;border-radius:9px;background:#fff0df}
+body.simple-workspace #bookingView .booking-deadline.is-today time{color:#78271c!important;font-weight:800}
+body.simple-workspace #bookingView .booking-deadline.is-today small{display:inline-block;justify-self:start;margin:0;padding:4px 9px;border-radius:6px;background:#8b2f23;color:#fff!important;font-size:max(var(--spool-type-floor,18px),17px);font-weight:800;line-height:1.45;white-space:nowrap}
+body.simple-workspace #bookingView .booking-overview .booking-urgent-stat.has-urgent{background:#8b2f23!important;border-color:#6a241a;box-shadow:inset 0 0 0 1px #6a241a}
+body.simple-workspace #bookingView .booking-overview .booking-urgent-stat.has-urgent>span,body.simple-workspace #bookingView .booking-overview .booking-urgent-stat.has-urgent small{color:#fff7ed;font-weight:700}
+body.simple-workspace #bookingView .booking-overview .booking-urgent-stat.has-urgent strong{color:#fff;font-size:38px;font-weight:800}
+body.simple-workspace #bookingView :is(.work-title,.booking-card h3){display:block;max-width:100%;white-space:normal;word-break:normal;overflow-wrap:anywhere;line-break:strict;text-wrap:balance;line-height:1.6}
+body.simple-workspace #bookingView .booking-row-details>summary{font-size:19px;font-weight:650;color:#214a33;line-height:1.6;padding:8px 0}
+body.simple-workspace #bookingView .booking-creator{display:block;font-size:20px;font-weight:650;color:#193e2b;line-height:1.65;margin:10px 0;overflow-wrap:anywhere}
+@media(max-width:760px){body.simple-workspace #bookingView .booking-row-details>summary{font-size:max(var(--spool-type-floor,18px),18px)}body.simple-workspace #bookingView .booking-creator{font-size:19px}body.simple-workspace #bookingView .booking-overview .booking-urgent-stat.has-urgent strong{font-size:34px}}
+
+/* Shared reading floor: compact metadata remains readable on every screen. */
+:root{--spool-type-floor:19px}
+body.simple-workspace{--ink:#153526;--muted:#304b39;--reading-text:#153526;--reading-secondary:#304b39;font-size:20px}
+body.simple-workspace :is(.content,dialog) :is(.eyebrow,.brand-name,.color-name,.library-note,.field-feedback,.optional-tag,.required-label,.help-details>summary,.booking-quality-label,.booking-row-actions .booking-source,.detail-kicker,.detail-note,.upload-hint){color:#304b39}
+body.simple-workspace :is(.content,dialog) :is(small,.item-tag,.tag-chip,.color-preset span,.color-preset small){font-size:max(var(--spool-type-floor),1em)}
+body.simple-workspace :is(input,textarea)::placeholder{color:#455c4c;opacity:1}
+body.simple-workspace .content :is(.stats,.booking-overview) article>div{color:#294634}
+body.simple-workspace :is(input,select,textarea,button){line-height:1.5}
+@media(max-width:760px){:root{--spool-type-floor:18px}body.simple-workspace{font-size:max(var(--spool-type-floor,18px),18px)}}
+
+/* Event editorial layout: artwork first, essential facts next. */
+.event-redesign{gap:28px}.event-redesign .event-poster-hero{border:1px solid #b9c8b3;border-radius:18px}
+.event-intro{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center;padding:12px 4px}
+.event-section-label{display:block;font-size:max(var(--spool-type-floor,18px),17px);font-weight:750;letter-spacing:.08em;color:#38523d;margin-bottom:10px}
+.event-intro h2{font-size:clamp(28px,3vw,42px);line-height:1.5;letter-spacing:.01em;margin:0 0 16px}.event-intro p{margin:0;line-height:1.9}
+.event-redesign .event-prize{padding:26px 30px}.event-redesign .event-prize-title{margin:14px 0;font-size:25px}.event-redesign .event-prize-title em{font-size:44px}.event-redesign .event-prize p{margin:0}
+.event-redesign .event-overview{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px}.event-redesign .event-facts>div:first-child{padding-top:0}.event-redesign .event-facts>div{grid-template-columns:150px minmax(0,1fr)}
+.event-redesign .event-facts strong{font-size:23px;color:#75401d}.event-redesign .event-section-heading h3{margin:0;font-size:26px}
+.event-redesign .event-ideas{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}.event-redesign .event-ideas p{grid-column:1/-1;margin:0}.event-redesign .event-examples{gap:10px}.event-redesign .event-examples span{font-size:max(var(--spool-type-floor,18px),18px);padding:9px 16px;background:#edf2e7;color:#244531}
+.event-redesign .event-details{background:#f8faf4}.event-redesign .event-details summary{font-size:20px;color:#244531;line-height:1.7}
+@media(max-width:760px){.event-redesign{gap:20px}.event-intro{grid-template-columns:minmax(0,1fr);gap:22px;padding:0}.event-intro h2{font-size:29px}.event-intro p br{display:none}.event-redesign .event-overview,.event-redesign .event-ideas{grid-template-columns:minmax(0,1fr);gap:20px}.event-redesign .event-facts>div{grid-template-columns:minmax(0,1fr);gap:4px;padding:14px 0}.event-redesign .event-prize{padding:22px}.event-redesign .event-prize-title{font-size:23px}.event-redesign .event-prize-title em{font-size:40px}.event-redesign .event-facts strong{font-size:21px}}
+
+body.simple-workspace :is(.content,dialog) :is(.library-note,.field-feedback,.optional-tag,.help-details>summary,.booking-quality-label,.detail-note,.upload-hint,.color-name,.brand-name){color:#263f2f;font-weight:500}
+body.simple-workspace .event-redesign :is(p,dd,li){font-size:19px;color:#203d2c;line-height:1.8}
+body.simple-workspace .event-redesign small{color:#304b39}
+@media(max-width:760px){body.simple-workspace .event-redesign :is(p,dd,li){font-size:max(var(--spool-type-floor,18px),18px)}}
+
+@media(max-width:760px){body.simple-workspace .stats article{padding:8px 10px}body.simple-workspace .stats article>div{line-height:1.4}body.simple-workspace .stats small{font-size:max(var(--spool-type-floor,18px),18px)}}
