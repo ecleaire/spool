@@ -72,12 +72,18 @@ begin
  if b ? 'colorTranslucent' and jsonb_typeof(b->'colorTranslucent')<>'boolean' then return false;end if;
  if b ? 'tags' then if jsonb_typeof(b->'tags')<>'array' or jsonb_array_length(b->'tags')>20 then return false;end if;for entry in select value from jsonb_array_elements(b->'tags') loop if jsonb_typeof(entry)<>'string' or length(trim(entry#>>'{}')) not between 1 and 30 then return false;end if;end loop;end if;
  if b ? 'requestedFilaments' then if jsonb_typeof(b->'requestedFilaments')<>'array' or jsonb_array_length(b->'requestedFilaments')>64 then return false;end if;for entry in select value from jsonb_array_elements(b->'requestedFilaments') loop if coalesce(entry->>'color','') !~ '^#[0-9A-Fa-f]{6}$' or jsonb_typeof(entry->'type') is distinct from 'string' or length(entry->>'type')>40 then return false;end if;end loop;end if;
+ if b ? 'modelColors' then
+  if jsonb_typeof(b->'modelColors')<>'array' or jsonb_array_length(b->'modelColors')>20 then return false;end if;
+  if (select count(distinct (value->>'kind')||':'||(value->>'id')) from jsonb_array_elements(b->'modelColors'))<>jsonb_array_length(b->'modelColors') then return false;end if;
+  for entry in select value from jsonb_array_elements(b->'modelColors') loop
+   if jsonb_typeof(entry->'kind') is distinct from 'string' or entry->>'kind' not in ('attachment','reference') or jsonb_typeof(entry->'id') is distinct from 'string' or length(entry->>'id') not between 1 and 2048 or jsonb_typeof(entry->'desiredColor') is distinct from 'string' or length(trim(entry->>'desiredColor')) not between 1 and 200 or coalesce(entry->>'color','') !~ '^#[0-9a-fA-F]{6}$' then return false;end if;
+   if entry ? 'colorPreference' and (jsonb_typeof(entry->'colorPreference') is distinct from 'string' or entry->>'colorPreference' not in ('specified','none')) then return false;end if;
+   if entry ? 'colorTranslucent' and jsonb_typeof(entry->'colorTranslucent')<>'boolean' then return false;end if;
+  end loop;
+ end if;
  if b ? 'files' then if jsonb_typeof(b->'files')<>'array' or jsonb_array_length(b->'files')>10 then return false;end if;
   for entry in select value from jsonb_array_elements(b->'files') loop
-   path:=entry#>>'{}';if jsonb_typeof(entry)<>'string' or length(path) not between 1 and 2048 or path ~ '[[:cntrl:]"<>|]' then return false;end if;
-   if path ~* '^https://' then if path !~* '^https://[^/@[:space:]]+/[^?#]*\.(stl|obj|3mf|amf|step|stp|gcode)([?#].*)?$' then return false;end if;
-   elsif (path ~ '^[A-Za-z]:[\\/]' or path ~ '^[\\]{2}[^\\/]+[\\/][^\\/]+[\\/]') and path !~ '[?*]' and strpos(substring(path from 3),':')=0 and path ~* '\.(stl|obj|3mf|amf|step|stp|gcode)$' then null;
-   else return false;end if;
+   path:=entry#>>'{}';if jsonb_typeof(entry)<>'string' or length(trim(path)) not between 1 and 2048 or length(path)>2048 or path ~ '[[:cntrl:]]' then return false;end if;
   end loop;
  end if;
  if b ? 'attachments' then
@@ -102,7 +108,7 @@ begin
  if not found or not public.spool_booking_link_active(source_lib,booking,shared_lib) then raise exception 'Explicit booking sharing required' using errcode='42501';end if;
  if old.revision is distinct from expected_revision then raise exception 'Source library changed; reload before editing' using errcode='40001';end if;
  select value,(ordinality-1)::integer into entry,slot from jsonb_array_elements(old.state->'reservations') with ordinality where value->>'id'=booking;
- if changes is null or jsonb_typeof(changes)<>'object' or exists(select 1 from jsonb_object_keys(changes) k where k not in ('title','creator','registeredDate','registeredTime','weekday','className','quality','requestedFilaments','printStatus','desiredColor','color','colorPreference','colorTranslucent','printMinutes','deadline','tags','files','attachments')) then raise exception 'Invalid booking changes' using errcode='22023';end if;
+ if changes is null or jsonb_typeof(changes)<>'object' or exists(select 1 from jsonb_object_keys(changes) k where k not in ('title','creator','registeredDate','registeredTime','weekday','className','quality','requestedFilaments','modelColors','printStatus','desiredColor','color','colorPreference','colorTranslucent','printMinutes','deadline','tags','files','attachments')) then raise exception 'Invalid booking changes' using errcode='22023';end if;
  upcoming:=entry||changes;if not public.spool_validate_shared_booking(upcoming) then raise exception 'Invalid booking data' using errcode='22023';end if;
  for file_entry in select value from jsonb_array_elements(coalesce(upcoming->'attachments','[]'::jsonb)) loop
   if not(coalesce(entry->'attachments','[]'::jsonb) @> jsonb_build_array(file_entry)) then

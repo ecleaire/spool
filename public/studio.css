@@ -1125,3 +1125,29 @@ body.simple-workspace .event-hero p,body.simple-workspace .event-hero h2{color:#
 
 .event-poster-hero{display:block;padding:0;background:#173f32}.event-poster-hero>img{display:block;width:100%;height:auto;aspect-ratio:3/1;object-fit:contain}.event-poster-copy{padding:24px 32px 28px}.event-poster-copy>p{margin:0}.event-poster-copy .event-highlights{margin-top:20px;padding-top:20px;align-items:center}.event-poster-copy .event-award-banner{flex:0 1 auto;min-width:0}.event-poster-copy .event-award-banner strong{font-size:24px}.event-poster-copy h2{margin-bottom:6px}
 @media(max-width:760px){.event-poster-copy{padding:20px}.event-poster-copy .event-highlights{gap:16px}.event-poster-copy .event-award-banner{flex-basis:100%}.event-poster-copy .event-award-banner strong{font-size:23px}}
+/* More room for material selection while keeping readable, single-column phone controls. */
+body.simple-workspace #bookingDialog .booking-plan-section{padding:20px;border:1px solid #bdcdb8;border-radius:14px;background:#f8faf4}
+body.simple-workspace #bookingDialog .booking-plan-section h3{font-size:22px;line-height:1.4}
+body.simple-workspace #bookingDialog .booking-plan-section :is(label,.color-field-heading>span){font-size:18px}
+body.simple-workspace #bookingDialog .booking-plan-section :is(input,select){font-size:18px;min-height:48px}
+body.simple-workspace #bookingDialog .booking-color-count{margin:8px 0;color:#38543d;font-size:15px}
+body.simple-workspace #bookingDialog .booking-color-choices{grid-template-columns:repeat(3,minmax(0,1fr));max-height:480px;gap:8px;overscroll-behavior:contain;scroll-padding:8px}
+body.simple-workspace #bookingDialog .booking-color-choice{min-width:0;min-height:80px;padding:10px;gap:10px;align-items:center}
+body.simple-workspace #bookingDialog .booking-color-choice>span{min-width:0;overflow-wrap:anywhere}
+body.simple-workspace #bookingDialog .booking-color-choice strong{font-size:17px;line-height:1.4}
+body.simple-workspace #bookingDialog .booking-color-choice small{font-size:15px;line-height:1.5}
+body.simple-workspace .model-file-note .model-file-name{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(min-width:1001px){body.simple-workspace #bookingDialog{width:min(1180px,calc(100vw - 48px))}}
+@media(max-width:1000px){body.simple-workspace #bookingDialog .booking-color-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){body.simple-workspace #bookingDialog .booking-plan-section{padding:12px}body.simple-workspace #bookingDialog .booking-color-choices{grid-template-columns:minmax(0,1fr);max-height:clamp(320px,55dvh,520px)}}
+body.simple-workspace .booking-model-colors{padding:16px;border:1px solid #b8cab0;border-radius:12px;margin:16px 0;background:#f8faf4}
+body.simple-workspace .booking-model-color-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #dbe3d5}
+.booking-model-color-row>span,.booking-model-color-summary>span{display:flex;gap:8px;align-items:center;min-width:0}.booking-model-color-row strong,.booking-model-color-summary strong{overflow-wrap:anywhere}
+body.simple-workspace .booking-model-color-row select{min-width:0;width:100%;min-height:48px;font-size:16px}.booking-model-color-summary{display:grid;gap:6px;margin:10px 0}
+.booking-model-color-row .booking-color-chip,.booking-model-color-summary .booking-color-chip{width:22px;height:22px;flex:none;border:1px solid #839780;border-radius:6px}
+@media(max-width:760px){body.simple-workspace .booking-model-color-row{grid-template-columns:minmax(0,1fr)}}
+body.simple-workspace #bookingSavingDialog{padding:30px 26px;border:1px solid #9bb394;border-radius:18px;width:min(360px,calc(100vw - 40px));text-align:center;background:#fffef8;color:#173f30;box-shadow:0 15px 70px #123e3240}
+#bookingSavingDialog::backdrop{background:#112e286e;backdrop-filter:blur(3px)}
+body.simple-workspace #bookingSavingDialog h2{font-size:23px;margin:16px 0 10px}body.simple-workspace #bookingSavingDialog p{font-size:16px;line-height:1.6;margin:0}
+.booking-saving-spinner{display:inline-block;width:36px;height:36px;border:4px solid #d7e5cd;border-top-color:#25644a;border-radius:50%;animation:booking-saving-turn 1s linear infinite}
+@keyframes booking-saving-turn{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.booking-saving-spinner{animation:none}}

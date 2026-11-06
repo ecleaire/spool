@@ -1,5 +1,7 @@
 import {spawnSync} from 'node:child_process';
 const tests=[
+ 'tests/booking-inputs.browser.test.mjs',
+ 'tests/online/booking-save.browser.test.mjs',
  'tests/events.browser.test.mjs',
  'tests/online/events.browser.test.mjs',
  'tests/tag-entry.browser.test.mjs',

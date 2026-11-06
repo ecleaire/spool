@@ -38,6 +38,7 @@ window.spoolEditSharedPlan=createSharedPlanEditor({context:()=>({client,library,
 let sharedSaving=false;
 window.spoolSaveSharedFilament=async(id,changes,useOnly=false)=>{const item=bridge.snapshot().items.find(x=>x.id===id),source=item?._sharedSource,epoch=authEpoch,lib=library;if(sharedSaving||!canEditSharedOwned(item,useOnly)||sync.dirty||sync.busy||uploading||loading){bridge.notify('権限と保存状態を確認してから再試行してください。');return false;}const keys=useOnly?['remaining']:['name','brand','material','variant','colorName','color','remaining','capacity','diameter','location','note','amazonUrl','shopUrl','image','tags','inventoryStatus','purchaseIntent'];const patch=Object.fromEntries(keys.filter(key=>changes[key]!==undefined).map(key=>[key,changes[key]]));sharedSaving=true;try{const response=await client.rpc('update_shared_filament',{shared_lib:lib,source_lib:source.id,item_id:source.itemId,expected_revision:source.revision,changes:patch});if(response.error)throw response.error;if(epoch!==authEpoch||lib!==library)return false;try{await refreshSharedInventory(lib);bridge.notify('共有元と共有先のフィラメントを更新しました。');}catch{bridge.notify('保存しました。表示を再読み込みしてください。');}return true;}catch(error){bridge.notify(error.code==='PGRST202'?'共有在庫の相互編集にはDB更新が必要です。':classifyError(error).action);return false;}finally{sharedSaving=false;}};
 async function prepareBookingSharing(){const epoch=authEpoch;for(let i=0;sync.busy&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,100));if(epoch!==authEpoch||loading||uploading||sync.busy)throw Error('保存が完了してから再試行してください。');if(sync.dirty)await save();if(sync.dirty||sync.conflict)throw Error('現在の変更を保存してから再試行してください。');}
+window.spoolFlushBookingSave=prepareBookingSharing;
 const bookingSharing=createBookingSharing({context:()=>({client,session,libraries,library,epoch:authEpoch,can}),bridge,esc,prepare:prepareBookingSharing,refresh:()=>refreshSharedInventory()});
 window.spoolBookingSharing=bookingSharing.open;window.spoolSaveSharedBooking=(id,changes)=>bookingSharing.mutate(id,changes);window.spoolDeleteSharedBooking=id=>bookingSharing.mutate(id,null,true);window.spoolStopBookingSharing=bookingSharing.stop;
 window.spoolCanShareBooking=()=>libraries.find(x=>x.id===library)?.personal===true&&libraries.find(x=>x.id===library)?.owner_id===session?.user.id;
@@ -295,7 +296,7 @@ async function upload(e){const file=e.target.files[0],booking=document.querySele
 let fileListRequest=0;
 async function loadFiles(){const request=++fileListRequest,epoch=authEpoch,lib=library,picker=document.querySelector('#cloud-booking'),list=document.querySelector('#cloud-files');if(!picker||!list)return;const booking=picker.value;list.replaceChildren();if(!booking)return;const note=document.createElement('li');note.textContent='添付を読み込んでいます…';list.append(note);const place=bookingFileLocation(booking);const {data,error}=await client.from('library_files').select('*').eq('library_id',place.library).eq('booking_id',place.booking);if(request!==fileListRequest||epoch!==authEpoch||lib!==library||list!==document.querySelector('#cloud-files')||picker.value!==booking)return;if(error){list.textContent='添付一覧を読み込めませんでした。予約を選び直してください。';throw error;}listedFileLibraries.clear();list.replaceChildren(...data.map(file=>{listedFileLibraries.set(file.id,place.library);const li=document.createElement('li');li.textContent=`${file.name} (${Math.ceil(file.size/1024)} KB) `;const open=document.createElement('button');open.textContent='ダウンロード';open.onclick=()=>modelFiles.download(file.id).catch(fail);const app=document.createElement('button');app.textContent='アプリで開く';app.onclick=()=>modelFiles.open(file.id).catch(fail);li.append(open,app);if(can('files_delete')){const remove=document.createElement('button');remove.textContent='削除';remove.onclick=async()=>{if(!confirm('添付ファイルを削除しますか？'))return;const result=await client.storage.from('spool-models').remove([file.object_path]);if(result.error){fail(result.error);return}const meta=await client.from('library_files').delete().eq('id',file.id);if(meta.error)fail(meta.error);else loadFiles().catch(fail)};li.append(remove)}return li}));}
 // Reservation form uploads use the same private bucket and membership policies.
-window.spoolBookingFileUpload=async(bookingId,files)=>{
+window.spoolBookingFileUpload=async(bookingId,files,ids=[])=>{
  if(!library||!can('files_upload')||!can('bookings_edit')||uploading)throw Error('ファイルを保存できる状態ではありません。');
  const lib=library,place=bookingFileLocation(bookingId),epoch=authEpoch,uploaded=[];uploading=true;clearTimeout(timer);
  const picker=document.querySelector('#cloud-library');if(picker)picker.disabled=true;
@@ -303,10 +304,10 @@ window.spoolBookingFileUpload=async(bookingId,files)=>{
   for(let attempt=0;sync.busy&&attempt<150;attempt++)await new Promise(resolve=>setTimeout(resolve,100));
   if(sync.busy)throw Error('予約の保存が完了してから、もう一度お試しください。');
   await save();if(sync.dirty||sync.busy||sync.conflict)throw Error('先に予約のオンライン保存を確認してください。');
-  for(const file of files){
+  for(const [fileIndex,file] of files.entries()){
    if(library!==lib||authEpoch!==epoch)throw Error('ログイン状態が変わりました。保存状態を確認してください。');
    if(!/\.(stl|obj|3mf|amf|step|stp|gcode)$/i.test(file.name)||file.name.length>240||file.size<1||file.size>104857600)throw Error('対応形式・100MB以下のファイルを指定してください。');
-   const id=crypto.randomUUID(),object_path=`${place.library}/${id}/model`;
+   const id=/^[0-9a-f-]{36}$/i.test(ids[fileIndex]||'')?ids[fileIndex]:crypto.randomUUID(),object_path=`${place.library}/${id}/model`;
    const meta=await client.from('library_files').insert({id,library_id:place.library,booking_id:place.booking,name:file.name,size:file.size,object_path});if(meta.error)throw meta.error;
    const result=await client.storage.from('spool-models').upload(object_path,file,{contentType:'application/octet-stream',upsert:false});
    if(result.error){await client.from('library_files').delete().eq('id',id);throw result.error}

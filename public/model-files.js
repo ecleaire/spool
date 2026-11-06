@@ -1,4 +1,5 @@
 function validBookingAttachment(x){return x&&typeof x.id==='string'&&x.id.length<=120&&typeof x.name==='string'&&x.name.length>0&&x.name.length<=240&&/\.(stl|obj|3mf|amf|step|stp|gcode)$/i.test(x.name)&&Number.isInteger(x.size)&&x.size>0&&((x.kind==='online'&&x.size<=104857600&&!x.data)||(x.kind==='embedded'&&x.size<=5242880&&typeof x.data==='string'&&/^data:application\/octet-stream;base64,[A-Za-z0-9+/]*={0,2}$/.test(x.data)&&x.data.length<=Math.ceil(x.size/3)*4+100))}
+function validBookingReference(value){return typeof value==='string'&&value.trim().length>0&&value.length<=2048&&!/[\x00-\x1f\x7f]/.test(value)}
 // File references travel with the booking JSON; model contents stay in their folders.
 function validBookingFile(value){
   if(typeof value!=='string'||!value||value.length>2048||/[\x00-\x1f"<>|]/.test(value))return false;
@@ -28,6 +29,7 @@ function bindModelFileActions(){
  $$('[data-open-embedded-file]').forEach(button=>button.onclick=()=>{const file=[...reservations.flatMap(x=>x.attachments||[]),...bookingAttachments].find(x=>x.id===button.dataset.openEmbeddedFile);if(file)showModelOpenDialog(file)});
 }
 function bookingFileMarkup(booking){return (booking.files||[]).map(file=>{
+ if(!validBookingFile(file))return '<div class="model-file-row model-file-note"><span class="model-file-name">'+esc(file)+'</span><small>メモ</small></div>';
  const remote=/^https:\/\//i.test(file);let name=remote?new URL(file).pathname.split('/').pop():file.split(/[\\/]/).pop();if(remote){try{name=decodeURIComponent(name)}catch{}}
  const href=remote?file:modelProtocolLink({path:file});
  return '<div class="model-file-row"><span class="model-file-name">'+esc(name)+'</span><a class="booking-file" href="'+esc(href)+'"'+(remote?' target="_blank" rel="noopener noreferrer"':'')+' title="'+esc(file)+'">'+(remote?'ファイルを開く／取得':'既定アプリで開く')+'</a></div>';
