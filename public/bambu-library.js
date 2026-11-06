@@ -13,10 +13,10 @@ const PRODUCT_LIBRARY=[...BAMBU_LIBRARY,...ELEGOO_LIBRARY,...BBAMBOO_LIBRARY];
 const AMAZON_COLOR_LINKS={
  'bambu-basic':{'ジェイド ホワイト':'B0CGQYRSNT','グレー':'B0CRR3XFGS','パープル':'B0CGQZ4RLD','ブラック':'B0CGR29R63','ブルー':'B0CGVB282T','ブロンズ':'B0CGQYQJ1X','レッド':'B0CGR16JB5'},
  'bambu-matte':{'アイボリー ホワイト':'B0CDGQMJWW','アッシュ グレー':'B0CDGQYC69','スカーレット レッド':'B0CDGRWS27','ダーク ブルー':'B0CF5Y13J1','チャコール':'B0CDH4H4WP','マリン ブルー':'B0CDGSZM75','レモン イエロー':'B0CY4RX29H','サクラ ピンク':'B0CY5D92D7'},
- 'elegoo-pla':{'ホワイト':'B0BM4BK4LS','イエロー':'B0BM4CB7HQ','ウッド':'B0CPHTQVNP','グレー':'B0BM4DNR7R','ブラック':'B0BM4DQHQH','レッド':'B0BM4D6YS9','半透明':'B0CFXN6VBL','オレンジ':'B0BM49KT3J','シーグリーン':'B0CFXMS8FD','スカイブルー':'B0CFXNB1WC','パープル':'B0CFXM1M8R','ピンク':'B0CFXN7R1W','ブラウン':'B0CFXMN3C9','ベージュ':'B0CPHQYWTD'},
+ 'elegoo-pla':{'ホワイト':'B0BM4BK4LS','イエロー':'B0BM4CB7HQ','ウッド':'B0CPHTQVNP','グレー':'B0BM4DNR7R','ブラック':'B0BM4DQHQH','レッド':'B0BM4D6YS9','クリア':'B0CFXN6VBL','オレンジ':'B0BM49KT3J','シーグリーン':'B0CFXMS8FD','スカイブルー':'B0CFXNB1WC','パープル':'B0CFXM1M8R','ピンク':'B0CFXN7R1W','ブラウン':'B0CFXMN3C9','ベージュ':'B0CPHQYWTD'},
  'elegoo-matte':{'マットブラック':'B0D4QWDR4S','アイスブルー':'B0D4QTR3MT','サンシャインイエロー':'B0D4QV6TT9','サクラピンク':'B0D4QTVQ7W','スレートグレー':'B0D4QVKVFH','ティールグリーン':'B0D4QWHFKH','ネイビーブルー':'B0D4QTRNP9','ベージュ':'B0D4QS76S3','マットホワイト':'B0D4QVM1KH','ミントグリーン':'B0D4QWTLDG','ラベンダーパープル':'B0D4QVV2TB','ルビーレッド':'B0D4QV3GDV'},
  'elegoo-silk':{'シルクゴールド':'B0CPHV285R','シルクホワイト':'B0FHZRR72N','シルクシルバー':'B0CPHQ3HJV','シルク レッド＆グリーン':'B0CPHRD7VX','シルクブルー＆パープル':'B0FHZKT56J','シルクブルー＆グリーン＆オレンジ':'B0FHZ8V75B'},
- 'elegoo-translucent':{'半透明クリスタルホワイト':'B0GZWJRNL8','半透明ライトグレー':'B0GZWJL5HQ','半透明レッド':'B0GZWC4TD9','半透明イエロー':'B0GZWJ39BR','半透明ライトブルー':'B0GZWGJ774','半透明グリーン':'B0GZW6TX53','半透明ピンク':'B0GZW2M7XX','半透明ライトパープル':'B0GZWHW1MR'},
+ 'elegoo-translucent':{'クリアクリスタルホワイト':'B0GZWJRNL8','クリアライトグレー':'B0GZWJL5HQ','クリアレッド':'B0GZWC4TD9','クリアイエロー':'B0GZWJ39BR','クリアライトブルー':'B0GZWGJ774','クリアグリーン':'B0GZW6TX53','クリアピンク':'B0GZW2M7XX','クリアライトパープル':'B0GZWHW1MR'},
  'elegoo-plus':{'ブラック':'B0BM4KWKPF','ホワイト':'B0BM4KBR9G','グレー':'B0CFXRJSDC','レッド':'B0BM4J229H','シーグリーン':'B0CFXS7Z2R','スカイブルー':'B0CFXTSV3C'}
 };
 for(const product of PRODUCT_LIBRARY){const links=AMAZON_COLOR_LINKS[product.id];if(!links)continue;product.colors=product.colors.map(color=>({...color,amazonUrl:links[color.name]?'https://www.amazon.co.jp/dp/'+links[color.name]:''}))}

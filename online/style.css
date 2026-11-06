@@ -296,3 +296,5 @@ body.simple-workspace .booking-table td:last-child{min-width:180px}
 .sharing-hub[open]{display:flex;flex-direction:column;max-height:calc(100dvh - 24px);overflow:hidden}.sharing-hub>.cloud-dialog-head{flex:none}.sharing-hub>.cloud-dialog-body{flex:1;min-height:0;max-height:none;overflow:auto;overscroll-behavior:contain}
 .sharing-hub-navigation{position:sticky;top:0;z-index:2;background:#fffef9;padding:8px 0}.sharing-hub-navigation button{flex:1 1 0;min-width:0;padding:9px 6px;margin:0!important;white-space:nowrap;font-size:16px}.sharing-hub .sharing-hub-section{scroll-margin-top:80px}
 .sharing-hub>.sharing-hub-navigation{position:static;flex:none;padding:10px 14px;margin:0;border-bottom:1px solid #d4dfce}.sharing-hub .sharing-hub-section{scroll-margin-top:8px}
+
+#cloud-login .google-g{display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:28px;padding:0;line-height:1}#cloud-login .google-g svg{display:block;width:18px;height:18px;flex:none}

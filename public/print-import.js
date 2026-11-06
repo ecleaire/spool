@@ -4,7 +4,7 @@ function resetBookingImport(){bookingImportEpoch++;bookingReading=false;bookingI
 function selectedPrintMetadata(){return bookingImportRows[Number($('#bookingImportSource').value)]}
 function printMetadataColorChoice(row){
  if(!row.filaments.length)return null;
- if(row.filaments.length===1){const f=row.filaments[0],matches=bookingColors(null).flatMap(x=>x[1]).filter(x=>x.color===f.color&&(!f.type||items.some(item=>!isPlanned(item)&&item.color.toUpperCase()===f.color&&item.material.toUpperCase()===f.type.toUpperCase()&&x.name===item.colorName+' / '+item.name+' ('+item.brand+')')));if(matches.length===1)return {...matches[0],filaments:row.filaments};}
+ if(row.filaments.length===1){const f=row.filaments[0],matches=bookingColors(null).flatMap(x=>x[1]).filter(x=>x.color===f.color&&(!f.type||items.some(item=>!isPlanned(item)&&item.color.toUpperCase()===f.color&&item.material.toUpperCase()===f.type.toUpperCase()&&x.name===displayColorName(item.colorName)+' / '+item.name+' ('+item.brand+')')));if(matches.length===1)return {...matches[0],filaments:row.filaments};}
  const name=row.filaments.slice(0,4).map(f=>[f.type,f.color].filter(Boolean).join(' ')).join(' / ')+(row.filaments.length>4?' ほか'+(row.filaments.length-4)+'色':'');
  return {name:name.slice(0,200),color:row.filaments[0].color,filaments:row.filaments,translucent:false};
 }
