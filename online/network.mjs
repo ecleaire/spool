@@ -6,7 +6,7 @@ export async function retryNetwork(operation,{valid=()=>true,onRetry=()=>{},wait
   catch(error){if(attempt||classifyError(error).category!=='network'||!valid())throw error;onRetry();await wait(delay);}
  }
 }
-const retryableRpcs=new Set(['ensure_my_library','spool_is_admin','get_spool_accounts','get_shared_filaments','get_filament_sharing','get_my_library_permissions','get_library_member_permissions','get_shared_library_deletion_info','get_library_member_profiles','library_is_shared','my_filaments_shared','set_filament_sharing','stop_shared_filaments','update_library_appearance','rename_spool_library']);
+const retryableRpcs=new Set(['ensure_my_library','spool_is_admin','get_spool_accounts','get_shared_filaments','get_shared_bookings','get_booking_sharing','set_booking_sharing','stop_booking_sharing','get_filament_sharing','get_my_library_permissions','get_library_member_permissions','get_shared_library_deletion_info','get_library_member_profiles','library_is_shared','my_filaments_shared','set_filament_sharing','stop_shared_filaments','update_library_appearance','rename_spool_library']);
 export function retryingFetch(fetcher,{context=()=>null,onRetry=()=>{},timeout=12000}={}){
  return async(input,init={})=>{
   const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url),method=(init.method||input.method||'GET').toUpperCase(),retryable=method==='GET'||method==='HEAD'||(method==='POST'&&retryableRpcs.has(url.pathname.split('/').pop()));

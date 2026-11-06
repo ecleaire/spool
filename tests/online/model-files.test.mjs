@@ -9,5 +9,6 @@ const files=createOnlineModelFiles({context:()=>context}),meta={data:{name:'mode
 let pending=files.open('file');release(meta);await pending;assert.equal(opened.name,'model.3mf');assert.equal(signedCalls,1);assert.ok(filters.some(([key,value])=>key==='library_id'&&value==='library-a'));assert.equal(downloads,0);
 pending=files.download('file');release(meta);await pending;assert.equal(downloads,1);
 pending=files.open('file');context={...context,library:'library-b',epoch:2};release(meta);await assert.rejects(pending,/変わりました/);assert.equal(signedCalls,2);assert.equal(downloads,1);
+context={...context,resolveFileLibrary:id=>id==='shared-file'?'canonical-source':context.library};pending=files.open('shared-file');release(meta);await pending;assert.ok(filters.some(([key,value])=>key==='library_id'&&value==='canonical-source'));
 delete globalThis.document;delete globalThis.window;
 console.log('PASS: private attachment actions stay scoped to the current library/account and never open a stale signed URL.');

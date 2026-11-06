@@ -251,3 +251,41 @@ body:not(.cloud-locked) .cloud-context :is(small,.cloud-role,.cloud-sync-state){
 @media(min-width:1200px){.cloud-library-picker select{font-size:18px}.cloud-context :is(.cloud-role,.cloud-sync-state){font-size:16px}}
 @media(max-width:600px){.account-feature-grid,.shared-plan-fields{grid-template-columns:1fr}.page-actions .shared-settings-entry{margin:0;width:auto}.permission-footer .cloud-primary{font-size:16px}}
 @media(min-width:1200px){#cloud-panel .cloud-dialog-body :is(label,input,select,textarea){font-size:18px}#cloud-panel .cloud-dialog-body :is(p,small){font-size:17px;color:#294734}#cloud-panel .cloud-dialog-body h3{font-size:21px;color:#143822}#cloud-panel .cloud-dialog-body button{font-size:18px}#cloud-panel .permission-footer .cloud-primary{font-size:18px}}
+
+/* Distinguish library membership from service-wide account administration. */
+.users-dialog{width:min(760px,calc(100vw - 24px))}
+.people-scope-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 16px}
+body.simple-workspace .users-dialog .people-scope-nav button{min-height:48px;margin:0;font-size:16px;font-weight:650;line-height:1.5;white-space:normal;text-wrap:pretty;border:1px solid #a7bca2}
+body.simple-workspace .users-dialog .people-scope-nav button[aria-pressed=true]{background:#193e31;color:#fff;border-color:#193e31}
+.people-scope-card{padding:14px 16px;margin:0 0 16px;border:1px solid #bdcfb5;border-left:4px solid #35683e;border-radius:8px;background:#f3f7ed;overflow-wrap:anywhere}
+.people-scope-card small{font-size:14px;color:#476442}.people-scope-card h3{font-size:20px;margin:5px 0 8px;color:#193e31;line-height:1.5}.people-scope-card p{font-size:15px!important;color:#35513b!important;line-height:1.7;margin:0}
+.users-dialog[data-scope=service] .people-scope-card{background:#f0f4f8;border-color:#bccbd8;border-left-color:#405f7b}
+.people-service-settings{padding:14px;border:1px solid #ccd6df;border-radius:8px;margin-bottom:16px}.people-service-settings h3{font-size:17px;margin:0 0 8px}.people-service-settings p{font-size:15px;line-height:1.7}
+body.simple-workspace .users-dialog .people-service-settings button{font-size:16px;min-height:44px;width:100%;margin:0}
+.users-dialog #account-add-explanation,.users-dialog #people-other-library{font-size:15px;line-height:1.7;color:#395541}
+.users-dialog #people-other-library{padding:12px;background:#fff6df;border:1px solid #dec798;border-radius:8px}
+.users-dialog .people-members{margin-top:18px;border-top:1px solid #d3dfca;padding-top:12px}.users-dialog .people-members>summary{font-size:16px;min-height:44px;padding:10px 0;cursor:pointer}
+.users-dialog .settings-help-entry{display:block;margin:18px 0 0;min-height:44px;font-size:15px}
+#cloud-members,#cloud-invites{padding:0;list-style:none}#cloud-members li,#cloud-invites li{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border:1px solid #cad8c1;border-radius:8px;margin:8px 0;font-size:16px;line-height:1.5}#cloud-members li strong{flex-basis:100%}#cloud-members button,#cloud-invites button{min-height:44px;font-size:16px}
+.sharing-hub #sharing-hub-people li{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}.people-member-identity{min-width:0;display:grid;gap:4px}.sharing-hub .people-member-identity strong{font-size:18px!important}.sharing-hub .people-member-identity span{font-size:15px!important}.sharing-hub .people-member-role{font-size:14px!important;border:1px solid #c4d2bc;border-radius:6px;padding:5px 8px;background:#edf4e7;line-height:1.5;text-wrap:pretty}.sharing-hub #sharing-hub-people button{grid-column:1/-1;font-size:16px;min-height:44px}
+@media(max-width:600px){.people-scope-nav{grid-template-columns:minmax(0,1fr)}.users-dialog .cloud-dialog-body{padding:14px}.people-scope-card{padding:12px}.sharing-hub #sharing-hub-people li{grid-template-columns:minmax(0,1fr)}.sharing-hub .people-member-role{justify-self:start}.users-dialog #account-share-options select{width:100%;min-width:0}.users-dialog #cloud-add-account input,.users-dialog #cloud-add-account select{font-size:16px}}
+@media(max-width:1000px){body.simple-workspace .page-actions .shared-settings-entry{margin:0;padding:10px 8px;min-height:44px;font-size:16px;white-space:nowrap}.shared-inventory-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.shared-inventory-controls>span,.shared-inventory-controls>#cloud-add-from-personal{grid-column:1/-1}.shared-inventory-controls button{min-width:0;min-height:44px;font-size:16px;padding:10px 8px;line-height:1.5;white-space:nowrap}}
+/* A reservation is linked explicitly, never copied to every library. */
+#booking-sync-open{min-height:44px;white-space:nowrap;font-size:1rem;flex-shrink:0}
+.booking-source{display:block;color:#36584b;font-size:.875rem;margin-bottom:8px;overflow-wrap:anywhere}
+[data-sync-booking],[data-stop-booking-sync]{display:block;min-height:40px;font-size:.875rem;margin-bottom:6px;white-space:normal}
+.booking-sharing-dialog{width:min(620px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #b8c8b7;border-radius:18px;color:#173c2e;background:#fffef9;overflow:auto}
+.booking-sharing-body{display:grid;gap:16px;font-size:1rem;line-height:1.65}
+.booking-sharing-body p{margin:0}.booking-sharing-body>label{display:grid;gap:6px;font-weight:700}
+.booking-sharing-body select{min-width:0;width:100%;font-size:16px;min-height:44px}
+.booking-sharing-body fieldset{min-width:0;padding:12px;border:1px solid #bdcabc;border-radius:12px}
+.booking-target{display:flex;gap:12px;align-items:center;min-height:48px;overflow-wrap:anywhere}.booking-target input{width:22px;height:22px;flex:0 0 auto}
+.booking-sharing-body [data-result]{color:#234936;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:600px){.booking-overview-header{flex-wrap:wrap;gap:12px}.booking-sort-hint{display:none}.booking-sharing-dialog .cloud-dialog-head{padding:16px}.booking-sharing-body{padding:16px}}
+body.simple-workspace .booking-sharing-dialog [data-save]{color:#fff;background:#194f3e;font-size:16px;min-height:48px}
+body.simple-workspace #booking-sync-open{border:1px solid #94ab90;border-radius:10px;padding:9px 14px;background:#edf3e7;color:#1c4735}
+body.simple-workspace .booking-row-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0}
+body.simple-workspace .booking-row-actions .booking-source{flex-basis:100%;margin:0;font-size:14px;line-height:1.6}
+body.simple-workspace .booking-row-actions>button{flex:1 1 auto;min-height:44px;white-space:nowrap;font-size:14px;margin:0;padding:8px 12px}
+body.simple-workspace .booking-table td:last-child{min-width:180px}
+@media(max-width:760px){body.simple-workspace .booking-card-footer{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}body.simple-workspace .booking-row-actions>button{font-size:16px}}

@@ -6,6 +6,8 @@ const tests=[
  'tests/online/browser.test.mjs',
  'tests/online/auth-loading.browser.test.mjs',
  'tests/online/sharing.browser.test.mjs',
+ 'tests/online/people-ui.browser.test.mjs',
+ 'tests/online/booking-sharing.browser.test.mjs',
  'tests/online/permissions.browser.test.mjs',
  'tests/online/lifecycle.browser.test.mjs',
  'tests/online/booking-status.browser.test.mjs',

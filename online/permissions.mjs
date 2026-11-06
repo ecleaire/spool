@@ -5,7 +5,7 @@ export const CAPABILITIES=[
  ['inventory_create','在庫','フィラメントを追加'],['inventory_edit','在庫','商品情報・残量を編集'],['inventory_delete','在庫','フィラメントを削除'],['inventory_use','在庫','残量を記録（商品編集なしでも許可）'],
  ['purchase_create','購入予定','購入予定を追加'],['purchase_edit','購入予定','購入予定を編集'],['wishlist_create','購入希望','購入希望を追加'],['wishlist_edit','購入希望','購入希望を編集'],
  ['bookings_create','予約','予約を追加'],['bookings_edit','予約','予約・印刷状態を編集'],['bookings_delete','予約','予約を削除'],
- ['files_upload','添付','ファイルを追加'],['files_delete','添付','ファイル・添付情報を削除'],['sharing_manage','共有','共有先にフィラメントを追加・変更'],
+ ['files_upload','添付','ファイルを追加'],['files_delete','添付','ファイル・添付情報を削除'],['sharing_manage','共有','フィラメント・予約の共有先を管理'],
 ];
 export const itemPermission=(item,action)=>(item?.inventoryStatus==='planned'?item.purchaseIntent==='wish'?'wishlist':'purchase':'inventory')+'_'+action;
 export function rolePermissions(role){return Object.fromEntries(CAPABILITIES.map(([key])=>[key,role==='owner'||role==='editor']))}
@@ -13,7 +13,7 @@ export function validPermissions(value){return value&&typeof value==='object'&&!
 export function assertStatePermissions(previous,next,permissions){
  const need=key=>{if(!permissions[key])throw Error('権限がありません：'+(CAPABILITIES.find(x=>x[0]===key)?.[2]||key));};
  for(const [section,prefix] of [['items','inventory'],['reservations','bookings']]){
-  const before=(previous[section]||[]).filter(x=>!x._sharedSource),after=(next[section]||[]).filter(x=>!x._sharedSource),old=new Map(before.map(x=>[x.id,x])),upcoming=new Map(after.map(x=>[x.id,x]));let changed=false;
+  const before=(previous[section]||[]).filter(x=>!x._sharedSource&&!x._sharedBookingSource),after=(next[section]||[]).filter(x=>!x._sharedSource&&!x._sharedBookingSource),old=new Map(before.map(x=>[x.id,x])),upcoming=new Map(after.map(x=>[x.id,x]));let changed=false;
   for(const id of new Set([...old.keys(),...upcoming.keys()])){const a=old.get(id),b=upcoming.get(id);if(sameState(a,b))continue;changed=true;
    if(section==='items'&&b?.inventoryStatus==='planned'&&b.purchaseIntent!==undefined&&!['planned','wish'].includes(b.purchaseIntent))throw Error('購入状態を確認してください。');
    if(!a)need(section==='items'?itemPermission(b,'create'):prefix+'_create');else if(!b)need(prefix+'_delete');else if(section==='items'&&(a.inventoryStatus==='planned'||b.inventoryStatus==='planned')){need(itemPermission(a,'edit'));if(itemPermission(a,'edit')!==itemPermission(b,'edit'))need(itemPermission(b,'create'));}else if(section==='items'&&sameState({...a,remaining:0},{...b,remaining:0})){if(!permissions.inventory_edit)need('inventory_use');}else need(prefix+'_edit');
