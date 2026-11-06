@@ -12,3 +12,7 @@ const sharing=createBookingSharing({context:()=>({client:{async rpc(name,args){r
 await sharing.mutate('ref',{title:'edit',modelColors:[]});assert.equal('modelColors' in requests[0].changes,false);
 current.reservations[0].modelColors=[{kind:'reference',id:'model',desiredColor:'青',color:'#123456'}];await sharing.mutate('ref',{modelColors:[]});assert.deepEqual(requests[1].changes.modelColors,[]);
 console.log('PASS: empty optional model colors keep legacy shared edits compatible; clearing an existing override is sent explicitly.');
+
+const usage={grams:10,millimeters:3000,filaments:[{color:'#123456',type:'PLA',grams:10,millimeters:3000}]};await sharing.mutate('ref',{filamentUsage:usage});assert.deepEqual(requests.at(-1).changes.filamentUsage,usage);
+const legacySharing=createBookingSharing({context:()=>({client:{async rpc(){return {error:{code:'22023',message:'Invalid booking changes'}}}},session:{},library:'target',epoch:1,can:()=>true}),bridge:{snapshot:()=>current,apply:()=>assert.fail('failed save must not update local state'),notify(){}},esc:x=>x,prepare:async()=>{},refresh:async()=>{}});await assert.rejects(legacySharing.mutate('ref',{filamentUsage:usage}),/データベース更新/);
+console.log('PASS: shared consumption estimates are included; missing DB support preserves input with explicit migration guidance.');

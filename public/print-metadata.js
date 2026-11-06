@@ -5,16 +5,28 @@ function slicerSeconds(value){
  const parts=[...s.matchAll(/(\d+(?:\.\d+)?)\s*([dhms])/gi)];if(!parts.length)return null;
  return parts.reduce((n,m)=>n+Number(m[1])*({d:86400,h:3600,m:60,s:1}[m[2].toLowerCase()]),0);
 }
+function printUsageNumber(value,scale=1){if(value===null||value===undefined||String(value).trim()==='')return null;const number=Number(value)*scale;return Number.isFinite(number)&&number>=0&&number<=1000000000?Math.round(number*1000)/1000:null}
+function validFilamentUsage(value){const number=x=>x===null||(typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=1000000000);return value===null||!!value&&typeof value==='object'&&!Array.isArray(value)&&number(value.grams)&&number(value.millimeters)&&Array.isArray(value.filaments)&&value.filaments.length<=64&&value.filaments.every(f=>f&&typeof f.type==='string'&&f.type.length<=40&&typeof f.color==='string'&&(f.color===''||/^#[0-9a-f]{6}$/i.test(f.color))&&number(f.grams)&&number(f.millimeters))}
+function cleanPrintUsage(value){
+ const filaments=(value.usageFilaments||value.filaments||[]).slice(0,64).map(f=>({color:/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(f.color||'')?f.color.slice(0,7).toUpperCase():'',type:String(f.type||'').replace(/[<>]/g,'').slice(0,40),grams:printUsageNumber(f.grams),millimeters:printUsageNumber(f.millimeters)}));
+ const sum=key=>filaments.length&&filaments.every(f=>f[key]!==null)?printUsageNumber(filaments.reduce((n,f)=>n+f[key],0)):null;
+ const grams=printUsageNumber(value.grams)??sum('grams'),millimeters=printUsageNumber(value.millimeters)??sum('millimeters');
+ return grams!==null||millimeters!==null||filaments.some(f=>f.grams!==null||f.millimeters!==null)?{grams,millimeters,filaments}:null;
+}
 function cleanPrintMetadata(value){
  const seconds=Number(value.seconds),layer=Number(value.layerHeight),seen=new Set();
- return {...value,seconds:Number.isFinite(seconds)&&seconds>0&&seconds<=3600000?seconds:null,layerHeight:Number.isFinite(layer)&&layer>=0.02&&layer<=2?layer:null,filaments:(value.filaments||[]).slice(0,64).map(x=>({color:/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(x.color||'')?x.color.slice(0,7).toUpperCase():'',type:String(x.type||'').replace(/[<>]/g,'').slice(0,40)})).filter(x=>{const k=x.color+x.type;if(!x.color||seen.has(k))return false;seen.add(k);return true})};
+ return {...value,filamentUsage:validFilamentUsage(value.filamentUsage)&&value.filamentUsage?value.filamentUsage:cleanPrintUsage(value),seconds:Number.isFinite(seconds)&&seconds>0&&seconds<=3600000?seconds:null,layerHeight:Number.isFinite(layer)&&layer>=0.02&&layer<=2?layer:null,filaments:(value.filaments||[]).slice(0,64).map(x=>({color:/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(x.color||'')?x.color.slice(0,7).toUpperCase():'',type:String(x.type||'').replace(/[<>]/g,'').slice(0,40)})).filter(x=>{const k=x.color+x.type;if(!x.color||seen.has(k))return false;seen.add(k);return true})};
 }
 function parseGcodeMetadata(text){
  const field=key=>text.match(new RegExp('^;\\s*'+key+'\\s*(?:=|:)\\s*([^\\r\\n]+)','mi'))?.[1]||'';
- const values=value=>value.split(/[;,]/).map(x=>x.trim().replace(/^"|"$/g,''));
+ const values=value=>value?value.split(/[;,]/).map(x=>x.trim().replace(/^"|"$/g,'')):[];
  const colors=values(field('filament_colou?r')),types=values(field('filament_type'));
+ const weights=values(field('filament used \\[g\\]')),lengths=values(field('filament used \\[mm\\]')),meters=values(field('filament used \\[m\\]'));
+ const count=Math.max(colors.filter(Boolean).length,weights.filter(Boolean).length,lengths.filter(Boolean).length,meters.filter(Boolean).length),usage=Array.from({length:count},(_,i)=>({color:colors[i]||'',type:types[i]||types[0],grams:weights.length===count?weights[i]:null,millimeters:lengths.length===count?printUsageNumber(lengths[i]):meters.length===count?printUsageNumber(meters[i],1000):null}));
+ const generic=text.match(/^;\s*filament used\s*:\s*(\d+(?:\.\d+)?)\s*(mm|m|g)\s*$/mi),totalGrams=field('total filament (?:used |weight )?\\[g\\]')||(weights.length===1?weights[0]:generic?.[2]?.toLowerCase()==='g'?generic[1]:null),totalMm=field('total filament length \\[mm\\]')||field('total filament used \\[mm\\]')||(lengths.length===1?lengths[0]:meters.length===1?printUsageNumber(meters[0],1000):generic&&generic[2].toLowerCase()!=='g'?printUsageNumber(generic[1],generic[2].toLowerCase()==='m'?1000:1):null);
+ if(count===1){usage[0].grams=usage[0].grams??totalGrams;usage[0].millimeters=usage[0].millimeters??printUsageNumber(totalMm);}
  const duration=text.match(/total estimated time\s*:\s*([^;\r\n]+)/i)?.[1]||text.match(/estimated printing time\s*(?:\([^)]*\))?\s*=\s*([^\r\n]+)/i)?.[1]||field('TIME')||text.match(/model printing time\s*:\s*([^;\r\n]+)/i)?.[1];
- return cleanPrintMetadata({seconds:slicerSeconds(duration),layerHeight:field('layer_height'),filaments:colors.map((color,i)=>({color,type:types[i]||types[0]}))});
+ return cleanPrintMetadata({seconds:slicerSeconds(duration),layerHeight:field('layer_height'),grams:totalGrams,millimeters:totalMm,usageFilaments:usage,filaments:colors.map((color,i)=>({color,type:types[i]||types[0],usage:usage[i]})).filter(f=>!f.usage||!(printUsageNumber(f.usage.grams)===0&&(f.usage.millimeters===null||f.usage.millimeters===0)||f.usage.millimeters===0&&(printUsageNumber(f.usage.grams)===null||printUsageNumber(f.usage.grams)===0)))});
 }
 async function readZipMetadata(file){
  // Central directory inspection avoids reading or expanding model meshes/images.
@@ -65,14 +77,14 @@ async function extractPrintMetadata(file){
   const metadata=key=>[...plate.querySelectorAll('metadata')].find(x=>x.getAttribute('key')===key)?.getAttribute('value');
   hasSlicedPlates=true;const id=metadata('index')||String(plates.size+1),row=ensure(id);row.seconds=Number(metadata('prediction'));
   const used=[...plate.querySelectorAll('filament')].filter(x=>x.getAttribute('id')!=='255'&&!(x.hasAttribute('used_g')&&Number(x.getAttribute('used_g'))===0));
-  if(used.length)row.filaments=used.map(x=>({color:x.getAttribute('color'),type:x.getAttribute('type')}));
+  if(used.length){row.filaments=used.map(x=>({color:x.getAttribute('color'),type:x.getAttribute('type')}));row.usageFilaments=used.map(x=>({color:x.getAttribute('color'),type:x.getAttribute('type'),grams:x.getAttribute('used_g'),millimeters:x.hasAttribute('used_mm')?printUsageNumber(x.getAttribute('used_mm')):printUsageNumber(x.getAttribute('used_m'),1000)}));}
  }}
  for(const [name,text] of entries){const match=name.match(/plate_(\d+)\.(json|gcode)$/);if(!match)continue;const [,id,extension]=match;
   // A sliced export can contain preview JSON for unexported plates.
   if(hasSlicedPlates&&!plates.has(id))continue;
   const row=ensure(id);
   if(extension==='json'){try{const data=JSON.parse(text);if(Array.isArray(data.filament_colors)&&data.filament_colors.length&&!row.seconds)row.filaments=data.filament_colors.map((color,i)=>({color,type:types[data.filament_ids?.[i]]||types[i]||types[0]}));}catch{}}
-  else{const data=parseGcodeMetadata(text);if(!row.seconds)row.seconds=data.seconds;if(data.layerHeight)row.layerHeight=data.layerHeight;if(!row.filaments?.length)row.filaments=data.filaments;}
+  else{const data=parseGcodeMetadata(text);if(!row.seconds)row.seconds=data.seconds;if(data.layerHeight)row.layerHeight=data.layerHeight;if(!row.filaments?.length)row.filaments=data.filaments;if(!cleanPrintUsage(row))row.filamentUsage=data.filamentUsage;}
  }
  if(!plates.size)ensure('');return [...plates.values()].map(cleanPrintMetadata);
 }

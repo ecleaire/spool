@@ -56,6 +56,25 @@ begin
  if (cap='read' and public.spool_member(lib)) or (cap<>'read' and public.spool_has_permission(lib,cap)) then return true;end if;
  return exists(select 1 from public.shared_bookings b where b.source_library_id=lib and b.booking_id=booking and public.spool_booking_link_active(lib,booking,b.shared_library_id) and public.spool_member(b.shared_library_id) and (cap='read' or (public.spool_has_permission(b.shared_library_id,cap) and public.spool_has_permission(b.shared_library_id,'bookings_edit'))));
 end;$$;
+-- Pure validation of optional reservation estimates. No data or permissions are changed.
+create or replace function public.spool_validate_filament_usage(u jsonb) returns boolean language plpgsql immutable set search_path='' as $$
+declare f jsonb;k text;
+begin
+ if u='null'::jsonb then return true;end if;
+ if jsonb_typeof(u) is distinct from 'object' or jsonb_typeof(u->'filaments') is distinct from 'array' or jsonb_array_length(u->'filaments')>64 then return false;end if;
+ for k in select unnest(array['grams','millimeters']) loop
+  if not(u ? k) or (u->k<>'null'::jsonb and (jsonb_typeof(u->k) is distinct from 'number' or (u->>k)::numeric not between 0 and 1000000000)) then return false;end if;
+ end loop;
+ for f in select value from jsonb_array_elements(u->'filaments') loop
+  if jsonb_typeof(f) is distinct from 'object' or jsonb_typeof(f->'type') is distinct from 'string' or length(f->>'type')>40 or jsonb_typeof(f->'color') is distinct from 'string' or ((f->>'color')<>'' and (f->>'color') !~ '^#[0-9A-Fa-f]{6}$') then return false;end if;
+  for k in select unnest(array['grams','millimeters']) loop
+   if not(f ? k) or (f->k<>'null'::jsonb and (jsonb_typeof(f->k) is distinct from 'number' or (f->>k)::numeric not between 0 and 1000000000)) then return false;end if;
+  end loop;
+ end loop;
+ return true;
+exception when others then return false;
+end;$$;
+
 create or replace function public.spool_validate_shared_booking(b jsonb) returns boolean language plpgsql immutable set search_path='' as $$
 declare entry jsonb;path text;date_value date;
 begin
@@ -64,6 +83,7 @@ begin
  date_value:=(b->>'registeredDate')::date;if to_char(date_value,'YYYY-MM-DD')<>b->>'registeredDate' then return false;end if;
  if b->>'deadline'<>'' and (b->>'deadline' !~ '^\d{4}-\d{2}-\d{2}$' or to_char((b->>'deadline')::date,'YYYY-MM-DD')<>b->>'deadline' or (b->>'deadline')::date<date_value) then return false;end if;
  if jsonb_typeof(b->'printMinutes') is distinct from 'number' or (b->>'printMinutes')::numeric not between 1 and 60000 or floor((b->>'printMinutes')::numeric)<>(b->>'printMinutes')::numeric then return false;end if;
+ if b ? 'filamentUsage' and not public.spool_validate_filament_usage(b->'filamentUsage') then return false;end if;
  if b ? 'registeredTime' and (jsonb_typeof(b->'registeredTime')<>'string' or b->>'registeredTime' !~ '^([01]\d|2[0-3]):[0-5]\d$') then return false;end if;
  if b ? 'creator' and (jsonb_typeof(b->'creator')<>'string' or length(b->>'creator')>100) then return false;end if;
  if b ? 'quality' and (jsonb_typeof(b->'quality') is distinct from 'string' or b->>'quality' not in ('speed','standard','fine')) then return false;end if;
@@ -108,7 +128,7 @@ begin
  if not found or not public.spool_booking_link_active(source_lib,booking,shared_lib) then raise exception 'Explicit booking sharing required' using errcode='42501';end if;
  if old.revision is distinct from expected_revision then raise exception 'Source library changed; reload before editing' using errcode='40001';end if;
  select value,(ordinality-1)::integer into entry,slot from jsonb_array_elements(old.state->'reservations') with ordinality where value->>'id'=booking;
- if changes is null or jsonb_typeof(changes)<>'object' or exists(select 1 from jsonb_object_keys(changes) k where k not in ('title','creator','registeredDate','registeredTime','weekday','className','quality','requestedFilaments','modelColors','printStatus','desiredColor','color','colorPreference','colorTranslucent','printMinutes','deadline','tags','files','attachments')) then raise exception 'Invalid booking changes' using errcode='22023';end if;
+ if changes is null or jsonb_typeof(changes)<>'object' or exists(select 1 from jsonb_object_keys(changes) k where k not in ('title','creator','registeredDate','registeredTime','weekday','className','quality','requestedFilaments','filamentUsage','modelColors','printStatus','desiredColor','color','colorPreference','colorTranslucent','printMinutes','deadline','tags','files','attachments')) then raise exception 'Invalid booking changes' using errcode='22023';end if;
  upcoming:=entry||changes;if not public.spool_validate_shared_booking(upcoming) then raise exception 'Invalid booking data' using errcode='22023';end if;
  for file_entry in select value from jsonb_array_elements(coalesce(upcoming->'attachments','[]'::jsonb)) loop
   if not(coalesce(entry->'attachments','[]'::jsonb) @> jsonb_build_array(file_entry)) then

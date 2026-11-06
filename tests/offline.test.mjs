@@ -5,7 +5,7 @@ import {webcrypto} from 'node:crypto';
 const html=fs.readFileSync('dist/index.html','utf8');
 assert.ok(!/<script\b[^>]*src=|<link\b[^>]*rel="stylesheet"|@import|\bfetch\s*\(/i.test(html),'Offline artifact must not request runtime dependencies');
 const scripts=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('application/json')).map(x=>x[2]);
-assert.equal(scripts.length,14);scripts.forEach(s=>new vm.Script(s));
+assert.equal(scripts.length,15);scripts.forEach(s=>new vm.Script(s));
 const initialItem={id:'spool_test',name:'PLA Basic',brand:'Bambu Lab',material:'PLA',colorName:'白',color:'#FFFFFF',remaining:800,capacity:1000,diameter:'1.75',image:'data:image/png;base64,AAAA'};
 function boot({cached=[],embedded={},blocked=false}={}){
  const data=new Map(cached),nodes=new Map(),downloads=[];
