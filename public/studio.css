@@ -1353,3 +1353,23 @@ body.simple-workspace #bookingView .booking-details-row .booking-file-entries>.m
 body.simple-workspace #bookingDialog #bookingImportPlateChoices label{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:10px;padding:8px;min-height:44px}
 body.simple-workspace #bookingDialog #bookingImportPlateChoices label>input{grid-column:1;grid-row:1}
 body.simple-workspace #bookingDialog #bookingImportPlateChoices label>span{grid-column:2;grid-row:1;min-width:0}
+/* Compact selection actions, while keeping all touch targets readable. */
+body.simple-workspace #batchActions .bulk-toolbar{gap:8px;padding:10px 12px}
+body.simple-workspace #batchActions .bulk-selection-controls{gap:8px;min-width:0}
+body.simple-workspace #batchActions :is(.select-all,#selectionCount,#clearSelection){min-height:44px;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+body.simple-workspace #batchActions #selectionCount{margin:0;padding:5px 8px}
+body.simple-workspace #batchActions .bulk-action-buttons{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;min-width:0}
+body.simple-workspace #batchActions .bulk-action-buttons button{padding:8px 6px;min-height:44px;line-height:1.4}
+@media(min-width:761px){body.simple-workspace #batchActions .bulk-toolbar{grid-template-columns:auto minmax(0,1fr);align-items:center}body.simple-workspace #batchActions .bulk-action-buttons{display:flex;justify-content:flex-end;flex-wrap:wrap}body.simple-workspace #batchActions .bulk-action-buttons button{width:auto;min-width:100px}}
+/* A consistent button surface makes record, review and edit actions easy to distinguish. */
+body.simple-workspace #bookingView .booking-row-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+body.simple-workspace #bookingView .booking-row-actions>button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;border:1px solid #9eb395;border-radius:8px;background:#fff;color:#244b32;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;white-space:normal;text-wrap:balance;text-decoration:none;min-width:0}
+body.simple-workspace #bookingView .booking-row-actions>[data-record-consumption]{background:#e6efdc;border-color:#78966b;color:#1d472c;font-weight:650}
+body.simple-workspace #bookingView .booking-row-actions>button:disabled{opacity:.55;cursor:default}
+@media(max-width:760px){body.simple-workspace #bookingView .booking-row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.simple-workspace #bookingView .booking-row-actions>[data-record-consumption]{grid-column:1/-1}}
+body.simple-workspace #bookingDialog #bookingImportSummary .import-metrics small:empty{display:none}
+body.simple-workspace #bookingDialog #bookingImportFeedback{font-size:14px;line-height:1.5;margin:6px 0}
+body.simple-workspace #batchActions .bulk-selection-controls .select-all{flex:0 0 auto;width:auto;grid-column:auto}
+body.simple-workspace #bookingView .booking-row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+body.simple-workspace #bookingView .booking-row-actions>[data-record-consumption]{grid-column:1/-1}
+body.simple-workspace #bookingView .booking-row-actions>button{padding:8px 6px}

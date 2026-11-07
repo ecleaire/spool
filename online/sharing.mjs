@@ -30,7 +30,7 @@ export function createFilamentSharing({context,bridge,esc,fail,refreshShared,pre
   if(!c.active||!c.session)return;
   const owned=c.active.owner_id===c.session.user.id;
   if(owned){
-   const button=document.createElement('button');button.id='cloud-share-selected';button.textContent='選択分を共有';button.disabled=!bridge.selected().length;button.onclick=()=>open({selected:bridge.selected()});document.querySelector('.bulk-action-buttons').append(button);
+   const button=document.createElement('button');button.id='cloud-share-selected';button.textContent='共有';button.setAttribute('aria-label','選択したフィラメントを共有');button.disabled=!bridge.selected().length;button.onclick=()=>open({selected:bridge.selected()});document.querySelector('.bulk-action-buttons').append(button);
   }
 
 
