@@ -13,7 +13,7 @@ try{
   const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(data=>localStorage.setItem('spool-inventory-v1',JSON.stringify(data)),stock);
   await page.goto('http://127.0.0.1:'+server.address().port);
-  const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1')));
+  assert.equal(await page.locator('#items').getAttribute('class'),'simple-mode');assert.equal(await page.locator('#simpleView').getAttribute('aria-pressed'),'true');const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1')));
   await page.locator('#simpleView').click();await page.waitForFunction(()=>document.querySelector('#items').classList.contains('simple-mode'));
   if(width<=1000){const geometry=await page.locator('#items>.filament-row').evaluateAll(rows=>rows.map(row=>{const r=row.getBoundingClientRect(),photo=row.querySelector('.product-photo').getBoundingClientRect(),label=row.querySelector('.color-name').getBoundingClientRect();return {top:r.top,left:r.left,right:r.right,photoBottom:photo.bottom,labelTop:label.top,labelRight:label.right,labelLeft:label.left}}));assert.ok(Math.abs(geometry[0].top-geometry[1].top)<1);assert.ok(geometry[1].left>geometry[0].left);assert.ok(geometry.every(x=>x.labelTop>=x.photoBottom-1&&x.labelLeft>=x.left&&x.labelRight<=x.right));if(shots)await page.locator('#items').screenshot({path:shots+'/simple-gallery-'+width+'.png'});}assert.equal(await page.locator('#batchActions').isVisible(),true);assert.equal(await page.locator('#items .row-select:visible').count(),0);
   assert.equal(await page.locator('#items :is(.product-title,.weight,.tag-list,.actions):visible').count(),0);
@@ -35,7 +35,7 @@ try{
   await page.locator('#batchActions>summary').click();await page.waitForFunction(()=>document.querySelector('#items').dataset.selecting==='false');assert.equal(await page.locator('#items .row-select:visible').count(),0);
   await page.reload();await page.waitForFunction(()=>document.querySelector('#items').classList.contains('simple-mode'));assert.equal(await page.locator('#items>.filament-row').count(),3);
   if(shots&&width===1440)await page.locator('.view-switch').screenshot({path:shots+'/view-switch.png'});
-  await page.locator('#listView').click();assert.equal(await page.locator('#items .weight:visible').count(),3);assert.deepEqual(errors,[]);await page.close();
+  await page.locator('#listView').click();assert.equal(await page.locator('#items .weight:visible').count(),3);await page.reload();await page.waitForFunction(()=>document.querySelector('#items').className==='');assert.equal(await page.locator('#listView').getAttribute('aria-pressed'),'true');assert.deepEqual(errors,[]);await page.close();
   console.log('PASS '+width+'px: simple view details, bulk selection/all/clear, duplicate/delete/undo, readable actions, persistence and unchanged original data.');
  }
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}

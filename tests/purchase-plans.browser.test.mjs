@@ -11,7 +11,7 @@ const screenshots=process.env.SPOOL_SCREENSHOT_DIR;if(screenshots)fs.mkdirSync(s
 try{
  for(const width of [1440,390]){
   const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.goto('http://127.0.0.1:'+server.address().port);
+  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#listView').click();
   await page.evaluate(seed=>localStorage.setItem('spool-inventory-v1',JSON.stringify([seed])),seed);await page.reload();
   await page.locator('#inventoryFilters>summary').click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);if(width<761)assert.ok(await page.locator('#inventoryFilters select').first().evaluate(x=>x.getBoundingClientRect().width)>200);await page.locator('#inventoryFilters>summary').click();
   await page.locator('[data-edit="qa-stock"]').first().click();
@@ -19,11 +19,11 @@ try{
   const tags=page.locator('[data-tag-suggestions="form"]');
   assert.equal(await page.locator('#locationSuggestions option[value="棚 A"]').count(),1);
   await page.locator('#form [name=capacity]').fill('1000');await page.locator('#form [name=remaining]').fill('1000');
-  await page.locator('[data-spool-capacity="990"]').click();assert.equal(await page.locator('#form [name=remaining]').inputValue(),'990');
-  await page.locator('#form [name=remaining]').fill('800');await page.locator('[data-spool-capacity="1000"]').click();assert.equal(await page.locator('#form [name=remaining]').inputValue(),'800');
+  await page.locator('#form [name=capacity]').click();await page.locator('[data-spool-capacity="990"]').click();assert.equal(await page.locator('#form [name=remaining]').inputValue(),'990');
+  await page.locator('#form [name=remaining]').fill('800');await page.locator('#form [name=capacity]').click();await page.locator('[data-spool-capacity="1000"]').click();assert.equal(await page.locator('#form [name=remaining]').inputValue(),'800');
   assert.equal(await tags.getByRole('button',{name:'#独自タグ',exact:true}).count(),1);
   assert.equal(await tags.getByRole('button',{name:'#試作用',exact:true}).count(),0);
-  await tags.getByRole('button',{name:'#よく使う',exact:true}).click();
+  if(!await page.locator('#filamentTagDetails').evaluate(x=>x.open))await page.locator('#filamentTagDetails>summary').click();await tags.getByRole('button',{name:'#よく使う',exact:true}).click();
   await tags.getByRole('button',{name:'#マット',exact:true}).click();
   await tags.getByRole('button',{name:'#マット',exact:true}).click();
   assert.equal(await page.locator('#form [name=tags]').inputValue(),'独自タグ, よく使う');

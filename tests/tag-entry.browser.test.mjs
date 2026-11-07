@@ -8,7 +8,7 @@ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 try{for(const width of [1440,390,320]){
  const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:'+server.address().port);
+ await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#listView').click();
  await page.locator('#add').click();await page.locator('#editorProduct').selectOption('bambu-basic');
  const draft=page.locator('#form .tag-entry-input');
  await draft.fill('赤系');await page.locator('[data-tag-suggestions="form"] [data-suggested-tag="赤系"]').click();assert.equal(await draft.inputValue(),'');assert.equal(await page.locator('#form [data-remove-tag="赤系"]').count(),1);await page.locator('#form [data-remove-tag="赤系"]').click();await draft.fill('夙川');await draft.press('Enter');assert.equal(await draft.inputValue(),'');

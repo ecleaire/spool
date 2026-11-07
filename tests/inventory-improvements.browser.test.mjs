@@ -12,7 +12,7 @@ try{
  for(const width of [1440,390,320]){
   const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(data=>localStorage.setItem('spool-inventory-v1',JSON.stringify(data)),stock);
-  await page.goto('http://127.0.0.1:'+server.address().port);
+  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#listView').click();
   assert.equal(await page.locator('[data-row-id=white] .shop-link').getAttribute('href'),'https://www.amazon.co.jp/dp/B0BM4BK4LS');
   assert.equal(await page.locator('[data-row-id=blue] .shop-link').getAttribute('href'),'https://www.amazon.co.jp/dp/B0GZWGJ774');
   assert.equal(await page.locator('[data-row-id=custom] .shop-link').getAttribute('href'),'https://example.com/my-link');
@@ -22,6 +22,7 @@ try{
   assert.equal(await page.locator('.filament-row').count(),1);assert.equal(await page.locator('#activeInventoryFilters').isVisible(),true);
   await page.locator('[data-clear-filter=all]').click();assert.equal(await page.locator('.filament-row').count(),3);
   await page.locator('[data-row-id=blue] .product-title').click();
+  const stockDetails=page.locator('#filamentDetailsBody .detail-secondary').first();assert.equal(await stockDetails.evaluate(x=>x.open),false);await stockDetails.locator('summary').click();assert.equal(await stockDetails.locator('.detail-storage').isVisible(),true);await stockDetails.locator('summary').click();
   // Reproduce the online library context without using personal account data.
   await page.locator('#filamentDetails .dialog-head').evaluate(el=>{const p=document.createElement('p');p.className='editor-save-destination';p.textContent='表示先：確認用ライブラリ';el.append(p)});
   const close=await page.locator('#closeFilamentDetails').boundingBox(),title=await page.locator('#filamentDetailsTitle').boundingBox();assert.ok(close.x>title.x+title.width-1);assert.ok(Math.abs(close.y-title.y)<10);

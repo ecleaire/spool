@@ -30,9 +30,18 @@ function bindModelFileActions(){
  $$('[data-open-embedded-file]').forEach(button=>button.onclick=()=>{const file=[...reservations.flatMap(x=>x.attachments||[]),...bookingAttachments].find(x=>x.id===button.dataset.openEmbeddedFile);if(file)showModelOpenDialog(file)});
 }
 function compactBookingFileList(rows,label){if(rows.length<3)return rows.join('');return '<p class="booking-file-scroll-hint">'+esc(label)+' '+rows.length+'件 <span>一覧内をスクロールして確認</span></p><div class="booking-file-scroll" tabindex="0" role="region" aria-label="'+esc(label)+'（'+rows.length+'件）">'+rows.join('')+'</div>'}
-function bookingFileMarkup(booking){const rows=(booking.files||[]).map(file=>{
- if(!validBookingFile(file))return '<div class="model-file-row model-file-note"><span class="model-file-name">'+esc(file)+'</span><small>メモ</small></div>';
+function bookingFileColorMarkup(booking,kind,id,showColors){
+ if(!showColors||(booking.attachments||[]).length+(booking.files||[]).filter(validBookingFile).length<2)return '';
+ const override=(booking.modelColors||[]).find(x=>x.kind===kind&&x.id===id),color=override||booking;
+ return '<span class="model-file-color">'+bookingColorSwatches(color)+'<span>希望色：'+esc(displayColorName(color.desiredColor))+(override?'':'（共通）')+'</span></span>';
+}
+function bookingFileMarkup(booking,showColors=true){const rows=(booking.files||[]).map(file=>{
+ if(!validBookingFile(file))return '<div class="model-file-row model-file-note"><span class="model-file-name"><strong class="model-file-basename">'+esc(file)+'</strong><small>メモ</small></span></div>';
  const remote=/^https:\/\//i.test(file);let name=remote?new URL(file).pathname.split('/').pop():file.split(/[\\/]/).pop();if(remote){try{name=decodeURIComponent(name)}catch{}}
  const href=remote?file:modelProtocolLink({path:file});
- return '<div class="model-file-row"><span class="model-file-name">'+esc(name)+'</span><a class="booking-file" href="'+esc(href)+'"'+(remote?' target="_blank" rel="noopener noreferrer"':' data-model-path="'+esc(file)+'"')+' title="'+esc(file)+'">'+(remote?'ファイルを開く／取得':'既定アプリで開く')+'</a></div>';
-}).concat((booking.attachments||[]).map(file=>'<div class="model-file-row"><span class="model-file-name">'+esc(file.name)+'<small>'+modelFileSize(file.size)+' · '+(file.kind==='embedded'?'バックアップに同梱':'オンライン添付')+'</small></span>'+modelAttachmentActions(file)+'</div>'));return compactBookingFileList(rows,'関連ファイル・メモ')}
+ return '<div class="model-file-row"><span class="model-file-name"><strong class="model-file-basename">'+esc(name)+'</strong>'+bookingFileColorMarkup(booking,'reference',file,showColors)+'</span><span class="model-file-actions"><a class="booking-file" href="'+esc(href)+'"'+(remote?' target="_blank" rel="noopener noreferrer"':' data-model-path="'+esc(file)+'"')+' title="'+esc(file)+'">'+(remote?'ファイルを開く／取得':'既定アプリで開く')+'</a></span></div>';
+}).concat((booking.attachments||[]).map(file=>'<div class="model-file-row"><span class="model-file-name"><strong class="model-file-basename">'+esc(file.name)+'</strong><small>'+modelFileSize(file.size)+' · '+(file.kind==='embedded'?'バックアップに同梱':'オンライン添付')+'</small>'+bookingFileColorMarkup(booking,'attachment',file.id,showColors)+'</span>'+modelAttachmentActions(file)+'</div>'));return compactBookingFileList(rows,'関連ファイル・メモ')}
+function bookingDetailsMarkup(booking){
+ const count=(booking.files||[]).length+(booking.attachments||[]).length;if(!booking.creator&&!count)return '';
+ return '<details class="booking-row-details"><summary><span class="booking-details-label"><span>製作者・</span><span>モデル・</span><span>ファイル</span></span>'+(count?'<small class="booking-details-count">'+count+'件</small>':'')+'</summary><div class="booking-details-body"><dl class="booking-details-creator"><dt>製作者</dt><dd>'+esc(booking.creator||'未記入')+'</dd></dl>'+(count?'<section class="booking-details-files" aria-label="モデル・ファイル"><div class="booking-model-download"></div>'+bookingFileMarkup(booking)+'</section>':'')+'</div></details>';
+}

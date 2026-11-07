@@ -64,7 +64,7 @@ try{
  },{token,user,projectUrl});
  authenticated.on('pageerror',e=>errors.push(e.message));
  await authenticated.goto('http://127.0.0.1:'+server.address().port+basePath);
- await authenticated.locator('#cloud-library').waitFor();
+ await authenticated.locator('#cloud-library').waitFor();assert.equal(await authenticated.locator('#simpleView').getAttribute('aria-pressed'),'true');await authenticated.locator('#listView').click();
    if(screenshots){await authenticated.setViewportSize({width:1920,height:1080});await authenticated.locator('#gridView').click();await authenticated.screenshot({path:screenshots+'/compact-cards-desktop.png',animations:'disabled'});await authenticated.locator('#listView').click();await authenticated.setViewportSize({width:1440,height:1000});}
 
  assert.equal(await authenticated.locator('main').isVisible(),true);
@@ -186,7 +186,7 @@ try{
  assert.equal(await authenticated.locator('#bookingSort').inputValue(),'registered');
  assert.equal(await authenticated.locator('#inventoryFilters').evaluate(el=>el.open),true);
  await authenticated.evaluate(()=>window.spoolBridge.displayAccount('other-account'));
- assert.equal(await authenticated.locator('#listView').getAttribute('aria-pressed'),'true');
+ assert.equal(await authenticated.locator('#simpleView').getAttribute('aria-pressed'),'true');
  assert.equal(await authenticated.locator('#sort').inputValue(),'manual');
  await authenticated.evaluate(id=>window.spoolBridge.displayAccount(id),user);
  assert.equal(await authenticated.locator('#splitView').getAttribute('aria-pressed'),'true');

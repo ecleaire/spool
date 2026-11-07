@@ -174,7 +174,7 @@ console.log('Passed: per-item link enrichment and template state respect separat
 // HTTPS model references commonly include a download/signature query string.
 const signedModel='https://models.example.com/%E3%82%AD%E3%83%BC%E3%83%9B%E3%83%AB%E3%83%80%E3%83%BC.3mf?download=1&signature=test';assert.equal(app.run('validBookingFile('+JSON.stringify(signedModel)+')'),true);
 for(const unsafe of ['C:\\Models\\part?.3mf','C:\\Models\\*.stl','https://user:secret@models.example.com/model.3mf?download=1','https://models.example.com/model.exe?download=1'])assert.equal(app.run('validBookingFile('+JSON.stringify(unsafe)+')'),false);
-const remoteMarkup=app.run('bookingFileMarkup({files:['+JSON.stringify(signedModel)+']})');assert.ok(remoteMarkup.includes('キーホルダー.3mf</span>'));assert.ok(remoteMarkup.includes('download=1&amp;signature=test'));console.log('Passed: signed HTTPS model references, readable filenames and local/remote safety checks.');
+const remoteMarkup=app.run('bookingFileMarkup({files:['+JSON.stringify(signedModel)+']})');assert.ok(remoteMarkup.includes('キーホルダー.3mf</strong>'));assert.ok(remoteMarkup.includes('download=1&amp;signature=test'));console.log('Passed: signed HTTPS model references, readable filenames and local/remote safety checks.');
 // Ordinary reference text stays inert; executable links still use the strict file validator.
 for(const note of ['棚AのUSBに保管','担当者から受け取り予定','<img src=x onerror=alert(1)>','javascript:alert(1)','https://[malformed']){
  assert.equal(app.run('validBookingReference('+JSON.stringify(note)+')'),true);
