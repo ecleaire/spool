@@ -2,12 +2,14 @@
 export function classifyError(error){
  const message=String(error?.message||error||'不明なエラー'),code=String(error?.code||''),status=Number(error?.status||error?.statusCode||0);
  const result=(category,title,action)=>({category,title,action,detail:[code&&'コード: '+code,message].filter(Boolean).join('\n')});
+ if(code==='LOGOUT_FAILED')return result('logout','ログアウトを完了できませんでした','この端末はまだログイン中です。接続を確認し、ログアウトを再試行してください。');
  if(code==='PGRST202')return result('settings','データベース更新が必要です','管理者がupgrade-existing.sqlを適用した後、再試行してください。');
  if(code==='WRITE_RESULT_UNKNOWN'||/保存結果を確認できませんでした/.test(message))return result('uncertain','保存結果を確認できませんでした','サーバー側で保存済みの可能性があります。再読み込みして現在の状態を確認してから、必要な場合だけ保存してください。');
  if(code==='SAVED_REFRESH_FAILED')return result('refresh','権限は保存されました','表示を更新できませんでした。再読み込みして現在の権限を確認してください。');
  if(status===401||/jwt.*expired|invalid.*jwt|refresh.token|not authenticated/i.test(message))return result('session','ログインの有効期限が切れました','未保存の内容をJSONで退避してから、ログインし直してください。');
  if(status===403||code==='42501'||/row.level.security|permission denied|not.allowed|招待|利用許可/i.test(message))return result('permission','この操作の権限がありません','正しいアカウント・ライブラリか確認してください。共有ライブラリの場合は管理者に確認してください。');
  if(status===409||code==='40001'||/conflict|revision|競合/i.test(message))return result('conflict','ほかの変更と重なりました','JSONで退避してから最新データを読み込み、変更を確認してください。');
+ if(status===404||code==='PGRST116')return result('missing','対象のデータが見つかりません','削除されたか、共有が解除された可能性があります。ライブラリや添付の最新の状態を確認してください。');
  if(status===413||/payload too large|exceeded.*size|サイズ|100MB/i.test(message))return result('file','ファイルを確認してください','対応形式・ファイルサイズを確認し、選び直してください。');
  if(status===429)return result('rate','操作が混み合っています','少し時間を置いて、もう一度お試しください。');
  if(/failed to fetch|network|offline|timeout|timed out|通信|接続でき/i.test(message))return result('network','通信できませんでした','接続を確認して再試行してください。入力内容は画面に保持されています。');

@@ -362,3 +362,11 @@ body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings) .clou
 @media(max-height:600px){.help-dialog .help-intro{display:none}.help-shortcuts{margin-bottom:12px}}
 #cloud-loading{padding:20px;border:1px solid #bccdb4;border-radius:12px;background:#f4f7ef;color:#244832;line-height:1.6;overflow-wrap:anywhere}
 .cloud-load-recovery{display:flex;flex-wrap:wrap;gap:10px}.cloud-load-recovery button,.cloud-read-retry,#cloud-files button{min-height:44px;padding:9px 12px;border:1px solid #a3b99b;border-radius:8px;line-height:1.5;color:#234832;background:#f3f7ee}
+/* Locked recovery screens expose account actions, not inactive workspace tabs. */
+body.cloud-locked:has(#cloud-account-open) .cloud-topbar{display:flex;flex-wrap:nowrap;gap:12px;padding:8px 16px;min-height:60px;height:auto;width:100%;max-width:none;box-sizing:border-box}
+body.cloud-locked:has(#cloud-account-open) .cloud-navigation{display:none}
+body.cloud-locked:has(#cloud-account-open) .cloud-brand{min-width:0;margin-right:auto}
+body.cloud-locked:has(#cloud-account-open) .cloud-brand>small{display:none}
+body.cloud-locked:has(#cloud-account-open) .cloud-account-trigger{flex:0 0 44px;width:44px;min-width:44px;max-width:44px;padding:3px;gap:0;justify-content:center}
+body.cloud-locked:has(#cloud-account-open) .cloud-account-trigger>:is(.account-trigger-name,span:last-child){display:none}
+body.cloud-locked:has(#cloud-account-open) #cloud-panel>:is(p,.cloud-load-recovery){margin-inline:12px}
