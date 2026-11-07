@@ -339,3 +339,26 @@ body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings) .clou
 @media(max-height:600px){body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head{padding:8px 14px}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head h2{font-size:20px;margin:0}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-body{padding:12px 14px}}
 @media(max-width:760px){body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head{padding:12px 16px}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-body{padding:14px 16px}}
 @media(max-height:600px){body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head small{display:none}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head{padding:8px 14px}}
+/* Help puts finding an answer ahead of the long reference list. */
+.help-dialog .help-intro{margin:6px 0 0;font-size:16px;color:#405b49;line-height:1.5}
+.help-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.help-shortcuts button{flex:1 1 130px;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #afc3a9;border-radius:10px;background:#f4f7ef;color:#244832;line-height:1.4}
+.help-shortcuts button[aria-pressed=true]{background:#244f3c;color:#fff;border-color:#244f3c}
+.help-find{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+.help-find label{display:flex;flex-direction:column;gap:6px;min-width:0;font-weight:600}
+.help-find :is(input,select){box-sizing:border-box;width:100%;min-width:0;min-height:44px;font-weight:400}
+.help-result-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:14px 0}
+.help-result-bar p{margin:0;font-size:16px;color:#405b49}
+.help-result-bar button{min-height:44px;padding:6px 10px;text-decoration:underline;text-underline-offset:3px;color:#234832}
+.help-dialog .help-section{margin:24px 0 0}
+.help-dialog .help-section h3{margin:0;padding:0 0 10px;border-bottom:2px solid #a9bea2;font-size:max(var(--spool-type-floor,18px),18px)}
+.help-dialog .help-topic{padding:0;border-bottom:1px solid #dce4d7}
+.help-dialog .help-topic summary{padding:14px 4px;line-height:1.5;font-weight:600;overflow-wrap:anywhere}
+.help-dialog .help-topic[open]{background:#f7f9f3;border-radius:8px}
+.help-dialog .help-answer{padding:0 14px 10px}
+.help-dialog .help-answer p{margin:0 0 12px;line-height:1.8;font-weight:400}
+.help-dialog #spool-help-empty{padding:20px 0;line-height:1.7}
+@media(max-width:600px){.help-find{grid-template-columns:minmax(0,1fr)}.help-shortcuts{gap:6px;margin-bottom:16px}.help-shortcuts button{flex:1 1 100px;padding:9px 6px}.help-dialog .help-answer{padding-inline:10px}}
+@media(max-height:600px){.help-dialog .help-intro{display:none}.help-shortcuts{margin-bottom:12px}}
+#cloud-loading{padding:20px;border:1px solid #bccdb4;border-radius:12px;background:#f4f7ef;color:#244832;line-height:1.6;overflow-wrap:anywhere}
+.cloud-load-recovery{display:flex;flex-wrap:wrap;gap:10px}.cloud-load-recovery button,.cloud-read-retry,#cloud-files button{min-height:44px;padding:9px 12px;border:1px solid #a3b99b;border-radius:8px;line-height:1.5;color:#234832;background:#f3f7ee}

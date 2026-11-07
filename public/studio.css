@@ -1403,3 +1403,8 @@ body.simple-workspace .filament-row .product>div{min-width:0;max-width:100%;over
 body.simple-workspace .filament-row .product-title{max-width:100%;white-space:normal;overflow-wrap:anywhere}
 body.simple-workspace .filament-row .tag-list{min-width:0;max-width:100%}
 body.simple-workspace .filament-row .item-tag{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+/* Keep action labels intact; move a whole button when the window is narrow. */
+body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions{display:flex;flex-wrap:wrap}
+body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions>button{flex:0 0 auto;max-width:100%;white-space:normal;word-break:keep-all;overflow-wrap:normal;text-wrap:balance}
+body.simple-workspace #editor .filament-save-summary{flex-basis:100%;min-width:0}
+body.simple-workspace #editor #saveAndContinue{flex-basis:100%}

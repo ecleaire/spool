@@ -15,11 +15,63 @@ const TOPICS=[
  ['印刷予約','印刷情報をすぐ変更するには？','一覧の「印刷予定」「未定」「印刷済み」をクリックすると、その場で変更できます。予約を編集する権限が必要です。登録日時は一覧に表示します。過去の予約で時刻を記録していないものは日付だけ表示します。'],
  ['印刷予約','3MF・G-codeから何を入力できる？','予約フォームにファイルをドロップすると、記録されている印刷時間・色・素材などを読み取ります。スライス前の3MFなど、情報を含まないファイルもあります。読み取り結果を確認し、必要に応じて修正してください。'],
  ['印刷予約','印刷完了時に残量を記録するには？','3MF・G-codeのある予約を印刷済みにすると、使用量の確認画面を開きます。今回印刷したファイル・プレート、使用した在庫、g数を確認して確定します。推定値は修正でき、記録後は二重に差し引きません。使用記録の取り消しには在庫編集権限が必要です。共有元をまたぐ記録はDB更新が必要な場合があります。'],
- ['表示と操作','スマホで画像と色名をたくさん並べるには？','画像アイコンのシンプル表示を選びます。スマホでは画像の下に色名を置いて2列で表示します。一括操作を開くと選択チェックが表示され、画像を押すと詳細を開けます。'],
- ['保存とトラブル','ログイン後にライブラリを読み込めない','通信状態を確認し、表示された再読み込みボタンで再試行してください。共有ライブラリ限定の方は、招待先への参加が必要です。未保存の入力がある場合は、先にJSONへ退避してください。'],
+ ['表示と操作','スマホで画像と色名をたくさん並べるには？','画像アイコンのシンプル表示を選びます。スマホでは画像の下に色名を置いて2列で表示します。PCではカードにマウスを重ねると角に選択チェックが表示されます。スマホでは角のチェックを使います。選択すると一括操作が表示され、解除すると閉じます。画像や色名を押すと詳細を開けます。'],
+ ['保存とトラブル','ログイン後にライブラリを読み込めない','通信状態を確認し、表示された再試行ボタンを使ってください。接続設定・添付一覧にも再読込ボタンがあります。ライブラリ切替に失敗した場合は、前のライブラリを読み直す操作も選べます。共有ライブラリ限定の方は、招待先への参加が必要です。入力内容が画面に残っている場合は、そのまま再試行してください。再読み込みの前に未保存の入力を控えてください。予約の下書きがある場合は、同じアカウント・ライブラリで復元できます。'],
  ['保存とトラブル','データを移す・バックアップするには？','データ管理からJSONを書き出します。画像・在庫・予約を引き継げます。オンライン添付ファイルの本体はJSONに含まれません。必要な添付は別途ダウンロードしてください。オフライン版は端末のHTMLとデータで動作します。'],
 ];
+
+TOPICS.unshift(
+ ['はじめて使う','最初に何をすればいい？','1. Googleでログインし、上部のライブラリ名を確認します。\n2. フィラメントの「追加」から商品・色・残量を登録します。\n3. 「印刷予約」で作品と希望色・期限を登録します。\n4. 保存状態が「オンライン保存済み」になったことを確認します。'],
+ ['はじめて使う','今、どのライブラリを編集している？','上部のライブラリ名が、現在の表示・編集先です。ライブラリ名を押すと切り替えられます。登録・編集フォームにも保存先が表示されます。別のライブラリへ移る前に保存状態を確認してください。'],
+ ['はじめて使う','個人ライブラリと共有ライブラリの違いは？','個人ライブラリは自分の在庫・予約をまとめる場所です。共有ライブラリは、招待したメンバーと使う場所です。個人から共有へは、選んだフィラメント・予約だけを共有できます。\n個人ライブラリ全体へメンバーを招待すると、在庫だけでなく予約・添付も対象になります。必要な情報だけ渡す場合は、選択共有・予約同期を使ってください。'],
+);
+TOPICS.push(
+ ['フィラメント','残量を変える・同じ商品を追加するには？','一覧の「使用」で使用量を記録するか、「編集」から残量を変更します。同じ商品を新しい1本として登録する場合は、追加フォームの「登録済みのフィラメントから入力」を使えます。元の在庫は残ります。'],
+ ['表示と操作','詳細・編集・販売ページはどこから開く？','画像や商品名・色名は詳細表示を開きます。内容を変更するときは「編集」または歯車の操作を選びます。Amazon・販売元のボタンは販売ページを直接開きます。'],
+ ['表示と操作','表示形式と一括選択を使い分けたい','表示切り替えで一覧・2列・グリッド・画像と色名だけのシンプル表示を選べます。表示形式はスマホでも利用できます。\nカードの角のチェックで選び、選択後に表示される操作バーから追加・削除・共有を行います。「表示中をすべて選択」は検索・絞り込み後の対象を選びます。削除の前に選択件数を確認してください。'],
+ ['共有ライブラリ','共有ライブラリを作る・メンバーを招待するには？','上部のライブラリ管理（歯車）を開き、共有ライブラリの作成を選びます。名前を入力して作成後、その共有ライブラリの共有設定からメンバーを招待します。\n作成したアカウントがホストです。作成・招待の操作がない、または無効になっている場合は、アカウントの利用範囲やライブラリの権限を管理者に確認してください。'],
+ ['共有ライブラリ','個人の在庫から選んだものだけ共有したい','個人ライブラリでフィラメントを選択し「共有」を選ぶか、共有設定の「共有するフィラメントを選ぶ」を開きます。共有先と対象を確認して保存します。\n原本は個人ライブラリに残ります。許可された編集は共有元にも反映されるため、独立したコピーとは異なります。予約・添付を共有したい場合は、予約の同期先を別に設定します。'],
+ ['共有ライブラリ','今後追加する在庫も自動で共有したい','フィラメントの共有画面で対象の共有先を選び、「今後追加するフィラメントも自動で共有する」を有効にして保存します。購入予定・購入希望は個別に選んだものだけが対象です。\n変更できない場合は、共有元・共有先・権限を確認し、「共有設定を再読み込み」を試してください。データベース更新の案内が出る場合は管理者の対応が必要です。'],
+ ['共有ライブラリ','共有を止める・退出する・完全削除する違いは？','共有停止：その共有先の参照表示を外し、共有元の原本は残します。\n退出：自分の共有ライブラリへのアクセスを終了します。他のメンバーは引き続き利用できます。\n完全削除：ホストが、その共有ライブラリを削除します。名前の確認と最終確認があります。共有先へ直接登録したデータと、他のライブラリにある原本は区別してください。'],
+ ['権限とアカウント','管理者を増やす・操作を個別に許可するには？','その共有ライブラリのホストまたは管理者が、共有設定から対象メンバーを選びます。管理者への変更や、在庫・購入予定・予約・添付などの操作権限を設定し保存します。\n権限はライブラリごとです。他の共有ライブラリには適用されません。管理者以外の参加者は自分の制限を変更できません。'],
+ ['印刷予約','予約を登録するときに確認することは？','作品名、希望するフィラメント、印刷時間、期限を入力します。期限の初期値は1週間後です。決まっていない場合は「期限は未定」を使えます。\n製作者・登録日・クラスなどは詳細を展開して入力します。印刷前には一覧の「印刷前に確認」で作品・色・ファイルを確認してください。'],
+ ['印刷予約','複数モデルで色やプレートを分けたい','複数ファイルを添付すると、モデルごとの希望色を指定できます。3MF・G-codeに複数プレートの情報がある場合は、今回印刷するプレートを選びます。\n選んだプレートの時間・使用量を合計します。情報が不足している場合は結果を確認して補ってください。STLだけでは印刷時間・使用量は確定できません。'],
+ ['印刷予約','予約一覧を探しやすくするには？','初期表示は「印刷予定」です。「すべて」「未定」「印刷済み」で切り替えられます。作品名・希望色・タグで検索でき、詳しい絞り込みから期限や自分の予約を指定できます。\n見当たらない予約がある場合は、現在のライブラリと絞り込み条件を確認してください。'],
+ ['ファイル','モデル・印刷データ・メモはどう分かれる？','予約の「製作者・モデル・ファイル」を展開すると、STLなどのモデル、3MF・G-codeなどの印刷データ、メモ・参照先を分けて表示します。\nファイルはドラッグ＆ドロップで添付できます。Windows・共有フォルダーのパス、HTTPSリンク、通常のテキストメモも登録できます。パスやメモの登録だけではファイル本体はアップロードされません。'],
+ ['ファイル','ファイルをまとめてダウンロードしたい','予約一覧で「製作者・モデル・ファイル」を展開します。ダウンロードできる添付が複数ある場合は、一括ダウンロードのボタンを表示します。ZIPでまとめて保存し、元のファイル名を保持します。同名のファイルは区別するため番号を付けます。\nPC内のパス・共有フォルダーの参照やテキストメモはZIPに含みません。ファイル数が多いときは一覧内をスクロールできます。'],
+ ['保存とトラブル','保存中・保存失敗のときは？','保存の進行表示が完了するまで待ちます。複数ファイルの保存中は、誤操作を防ぐため操作が一時的に制限されます。通信エラーでは対象の処理で1回の自動再試行を行います。\n失敗した場合は入力を残したまま詳細を確認してください。権限エラーは管理者への確認、競合エラーは最新状態の確認が必要です。完了が分からないときは、重複登録を避けるため保存状態を確認してから操作してください。'],
+ ['保存とトラブル','予約の下書きを復元したい','保存されていない予約の入力は、この端末の下書きとして復元できます。同じアカウント・同じライブラリで予約を開き、復元の案内を確認します。\n下書きは最終保存から24時間で自動削除されます。添付の再追加を案内された場合は、ファイルを選び直してください。別の端末への同期や、完成した予約のバックアップとは異なります。'],
+ ['保存とトラブル','「データベース更新が必要」と表示される','画面の更新だけでは利用できない機能があります。表示された機能名と詳細を管理者へ伝えてください。管理者が必要なデータベース更新を確認します。\n再読み込みを繰り返しても解消しません。既存データを削除したり、個人ライブラリを作り直したりせず、そのまま待ってください。'],
+);
+
+const escapeHtml=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+const normalized=value=>String(value).normalize('NFKC').toLocaleLowerCase('ja').replace(/g[-‐‑–—−ー]?code/g,'gcode');
 export function openHelp(){
- document.querySelector('#spool-help-dialog')?.remove();const dialog=document.createElement('dialog');dialog.id='spool-help-dialog';dialog.className='cloud-tools-dialog help-dialog';dialog.setAttribute('aria-labelledby','spoolHelpTitle');dialog.innerHTML='<div class="cloud-dialog-head"><h2 id="spoolHelpTitle">ヘルプ・使い方</h2><button type="button" aria-label="ヘルプを閉じる">×</button></div><div class="cloud-dialog-body"><label>ヘルプを検索<input type="search" id="spool-help-search" placeholder="共有・購入予定・権限など"></label>'+[...new Set(TOPICS.map(x=>x[0]))].map(group=>'<section><h3>'+group+'</h3>'+TOPICS.filter(x=>x[0]===group).map(([,title,body])=>'<details class="help-topic"><summary>'+title+'</summary><p>'+body+'</p></details>').join('')+'</section>').join('')+'<p id="spool-help-empty" hidden>一致する項目がありません。</p></div>';
- document.querySelector('#cloud-panel').append(dialog);dialog.showModal();dialog.querySelector('button').onclick=()=>dialog.close();dialog.querySelector('input').oninput=event=>{const query=event.target.value.trim().toLowerCase();let total=0;for(const section of dialog.querySelectorAll('section')){let count=0;for(const topic of section.querySelectorAll('details')){topic.hidden=!topic.textContent.toLowerCase().includes(query);if(!topic.hidden)count++;}section.hidden=!count;total+=count;}dialog.querySelector('#spool-help-empty').hidden=!!total;};
+ document.querySelector('#spool-help-dialog')?.remove();
+ const dialog=document.createElement('dialog');
+ dialog.id='spool-help-dialog';dialog.className='cloud-tools-dialog help-dialog';
+ dialog.setAttribute('aria-labelledby','spoolHelpTitle');
+ const order=['はじめて使う','フィラメント','印刷予約','ファイル','共有ライブラリ','購入予定と共有','権限とアカウント','表示と操作','保存とトラブル'];
+ const rank=group=>order.indexOf(group)<0?order.length:order.indexOf(group);
+ const groups=[...new Set(TOPICS.map(topic=>topic[0]))].sort((a,b)=>rank(a)-rank(b));
+ dialog.innerHTML=`<div class="cloud-dialog-head"><div><h2 id="spoolHelpTitle">ヘルプ・使い方</h2><p class="help-intro">知りたい操作を探せます。</p></div><button type="button" aria-label="ヘルプを閉じる">×</button></div>
+ <div class="cloud-dialog-body"><nav class="help-shortcuts" aria-label="よく使うヘルプ"><button type="button" data-help-group="はじめて使う">はじめて使う</button><button type="button" data-help-group="共有ライブラリ">共有したい</button><button type="button" data-help-group="保存とトラブル">困ったとき</button></nav>
+ <div class="help-find"><label for="spool-help-search">キーワードで検索<input type="search" id="spool-help-search" placeholder="例：予約 色、共有、ダウンロード" autocomplete="off"></label><label for="spool-help-category">目的から探す<select id="spool-help-category"><option value="">すべての項目</option>${groups.map(group=>'<option>'+escapeHtml(group)+'</option>').join('')}</select></label></div>
+ <div class="help-result-bar"><p id="spool-help-count" role="status" aria-live="polite"></p><button type="button" id="spool-help-reset" hidden>条件をクリア</button></div>
+ ${groups.map(group=>'<section class="help-section" data-help-section="'+escapeHtml(group)+'"><h3>'+escapeHtml(group)+'</h3>'+TOPICS.filter(topic=>topic[0]===group).map(([,title,body])=>'<details class="help-topic"><summary>'+escapeHtml(title)+'</summary><div class="help-answer">'+body.split('\n').map(part=>'<p>'+escapeHtml(part)+'</p>').join('')+'</div></details>').join('')+'</section>').join('')}
+ <div id="spool-help-empty" hidden><strong>一致する項目がありません</strong><p>短い言葉で検索するか、目的を「すべての項目」に戻してください。</p></div></div>`;
+ document.querySelector('#cloud-panel').append(dialog);
+ const search=dialog.querySelector('#spool-help-search'),category=dialog.querySelector('#spool-help-category'),reset=dialog.querySelector('#spool-help-reset');
+ const update=()=>{
+  const words=normalized(search.value).trim().split(/\s+/).filter(Boolean);let total=0;
+  for(const section of dialog.querySelectorAll('.help-section')){let count=0;for(const topic of section.querySelectorAll('.help-topic')){const matches=(!category.value||section.dataset.helpSection===category.value)&&words.every(word=>normalized(topic.textContent).includes(word));topic.hidden=!matches;if(matches){count++;if(words.length)topic.open=true;}else topic.open=false;}section.hidden=!count;total+=count;}
+  dialog.querySelector('#spool-help-count').textContent=(words.length||category.value?'該当する項目：':'すべての項目：')+total+'件';
+  dialog.querySelector('#spool-help-empty').hidden=total>0;reset.hidden=!words.length&&!category.value;
+  for(const button of dialog.querySelectorAll('[data-help-group]'))button.setAttribute('aria-pressed',String(button.dataset.helpGroup===category.value));
+ };
+ search.oninput=update;category.onchange=update;
+ for(const button of dialog.querySelectorAll('[data-help-group]'))button.onclick=()=>{search.value='';category.value=button.dataset.helpGroup;update();};
+ reset.onclick=()=>{search.value='';category.value='';for(const topic of dialog.querySelectorAll('.help-topic'))topic.open=false;update();search.focus();};
+ dialog.querySelector('.cloud-dialog-head>button').onclick=()=>dialog.close();
+ update();dialog.showModal();
 }

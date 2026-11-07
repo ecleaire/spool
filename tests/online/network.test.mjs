@@ -22,3 +22,27 @@ test('stalled non-idempotent RPCs release the UI without replaying an uncertain 
 test('booking link reads and idempotent destination selection retry once',async()=>{
  for(const rpc of ['get_shared_bookings','get_booking_sharing','set_booking_sharing','stop_booking_sharing']){let calls=0;const fetcher=retryingFetch(async()=>{if(!calls++)throw Error('Failed to fetch');return {ok:true}});await fetcher('https://demo.supabase.co/rest/v1/rpc/'+rpc,{method:'POST'});assert.equal(calls,2);}
 });
+
+test('response-body stalls time out and retry once after headers have arrived',async()=>{
+ let calls=0;
+ const fetcher=retryingFetch(async(input,{signal})=>{calls++;if(calls===2)return new Response('{"ok":true}',{headers:{'Content-Type':'application/json'}});return new Response(new ReadableStream({start(controller){signal.addEventListener('abort',()=>controller.error(new DOMException('Aborted','AbortError')),{once:true})}}),{headers:{'Content-Type':'application/json'}})},{timeout:5});
+ assert.deepEqual(await (await fetcher('https://demo.supabase.co/rest/v1/libraries')).json(),{ok:true});assert.equal(calls,2);
+});
+test('storage reads keep exact binary bytes and headers while bounding the body',async()=>{
+ const fetcher=retryingFetch(async()=>new Response(new Uint8Array([0,255,128]),{headers:{'Content-Type':'application/octet-stream'}}));
+ const response=await fetcher('https://demo.supabase.co/storage/v1/object/authenticated/model');assert.deepEqual([...new Uint8Array(await response.arrayBuffer())],[0,255,128]);assert.equal(response.headers.get('Content-Type'),'application/octet-stream');
+});
+test('a completed read is rejected when its account changed during the response',async()=>{
+ let stamp=1;const fetcher=retryingFetch(async()=>{stamp++;return new Response('{}')},{context:()=>stamp});await assert.rejects(fetcher('https://demo.supabase.co/rest/v1/libraries'),e=>e.code==='CANCELLED');
+});
+
+test('signed link creation retries once, without replaying a model upload',async()=>{
+ let calls=0;const fetcher=retryingFetch(async()=>{if(++calls===1)throw Error('Failed to fetch');return new Response('{}')});await fetcher('https://demo.supabase.co/storage/v1/object/sign/spool-models/file',{method:'POST'});assert.equal(calls,2);calls=0;await assert.rejects(fetcher('https://demo.supabase.co/storage/v1/object/spool-models/file',{method:'POST'}));assert.equal(calls,1);
+});
+test('a stalled authentication response body is bounded without replaying the token request',async()=>{
+ let calls=0;const fetcher=retryingFetch(async(input,{signal})=>{calls++;return new Response(new ReadableStream({start(c){signal.addEventListener('abort',()=>c.error(new DOMException('Aborted','AbortError')),{once:true})}}))},{timeout:4});await assert.rejects(fetcher('https://demo.supabase.co/auth/v1/token',{method:'POST'}),/タイムアウト/);assert.equal(calls,1);
+});
+
+test('an administrative RPC stalled after commit is reported uncertain and never replayed',async()=>{
+ let calls=0;const fetcher=retryingFetch(async(input,{signal})=>{calls++;return new Response(new ReadableStream({start(c){signal.addEventListener('abort',()=>c.error(new DOMException('Aborted','AbortError')),{once:true})}}))},{timeout:4});await assert.rejects(fetcher('https://demo.supabase.co/rest/v1/rpc/set_spool_account_access',{method:'POST'}),e=>e.code==='WRITE_RESULT_UNKNOWN');assert.equal(calls,1);
+});

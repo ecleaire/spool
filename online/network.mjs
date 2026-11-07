@@ -1,30 +1,76 @@
-import {classifyError} from './errors.mjs';
-export async function retryNetwork(operation,{valid=()=>true,onRetry=()=>{},wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),delay=600}={}){
- for(let attempt=0;attempt<2;attempt++){
-  if(!valid())throw Object.assign(Error('操作の対象が変わりました。'),{code:'CANCELLED'});
-  try{const result=await operation(attempt);if(result?.error)throw result.error;return result;}
-  catch(error){if(attempt||classifyError(error).category!=='network'||!valid())throw error;onRetry();await wait(delay);}
- }
-}
-const retryableRpcs=new Set(['ensure_my_library','spool_is_admin','get_spool_accounts','get_shared_filaments','get_shared_bookings','get_booking_sharing_summary','get_booking_sharing','set_booking_sharing','stop_booking_sharing','get_filament_sharing','get_my_library_permissions','get_library_member_permissions','get_shared_library_deletion_info','get_library_member_profiles','library_is_shared','my_filaments_shared','set_filament_sharing','stop_shared_filaments','update_library_appearance','rename_spool_library']);
-export function retryingFetch(fetcher,{context=()=>null,onRetry=()=>{},timeout=12000}={}){
- return async(input,init={})=>{
-  const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url),method=(init.method||input.method||'GET').toUpperCase(),retryable=method==='GET'||method==='HEAD'||(method==='POST'&&retryableRpcs.has(url.pathname.split('/').pop()));
-  const bounded=async()=>{const controller=new AbortController(),external=init.signal||input?.signal;let expired=false;const cancel=()=>controller.abort(external?.reason);if(external?.aborted)cancel();else external?.addEventListener('abort',cancel,{once:true});const timer=setTimeout(()=>{expired=true;controller.abort()},timeout);try{const response=await fetcher(input,{...init,signal:controller.signal});if(retryable&&[502,503,504].includes(response.status))throw new TypeError('Failed to fetch: temporary server error');return response}catch(error){if(!retryable&&url.pathname.includes('/rest/v1/rpc/')&&!url.pathname.endsWith('/rpc/save_library_state')&&!external?.aborted&&(expired||classifyError(error).category==='network'))throw Object.assign(Error('保存結果を確認できませんでした。サーバー側で保存済みの可能性があります。'),{code:'WRITE_RESULT_UNKNOWN'});if(expired)throw Error('通信がタイムアウトしました。');throw error}finally{clearTimeout(timer);external?.removeEventListener('abort',cancel)}};
-  if(!retryable)return url.pathname.includes('/rest/v1/rpc/')?bounded():fetcher(input,init);
-  const stamp=context();return retryNetwork(bounded,{valid:()=>context()===stamp,onRetry});
- };
-}
-export function sameState(a,b){
- const stable=x=>Array.isArray(x)?'['+x.map(stable).join(',')+']':x&&typeof x==='object'?'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+stable(x[k])).join(',')+'}':JSON.stringify(x);
- return stable(a)===stable(b);
-}
-export async function saveWithRetry(api,read,library,revision,state,options){
- return retryNetwork(async attempt=>{
-  if(attempt){const latest=await read(library);if(latest.error)throw latest.error;const saved=latest.data;
-   if(saved.revision===revision+1&&sameState(saved.state,state))return saved.revision;
-   if(saved.revision!==revision)throw Object.assign(Error('ほかの変更と重なりました。'),{code:'40001'});
+import { classifyError } from "./errors.mjs";
+async function retryNetwork(operation, { valid = () => true, onRetry = () => {
+}, wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)), delay = 600 } = {}) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (!valid()) throw Object.assign(Error("操作の対象が変わりました。"), { code: "CANCELLED" });
+    try {
+      const result = await operation(attempt);
+      if (!valid()) throw Object.assign(Error("操作の対象が変わりました。"), { code: "CANCELLED" });
+      if (result?.error) throw result.error;
+      return result;
+    } catch (error) {
+      if (attempt || classifyError(error).category !== "network" || !valid()) throw error;
+      onRetry();
+      await wait(delay);
+    }
   }
-  return api(library,revision,state);
- },options);
 }
+const retryableRpcs = /* @__PURE__ */ new Set(["ensure_my_library", "spool_is_admin", "get_spool_accounts", "get_shared_filaments", "get_shared_bookings", "get_booking_sharing_summary", "get_booking_sharing", "set_booking_sharing", "stop_booking_sharing", "get_filament_sharing", "get_my_library_permissions", "get_library_member_permissions", "get_shared_library_deletion_info", "get_library_member_profiles", "library_is_shared", "my_filaments_shared", "set_filament_sharing", "stop_shared_filaments", "update_library_appearance", "rename_spool_library"]);
+function retryingFetch(fetcher, { context = () => null, onRetry = () => {
+}, timeout = 12e3, downloadTimeout = 12e4 } = {}) {
+  return async (input, init = {}) => {
+    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url, globalThis.location?.href), method = (init.method || input.method || "GET").toUpperCase(), retryable = method === "GET" || method === "HEAD" || method === "POST" && url.pathname.startsWith("/storage/v1/object/sign/") || method === "POST" && retryableRpcs.has(url.pathname.split("/").pop());
+    const bounded = async () => {
+      const controller = new AbortController(), external = init.signal || input?.signal;
+      let expired = false;
+      const cancel = () => controller.abort(external?.reason);
+      if (external?.aborted) cancel();
+      else external?.addEventListener("abort", cancel, { once: true });
+      const timer = setTimeout(() => {
+        expired = true;
+        controller.abort();
+      }, method === "GET" && url.pathname.startsWith("/storage/") ? downloadTimeout : timeout);
+      try {
+        const response = await fetcher(input, { ...init, signal: controller.signal });
+        if (retryable && [502, 503, 504].includes(response.status)) throw new TypeError("Failed to fetch: temporary server error");
+        if (response.body && (url.pathname.startsWith("/rest/") || url.pathname.startsWith("/auth/") || url.pathname.startsWith("/storage/") || /\.json$/.test(url.pathname))) {
+          const blob = await response.blob();
+          return new Response(blob, { status: response.status, statusText: response.statusText, headers: response.headers });
+        }
+        return response;
+      } catch (error) {
+        if (!retryable && url.pathname.includes("/rest/v1/rpc/") && !url.pathname.endsWith("/rpc/save_library_state") && !external?.aborted && (expired || classifyError(error).category === "network")) throw Object.assign(Error("保存結果を確認できませんでした。サーバー側で保存済みの可能性があります。"), { code: "WRITE_RESULT_UNKNOWN" });
+        if (expired) throw Error("通信がタイムアウトしました。");
+        throw error;
+      } finally {
+        clearTimeout(timer);
+        external?.removeEventListener("abort", cancel);
+      }
+    };
+    if (!retryable) return url.pathname.includes("/rest/v1/rpc/") || url.pathname.startsWith("/auth/") ? bounded() : fetcher(input, init);
+    const stamp = context();
+    return retryNetwork(bounded, { valid: () => context() === stamp, onRetry });
+  };
+}
+function sameState(a, b) {
+  const stable = (x) => Array.isArray(x) ? "[" + x.map(stable).join(",") + "]" : x && typeof x === "object" ? "{" + Object.keys(x).sort().map((k) => JSON.stringify(k) + ":" + stable(x[k])).join(",") + "}" : JSON.stringify(x);
+  return stable(a) === stable(b);
+}
+async function saveWithRetry(api, read, library, revision, state, options) {
+  return retryNetwork(async (attempt) => {
+    if (attempt) {
+      const latest = await read(library);
+      if (latest.error) throw latest.error;
+      const saved = latest.data;
+      if (saved.revision === revision + 1 && sameState(saved.state, state)) return saved.revision;
+      if (saved.revision !== revision) throw Object.assign(Error("ほかの変更と重なりました。"), { code: "40001" });
+    }
+    return api(library, revision, state);
+  }, options);
+}
+export {
+  retryNetwork,
+  retryingFetch,
+  sameState,
+  saveWithRetry
+};
