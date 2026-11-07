@@ -29,9 +29,10 @@ function bindModelFileActions(){
  $$('[data-booking-attachment],[data-open-booking-attachment]').forEach(button=>button.onclick=async()=>{button.disabled=true;try{const opening=!!button.dataset.openBookingAttachment,action=opening?window.spoolOpenBookingAttachment:window.spoolDownloadBookingAttachment;if(!action)throw Error('オンライン版でログインして添付を取得してください。');await action(button.dataset.openBookingAttachment||button.dataset.bookingAttachment)}catch(error){toast(error.message)}finally{button.disabled=false}});
  $$('[data-open-embedded-file]').forEach(button=>button.onclick=()=>{const file=[...reservations.flatMap(x=>x.attachments||[]),...bookingAttachments].find(x=>x.id===button.dataset.openEmbeddedFile);if(file)showModelOpenDialog(file)});
 }
-function bookingFileMarkup(booking){return (booking.files||[]).map(file=>{
+function compactBookingFileList(rows,label){if(rows.length<3)return rows.join('');return '<p class="booking-file-scroll-hint">'+esc(label)+' '+rows.length+'件 <span>一覧内をスクロールして確認</span></p><div class="booking-file-scroll" tabindex="0" role="region" aria-label="'+esc(label)+'（'+rows.length+'件）">'+rows.join('')+'</div>'}
+function bookingFileMarkup(booking){const rows=(booking.files||[]).map(file=>{
  if(!validBookingFile(file))return '<div class="model-file-row model-file-note"><span class="model-file-name">'+esc(file)+'</span><small>メモ</small></div>';
  const remote=/^https:\/\//i.test(file);let name=remote?new URL(file).pathname.split('/').pop():file.split(/[\\/]/).pop();if(remote){try{name=decodeURIComponent(name)}catch{}}
  const href=remote?file:modelProtocolLink({path:file});
  return '<div class="model-file-row"><span class="model-file-name">'+esc(name)+'</span><a class="booking-file" href="'+esc(href)+'"'+(remote?' target="_blank" rel="noopener noreferrer"':' data-model-path="'+esc(file)+'"')+' title="'+esc(file)+'">'+(remote?'ファイルを開く／取得':'既定アプリで開く')+'</a></div>';
-}).join('')+(booking.attachments||[]).map(file=>'<div class="model-file-row"><span class="model-file-name">'+esc(file.name)+'<small>'+modelFileSize(file.size)+' · '+(file.kind==='embedded'?'バックアップに同梱':'オンライン添付')+'</small></span>'+modelAttachmentActions(file)+'</div>').join('')}
+}).concat((booking.attachments||[]).map(file=>'<div class="model-file-row"><span class="model-file-name">'+esc(file.name)+'<small>'+modelFileSize(file.size)+' · '+(file.kind==='embedded'?'バックアップに同梱':'オンライン添付')+'</small></span>'+modelAttachmentActions(file)+'</div>'));return compactBookingFileList(rows,'関連ファイル・メモ')}
