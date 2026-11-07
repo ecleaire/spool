@@ -315,3 +315,5 @@ body.simple-workspace .cloud-dialog :is(input,select,textarea)::placeholder{colo
  body:not(.cloud-locked) .cloud-topbar .cloud-account-trigger{width:44px;min-width:44px;margin:0;justify-self:end}
 }
 body:has(#eventView:not([hidden])) .page-actions :is(#spool-help-entry,#cloud-shared-settings){display:none!important}body:has(#eventView:not([hidden])) .page-actions{display:none}
+
+#cloud-save.cloud-save-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.4}#cloud-save .save-icon{display:block;flex:none;width:20px;height:20px}

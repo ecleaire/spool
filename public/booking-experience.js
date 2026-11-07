@@ -49,7 +49,7 @@ window.spoolBookingPendingRendered=()=>{
 };
 window.spoolBookingBeforeSave=()=>{const missing=missingBookingDraftFiles();if(!missing.length)return true;$('#bookingError').textContent=missing.length+'件の添付が再追加待ちです。ファイルを追加するか、不要な待ち情報を取り消してください。';$('#bookingPendingFiles').scrollIntoView?.({block:'center'});return false};
 window.spoolBookingFilesCommitted=(files,uploaded)=>{
- for(const [i,attachment] of uploaded.entries()){const file=files[i];if(!file)continue;const previous=bookingPendingId(file);bookingModelColors=bookingModelColors.map(c=>c.kind==='attachment'&&c.id===previous?{...c,id:attachment.id}:c);bookingDraftPendingInfo=bookingDraftPendingInfo.filter(f=>f.id!==previous);bookingPendingIds.set(file,attachment.id);}
+ for(const [i,attachment] of uploaded.entries()){const file=files[i];if(!file)continue;const previous=bookingPendingId(file);if(bookingUsageMetadata?.plates)bookingUsageMetadata.plates=bookingUsageMetadata.plates.map(p=>p.attachmentId===previous?{...p,attachmentId:attachment.id}:p);bookingModelColors=bookingModelColors.map(c=>c.kind==='attachment'&&c.id===previous?{...c,id:attachment.id}:c);bookingDraftPendingInfo=bookingDraftPendingInfo.filter(f=>f.id!==previous);bookingPendingIds.set(file,attachment.id);}
 };
 function bookingDraftForm(){return {filamentUsage:bookingFilamentUsageSnapshot(),fields:Object.fromEntries(bookingDraftFields.map(name=>[name,String($('#bookingForm').elements.namedItem(name).value||'')])),unknownDeadline:$('#bookingDeadlineUnknown').checked,autoDeadline:bookingAutoDeadline!==null,modelColors:structuredClone(bookingModelColors),attachmentIds:bookingAttachments.map(x=>x.id),savedAttachments:bookingAttachments.map(f=>({id:f.id,name:f.name,size:f.size,kind:f.kind})),pendingFiles:bookingDraftFileSnapshot(),pendingNames:bookingDraftFileSnapshot().map(f=>f.name)}}
 function bookingDraftSignature(booking){if(!booking)return null;const {attachments,...data}=booking;delete data._sharedBookingSource;return JSON.stringify({...data,attachments:(attachments||[]).map(x=>({id:x.id,name:x.name,size:x.size}))})}
@@ -120,3 +120,5 @@ window.spoolBookingResetQuick=()=>{bookingQuickRange='all';bookingQuickMine=fals
 window.spoolBookingSharingMarkup=booking=>'<small class="booking-sharing-state">'+esc(bookingSharingLabel(booking))+'</small>';
 window.spoolBookingExperienceRendered=()=>{updateBookingQuickControls();$$('[data-review-booking]').forEach(button=>button.onclick=()=>openBookingReview(button.dataset.reviewBooking))};
 renderBookings();
+
+window.spoolBookingAwaitingFiles=()=>missingBookingDraftFiles().map(f=>f.id);

@@ -1292,3 +1292,64 @@ body.simple-workspace #bookingView .booking-table td{vertical-align:top}
 
 body.simple-workspace #bookingDialog :is(.duration-presets button,#durationMinus,#durationPlus){color:#264d36;border-color:#a5b69b}body.simple-workspace #bookingDialog #bookingImportPick>span{white-space:nowrap}
 @media(max-width:380px){body.simple-workspace #bookingDialog #bookingImportPick{grid-template-columns:minmax(0,1fr);gap:5px;min-height:108px}body.simple-workspace #bookingDialog #bookingImportPick>:is(strong,span,small){grid-column:1;white-space:normal;text-align:left}body.simple-workspace #bookingDialog .duration-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}body.simple-workspace #bookingDialog .duration-presets button{white-space:nowrap;width:100%;min-width:0}}
+/* Table details use the complete reservation width, without inflating empty columns. */
+body.simple-workspace #bookingView .booking-details-row>td{padding:0 16px 12px;border-top:0}
+body.simple-workspace #bookingView .booking-row:has(+.booking-details-row)>td{border-bottom:0;padding-bottom:4px}
+body.simple-workspace #bookingView .booking-details-row .booking-row-details{margin-top:0}
+body.simple-workspace #bookingView .booking-details-row summary{max-width:430px}
+.booking-details-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-bottom:10px}.booking-details-top .booking-details-creator{margin:0}.booking-details-top .booking-model-zip{margin:0}
+body.simple-workspace #bookingView .booking-details-row .booking-details-body{padding:12px 14px!important}
+body.simple-workspace #bookingView .booking-details-row .booking-file-entries,body.simple-workspace #bookingView .booking-details-row .booking-file-scroll{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:10px;align-items:start}
+.booking-file-entries>:is(.booking-file-scroll-hint,.booking-file-scroll){grid-column:1/-1}
+body.simple-workspace #bookingView .booking-details-row .model-file-row{margin:0;border:1px solid #d6dfcf;border-radius:8px;padding:10px;background:#fff;align-self:stretch}
+body.simple-workspace #bookingView .booking-details-row .booking-file-scroll-hint{margin:0;font-size:14px}
+@media(max-width:760px){.booking-details-top{display:block}.booking-details-top .booking-model-download:not(:empty){margin-top:10px}}
+/* Selection starts on each item. The action bar exists only while items are selected. */
+body.simple-workspace #batchActions[hidden]{display:none!important}
+body.simple-workspace #batchActions{margin:0;border:0;border-bottom:1px solid #b4c5ac}
+body.simple-workspace #batchActions .bulk-toolbar{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:14px 16px;background:#edf4e7}
+.bulk-selection-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px}
+.bulk-selection-hint{font-size:14px;line-height:1.5;color:#34513c;margin:0}
+.bulk-action-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:8px}
+body.simple-workspace #batchActions .bulk-action-buttons button{width:100%;grid-column:auto;white-space:normal;text-wrap:balance}
+body.simple-workspace #items .filament-row>.row-select{display:block!important;position:absolute;top:8px;left:8px;width:24px;height:24px;z-index:3;opacity:0;background:#fff;cursor:pointer}
+body.simple-workspace #items .filament-row:is(:hover,:focus-within)>.row-select,body.simple-workspace #items[data-selecting=true] .filament-row>.row-select{opacity:1}
+body.simple-workspace #items .filament-row>.row-select:disabled{display:none!important}
+body.simple-workspace #items.simple-mode[data-selecting=true]>.filament-row{padding:14px}
+@media(hover:none),(pointer:coarse){body.simple-workspace #items .filament-row>.row-select{opacity:1}}
+@media(max-width:1000px){body.simple-workspace #items.simple-mode[data-selecting=true]>.filament-row{padding:10px 8px}}
+body.simple-workspace #items .filament-row>.row-select{top:12px;left:12px}
+body.simple-workspace .inventory .section-top .tabs{width:100%;min-width:0;max-width:100%;flex-wrap:wrap;overflow:visible}
+body.simple-workspace .inventory #purchaseIntentFilter{width:210px;min-width:0;max-width:100%;flex:0 1 210px;min-height:44px;font-size:max(var(--spool-type-floor,16px),16px);padding:8px 28px 8px 10px;border:1px solid #9aaf90;border-radius:8px;background:#fff;color:#244b32}
+@media(max-width:760px){body.simple-workspace .inventory #purchaseIntentFilter{grid-column:1/-1;width:100%}}
+.purchase-tab-group{position:relative;min-width:0;flex:none;z-index:5}
+body.simple-workspace .inventory #purchaseIntentFilter{display:none!important}
+body.simple-workspace .inventory #purchaseTabTrigger{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;width:100%}
+body.simple-workspace .inventory #purchaseTabLabel{font:inherit;color:inherit;background:none;padding:0;margin:0}
+.purchase-intent-menu{position:absolute;right:0;top:calc(100% + 6px);width:min(240px,calc(100vw - 48px));padding:6px;border:1px solid #9db294;border-radius:10px;background:#fff;box-shadow:0 8px 24px #183b2926;z-index:20}
+.purchase-intent-menu[hidden]{display:none!important}
+body.simple-workspace .inventory .purchase-intent-menu button{display:block;width:100%;min-height:44px;text-align:left;margin:0;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;border-radius:6px;padding:10px 12px;white-space:normal;color:#244b32}
+body.simple-workspace .inventory .purchase-intent-menu button[aria-pressed=true]{background:#e5efdb;color:#193e2b;font-weight:700}
+
+body.simple-workspace #quickSave{display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.4}.save-icon{display:block;flex:none;vertical-align:middle}
+/* Keep secondary filters and per-plate settings inside their disclosures. */
+body.simple-workspace #bookingFilters .filter-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+body.simple-workspace #bookingFilters .booking-quick-filters{padding:0 0 10px;border-bottom:1px solid #d9e2d5;gap:6px}
+body.simple-workspace #bookingView .booking-overview-header{gap:12px;flex-wrap:wrap;padding:12px 16px}
+body.simple-workspace #bookingView .booking-tools{padding:12px 16px;gap:10px;flex-wrap:wrap;align-items:center}
+body.simple-workspace #bookingView #resetBookingFilters{min-height:44px;color:#34573b}
+.booking-file-group{min-width:0;margin:0 0 12px}.booking-file-group:last-child{margin-bottom:0}.booking-file-group h4{margin:0 0 8px;font-size:16px;color:#244b32;display:flex;gap:8px;align-items:center}.booking-file-group h4 small{font-size:13px;font-weight:400}.booking-file-group .booking-file-scroll-hint{font-size:13px;line-height:1.4}.model-file-plates{font-weight:550;color:#244b32}.booking-plates-summary{display:inline-block;color:#34523c;font-size:14px;line-height:1.5;margin:5px 0}
+#bookingImportPanel{width:100%;min-width:0}#bookingImportPlateChoices{max-height:240px;overflow:auto;overscroll-behavior:contain;padding:4px}#bookingImportPlateChoices label{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:8px;border-bottom:1px solid #dce5d6}#bookingImportPlateChoices input{flex:none;width:24px;height:24px;min-height:0!important;margin:2px 0}#bookingImportPlateChoices strong{display:block;overflow-wrap:anywhere;font-size:16px}#bookingImportPlateChoices small{display:block}.booking-plate-select-actions{display:flex;gap:8px;padding:8px;flex-wrap:wrap}.booking-plate-select-actions button{min-height:44px;border:1px solid #adbf9f;border-radius:7px;padding:8px 12px;color:#264f37}.import-selection-summary{font-size:14px;margin:8px 0;color:#34543a}.import-color-details{font-size:14px;margin:8px 0}.import-color-details>summary{min-height:44px;cursor:pointer;padding:10px 0}.import-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:760px){body.simple-workspace #bookingView .booking-status-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%}body.simple-workspace #bookingView .booking-status-tabs button{min-width:0;padding:8px 4px;font-size:16px;white-space:normal;line-height:1.4}body.simple-workspace #bookingView .booking-overview-header{padding:12px;gap:8px}.import-metrics{grid-template-columns:minmax(0,1fr)}}
+body.simple-workspace #bookingView .booking-status-tabs .booking-status-label{font:inherit;color:inherit;background:none;padding:0;white-space:nowrap}
+.plate-selection-hint{font-size:13px;color:#52654c;margin:4px 12px 8px;line-height:1.5}
+@media(min-width:381px) and (max-width:760px){body.simple-workspace #bookingView .booking-status-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}}
+@media(max-width:380px){body.simple-workspace #bookingView .booking-status-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}body.simple-workspace #bookingView .booking-status-tabs button{display:flex;align-items:center;justify-content:center;gap:6px}}
+.booking-file-group>summary{min-height:44px;display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:#244b32;cursor:pointer}.booking-file-group>summary::before{content:'›';font-size:20px}.booking-file-group[open]>summary::before{transform:rotate(90deg)}.booking-file-group>summary::-webkit-details-marker{display:none}
+body.simple-workspace #bookingView .booking-details-row .booking-file-entries>.model-file-row:only-child{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+body.simple-workspace #bookingView .booking-details-row .booking-file-entries>.model-file-row:only-child>.model-file-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;max-width:380px}
+body.simple-workspace #bookingView .booking-details-row .booking-file-entries>.model-file-row:only-child>.model-file-actions :is(a,button){min-width:144px}
+#bookingImportPlateChoices label>span{min-width:0}#bookingImportSummary{min-width:0;overflow-wrap:anywhere}
+body.simple-workspace #bookingDialog #bookingImportPlateChoices label{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:10px;padding:8px;min-height:44px}
+body.simple-workspace #bookingDialog #bookingImportPlateChoices label>input{grid-column:1;grid-row:1}
+body.simple-workspace #bookingDialog #bookingImportPlateChoices label>span{grid-column:2;grid-row:1;min-width:0}

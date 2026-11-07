@@ -6,7 +6,7 @@ function slicerSeconds(value){
  return parts.reduce((n,m)=>n+Number(m[1])*({d:86400,h:3600,m:60,s:1}[m[2].toLowerCase()]),0);
 }
 function printUsageNumber(value,scale=1){if(value===null||value===undefined||String(value).trim()==='')return null;const number=Number(value)*scale;return Number.isFinite(number)&&number>=0&&number<=1000000000?Math.round(number*1000)/1000:null}
-function validFilamentUsage(value){const number=x=>x===null||(typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=1000000000);return value===null||!!value&&typeof value==='object'&&!Array.isArray(value)&&number(value.grams)&&number(value.millimeters)&&Array.isArray(value.filaments)&&value.filaments.length<=64&&value.filaments.every(f=>f&&typeof f.type==='string'&&f.type.length<=40&&typeof f.color==='string'&&(f.color===''||/^#[0-9a-f]{6}$/i.test(f.color))&&number(f.grams)&&number(f.millimeters))}
+function validFilamentUsage(value){const number=x=>x===null||(typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=1000000000);return value===null||!!value&&typeof value==='object'&&!Array.isArray(value)&&number(value.grams)&&number(value.millimeters)&&(value.plates===undefined||validPrintPlates(value.plates))&&Array.isArray(value.filaments)&&value.filaments.length<=64&&value.filaments.every(f=>f&&typeof f.type==='string'&&f.type.length<=40&&typeof f.color==='string'&&(f.color===''||/^#[0-9a-f]{6}$/i.test(f.color))&&number(f.grams)&&number(f.millimeters))}
 function cleanPrintUsage(value){
  const filaments=(value.usageFilaments||value.filaments||[]).slice(0,64).map(f=>({color:/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(f.color||'')?f.color.slice(0,7).toUpperCase():'',type:String(f.type||'').replace(/[<>]/g,'').slice(0,40),grams:printUsageNumber(f.grams),millimeters:printUsageNumber(f.millimeters)}));
  const sum=key=>filaments.length&&filaments.every(f=>f[key]!==null)?printUsageNumber(filaments.reduce((n,f)=>n+f[key],0)):null;
@@ -87,4 +87,26 @@ async function extractPrintMetadata(file){
   else{const data=parseGcodeMetadata(text);if(!row.seconds)row.seconds=data.seconds;if(data.layerHeight)row.layerHeight=data.layerHeight;if(!row.filaments?.length)row.filaments=data.filaments;if(!cleanPrintUsage(row))row.filamentUsage=data.filamentUsage;}
  }
  if(!plates.size)ensure('');return [...plates.values()].map(cleanPrintMetadata);
+}
+
+// A reservation can contain several sliced plates. Unknown values never become partial totals.
+function validPrintPlates(plates){return Array.isArray(plates)&&plates.length>0&&plates.length<=64&&new Set(plates.map(p=>p?.attachmentId+':'+p?.plate)).size===plates.length&&plates.every(p=>p&&typeof p.attachmentId==='string'&&p.attachmentId.length>0&&p.attachmentId.length<=120&&typeof p.name==='string'&&p.name.length>0&&p.name.length<=240&&typeof p.plate==='string'&&p.plate.length<=40&&['seconds','grams','millimeters'].every(k=>p[k]===null||(typeof p[k]==='number'&&Number.isFinite(p[k])&&p[k]>=0&&p[k]<=(k==='seconds'?3600000:1000000000))))}
+function aggregatePrintMetadata(rows){
+ if(!rows.length||rows.length>64)throw Error('対象のプレートを1〜64件選択してください。');
+ const sum=values=>values.every(v=>v!==null&&v!==undefined)?Math.round(values.reduce((a,b)=>a+b,0)*1000)/1000:null;
+ const missingTime=rows.some(r=>!r.seconds),missingUsage=rows.some(r=>!r.filamentUsage),seconds=missingTime?null:sum(rows.map(r=>r.seconds));
+ if(seconds!==null&&seconds>3600000)throw Error('合計印刷時間が1000時間を超えています。プレートを分けて予約してください。');
+ const filaments=new Map(),usage=new Map();for(const [i,row] of rows.entries()){
+  for(const f of row.filaments||[])filaments.set(f.color.toUpperCase()+':'+f.type.toUpperCase(),f);
+  for(const [j,f] of (row.filamentUsage?.filaments||[]).entries()){const key=f.color&&f.type?f.color.toUpperCase()+':'+f.type.toUpperCase():i+':'+j;const old=usage.get(key);usage.set(key,old?{...f,grams:sum([old.grams,f.grams]),millimeters:sum([old.millimeters,f.millimeters])}:{...f});}
+ }
+ const complete=key=>rows.every(r=>r.filamentUsage&&r.filamentUsage[key]!==null),total=key=>complete(key)?sum(rows.map(r=>r.filamentUsage[key])):null;
+ // If a plate has no trustworthy colour breakdown, require manual allocation rather than use a partial breakdown.
+ const breakdownComplete=rows.every(r=>r.filamentUsage?.filaments?.length&&r.filamentUsage.filaments.every(f=>f.grams!==null)&&r.filamentUsage.grams!==null&&Math.abs(r.filamentUsage.filaments.reduce((n,f)=>n+f.grams,0)-r.filamentUsage.grams)<0.0011);
+ const usageRows=[...usage.values()].map(f=>({...f,grams:breakdownComplete?f.grams:null,millimeters:missingUsage?null:f.millimeters}));
+ if(filaments.size>64||usageRows.length>64)throw Error('色の内訳が64件を超えています。プレートを分けて選択してください。');
+ const plates=rows.map(r=>({attachmentId:r.attachmentId,name:r.file.name,plate:String(r.plate||''),seconds:r.seconds??null,grams:r.filamentUsage?.grams??null,millimeters:r.filamentUsage?.millimeters??null}));
+ const filamentUsage={grams:total('grams'),millimeters:total('millimeters'),filaments:usageRows,plates};
+ if(!validPrintPlates(plates)||!validFilamentUsage(filamentUsage))throw Error('プレートの合計値が保存できる範囲を超えています。');
+ return {rows,files:[...new Set(rows.map(r=>r.file))],file:rows[0].file,plate:rows.map(r=>r.plate||'1').join('・'),seconds:seconds&&seconds<=3600000?seconds:null,missingTime,missingUsage,layerHeight:rows.every(r=>r.layerHeight===rows[0].layerHeight)?rows[0].layerHeight:null,filaments:[...filaments.values()],filamentUsage};
 }

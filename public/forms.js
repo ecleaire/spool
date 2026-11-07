@@ -163,3 +163,9 @@ $('#activeInventoryFilters').addEventListener('click',e=>{const button=e.target.
 renderActiveInventoryFilters();
 
 $('#openModelHelp').onclick=()=>showModelOpenDialog();
+
+function closePurchaseIntentMenu(){const menu=$('#purchaseIntentMenu');if(menu)menu.hidden=true;$('#purchaseTabTrigger')?.setAttribute('aria-expanded','false')}
+$('#purchaseTabTrigger').onclick=()=>{const menu=$('#purchaseIntentMenu'),wasOpen=!menu.hidden;setTab('planned');if(!wasOpen){menu.hidden=false;$('#purchaseTabTrigger').setAttribute('aria-expanded','true')}};
+$$('[data-purchase-intent]').forEach(button=>button.onclick=()=>{$('#purchaseIntentFilter').value=button.dataset.purchaseIntent;setTab('planned');$('#purchaseTabTrigger').focus()});
+document.addEventListener?.('pointerdown',event=>{if(!event.target.closest?.('.purchase-tab-group'))closePurchaseIntentMenu()});
+document.addEventListener?.('keydown',event=>{if(event.key==='Escape'&&!$('#purchaseIntentMenu').hidden){event.preventDefault();closePurchaseIntentMenu();$('#purchaseTabTrigger').focus()}});
