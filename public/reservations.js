@@ -74,7 +74,7 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
   $$('[data-sync-booking]').forEach(button=>button.onclick=()=>window.spoolBookingSharing(button.dataset.syncBooking));
   $$('[data-stop-booking-sync]').forEach(button=>button.onclick=()=>window.spoolStopBookingSharing(button.dataset.stopBookingSync));
   $$('[data-quick-booking-status]').forEach(button=>button.onclick=()=>openBookingStatus(button));
-  $$('[data-edit-booking]').forEach(button=>button.onclick=()=>openBooking(button.dataset.editBooking));if(typeof refreshSearchPanel==='function')refreshSearchPanel();window.spoolRefreshPermissions?.();window.spoolBookingExperienceRendered?.();
+  $$('[data-edit-booking]').forEach(button=>button.onclick=()=>openBooking(button.dataset.editBooking));if(typeof refreshSearchPanel==='function')refreshSearchPanel();window.spoolRefreshPermissions?.();window.spoolBookingExperienceRendered?.();window.spoolBookingDownloadsRendered?.();
 }
 function showBookingView(show){
   bookingsShowing=show;$('#bookingView').hidden=!show;

@@ -329,7 +329,7 @@ window.spoolBookingFileUpload=async(bookingId,files,ids=[])=>{
  }catch(error){const failure=Error(error.message||'添付の保存に失敗しました。');failure.uploadedAttachments=uploaded;failure.remainingFiles=files.slice(uploaded.length);throw failure}
  finally{uploading=false;if(picker)picker.disabled=false}
 };
-const modelFiles=createOnlineModelFiles({context:()=>({client,session,library,epoch:authEpoch,resolveFileLibrary:fileLibrary})});window.spoolDownloadBookingAttachment=modelFiles.download;window.spoolOpenBookingAttachment=modelFiles.open;
+const modelFiles=createOnlineModelFiles({context:()=>({client,session,library,epoch:authEpoch,resolveFileLibrary:fileLibrary})});window.spoolReadBookingAttachment=modelFiles.read;window.spoolBookingDownloadContext=modelFiles.guard;window.spoolDownloadBookingAttachment=modelFiles.download;window.spoolOpenBookingAttachment=modelFiles.open;
 
 // Online uses only authenticated state; offline data-management controls are not used.
 for(const id of ['#navData','#manageData','#quickSave','#saveStatusSummary'])document.querySelector(id).hidden=true;
