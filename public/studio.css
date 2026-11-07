@@ -1266,3 +1266,29 @@ body.simple-workspace #bookingView .booking-details-body :is(.model-file-basenam
 body.simple-workspace #bookingView .booking-details-body .booking-model-zip{font-size:max(var(--spool-type-floor,16px),16px);padding:10px!important;border-radius:8px;text-decoration:none;line-height:1.5}
 
 body.simple-workspace #bookingView .booking-model-zip>span{display:inline-block;white-space:nowrap}
+
+/* Booking forms follow the same reading order on desktop and phones. */
+body.simple-workspace #bookingDialog .booking-subheading{margin:18px 0 12px;font-size:max(var(--spool-type-floor,16px),18px);color:#214632;line-height:1.5}
+body.simple-workspace #bookingDialog .booking-subheading:first-of-type{margin-top:0}
+body.simple-workspace #bookingDialog .booking-schedule-fields{margin:0 0 22px;padding-bottom:20px;border-bottom:1px solid #ccd9c4;align-items:start}
+body.simple-workspace #bookingDialog .booking-optional-heading{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:max(var(--spool-type-floor,16px),18px);color:#214632;margin:24px 0 10px}
+body.simple-workspace #bookingDialog .booking-optional-heading small{font-size:14px;font-weight:400;color:#526451}
+body.simple-workspace #bookingDialog .disclosure>summary{min-height:48px;padding:12px 14px;line-height:1.5;text-wrap:balance}
+body.simple-workspace #bookingView .booking-details-body .model-file-actions{grid-template-columns:repeat(auto-fit,minmax(min(132px,100%),1fr))}
+body.simple-workspace #bookingView .booking-details-body .model-file-actions :is(a,button){white-space:nowrap;padding:9px 6px!important;font-size:max(var(--spool-type-floor,16px),16px)!important}
+@media(min-width:761px){body.simple-workspace #bookingDialog .booking-work-fields{grid-template-columns:2fr 1fr}body.simple-workspace #bookingDialog .booking-work-fields>.full{grid-column:auto}}
+@media(max-width:760px){body.simple-workspace #bookingDialog .booking-schedule-fields{grid-template-columns:minmax(0,1fr)}body.simple-workspace #bookingDialog .booking-subheading{margin-top:16px}}
+
+body.simple-workspace #bookingDialog .booking-import{padding:12px;gap:6px;margin-bottom:18px}
+body.simple-workspace #bookingDialog #bookingImportPick{display:grid;grid-template-columns:1fr 1fr;min-height:88px;padding:12px;gap:4px 12px;text-align:left;align-items:center}
+body.simple-workspace #bookingDialog #bookingImportPick::before{content:none}
+body.simple-workspace #bookingDialog #bookingImportPick>strong{grid-column:1;white-space:nowrap}
+body.simple-workspace #bookingDialog #bookingImportPick>span{grid-column:2;text-align:right;font-size:16px;line-height:1.5;text-wrap:balance}
+body.simple-workspace #bookingDialog #bookingImportPick>small{grid-column:1/-1;font-size:14px;line-height:1.5;color:#425b45}
+body.simple-workspace #bookingDialog #bookingImportPick strong small{font-size:13px;font-weight:400}
+.booking-upload-help{width:100%;font-size:14px;color:#34523b}.booking-upload-help>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;gap:8px}.booking-upload-help>summary::before{content:'›';font-size:20px}.booking-upload-help[open]>summary::before{transform:rotate(90deg)}.booking-upload-help>summary::-webkit-details-marker{display:none}
+body.simple-workspace #bookingDialog .booking-upload-help .model-file-limit{margin:0 0 8px;font-size:14px;line-height:1.6}
+body.simple-workspace #bookingView .booking-table td{vertical-align:top}
+
+body.simple-workspace #bookingDialog :is(.duration-presets button,#durationMinus,#durationPlus){color:#264d36;border-color:#a5b69b}body.simple-workspace #bookingDialog #bookingImportPick>span{white-space:nowrap}
+@media(max-width:380px){body.simple-workspace #bookingDialog #bookingImportPick{grid-template-columns:minmax(0,1fr);gap:5px;min-height:108px}body.simple-workspace #bookingDialog #bookingImportPick>:is(strong,span,small){grid-column:1;white-space:normal;text-align:left}body.simple-workspace #bookingDialog .duration-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}body.simple-workspace #bookingDialog .duration-presets button{white-space:nowrap;width:100%;min-width:0}}
