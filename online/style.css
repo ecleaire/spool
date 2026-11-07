@@ -328,3 +328,14 @@ body:has(#eventView:not([hidden])) .page-actions :is(#spool-help-entry,#cloud-sh
  body:not(.cloud-locked) .cloud-topbar .cloud-account-trigger>:is(.account-trigger-name,span:last-child){display:none}
 }
 @media(min-width:761px) and (max-width:1100px){body:not(.cloud-locked) #cloud-panel{padding-top:var(--cloud-header-height,64px)}}
+/* A single scroll region keeps dialog headings and close controls reachable. */
+body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)[open]{display:flex;flex-direction:column;max-height:calc(100dvh - 24px);overflow:hidden}
+body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head{flex:none;gap:12px;min-width:0}
+body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head :is(h2,h3){min-width:0;overflow-wrap:anywhere;line-height:1.4}
+body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head>button{width:44px;height:44px;min-width:44px;min-height:44px;flex:none;display:flex;align-items:center;justify-content:center;padding:4px}
+body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-body{flex:1 1 auto;min-height:0;min-width:0;max-height:none;overflow:auto;overscroll-behavior:contain;scroll-padding-block:12px}
+body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings) .cloud-dialog-body :is(h3,p,li,dd,code,a){overflow-wrap:anywhere}
+body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings) .cloud-dialog-body :is(input,select,textarea){min-width:0;max-width:100%}
+@media(max-height:600px){body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head{padding:8px 14px}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head h2{font-size:20px;margin:0}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-body{padding:12px 14px}}
+@media(max-width:760px){body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head{padding:12px 16px}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-body{padding:14px 16px}}
+@media(max-height:600px){body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head small{display:none}body.simple-workspace :is(dialog.cloud-tools-dialog,dialog.cloud-settings)>.cloud-dialog-head{padding:8px 14px}}
