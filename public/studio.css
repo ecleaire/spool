@@ -1373,3 +1373,10 @@ body.simple-workspace #batchActions .bulk-selection-controls .select-all{flex:0 
 body.simple-workspace #bookingView .booking-row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 body.simple-workspace #bookingView .booking-row-actions>[data-record-consumption]{grid-column:1/-1}
 body.simple-workspace #bookingView .booking-row-actions>button{padding:8px 6px}
+/* Fit gallery density to phones, tablets and smaller desktop windows. */
+@media(min-width:600px) and (max-width:899px){body.simple-workspace #items.simple-mode{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:12px}body.simple-workspace #items.simple-mode .product-image{height:clamp(112px,19vw,150px)}}
+@media(min-width:900px) and (max-width:1199px){body.simple-workspace #items.simple-mode{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:12px}body.simple-workspace #items.simple-mode .product-image{height:150px}}
+/* Selection, active filters and undo belong to the whole inventory, not one toolbar column. */
+@media(min-width:1280px){body.simple-workspace .inventory>:not(.section-top):not(.toolbar){grid-column:1/-1;min-width:0}}
+/* Leave room for fields and the primary action in landscape and short browser windows. */
+@media(max-height:600px){body.simple-workspace :is(#editor,#bookingDialog){max-height:100dvh;margin-block:auto}body.simple-workspace :is(#editor,#bookingDialog)>form{max-height:100dvh}body.simple-workspace :is(#editor,#bookingDialog) .dialog-head{padding:8px 14px;min-height:56px}body.simple-workspace :is(#editor,#bookingDialog) .dialog-head h2{font-size:20px;line-height:1.3}body.simple-workspace :is(#editor .editor-layout,.booking-form-scroll){padding:12px 14px;min-height:0;scroll-padding-block:12px}body.simple-workspace #bookingDraftStatus{padding:4px 14px;font-size:14px;line-height:1.4}body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions{padding:6px 12px max(6px,env(safe-area-inset-bottom));gap:8px}body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions button{min-height:44px;padding-block:8px}}

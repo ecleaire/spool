@@ -317,3 +317,14 @@ body.simple-workspace .cloud-dialog :is(input,select,textarea)::placeholder{colo
 body:has(#eventView:not([hidden])) .page-actions :is(#spool-help-entry,#cloud-shared-settings){display:none!important}body:has(#eventView:not([hidden])) .page-actions{display:none}
 
 #cloud-save.cloud-save-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.4}#cloud-save .save-icon{display:block;flex:none;width:20px;height:20px}
+/* Tablet windows keep navigation and the account control inside one header row. */
+@media(min-width:761px) and (max-width:1100px){
+ body:not(.cloud-locked) .cloud-topbar{display:grid;grid-template-columns:auto minmax(0,1fr) 44px;align-items:center;gap:12px;padding:6px 16px;height:auto;min-height:64px}
+ body:not(.cloud-locked) .cloud-topbar .cloud-brand{min-width:0;margin:0;gap:8px}
+ body:not(.cloud-locked) .cloud-topbar .cloud-brand>small{display:none}
+ body:not(.cloud-locked) .cloud-topbar .cloud-navigation{display:flex;justify-content:center;gap:6px;min-width:0;width:auto;height:auto;margin:0;order:0}
+ body.simple-workspace:not(.cloud-locked) .cloud-topbar .cloud-navigation button{min-width:0;min-height:44px;height:auto;padding:6px 8px;line-height:1.3;white-space:normal;text-wrap:balance}
+ body:not(.cloud-locked) .cloud-topbar .cloud-account-trigger{width:44px;min-width:44px;max-width:44px;margin:0;padding:3px;gap:0;justify-content:center}
+ body:not(.cloud-locked) .cloud-topbar .cloud-account-trigger>:is(.account-trigger-name,span:last-child){display:none}
+}
+@media(min-width:761px) and (max-width:1100px){body:not(.cloud-locked) #cloud-panel{padding-top:var(--cloud-header-height,64px)}}

@@ -21,6 +21,7 @@ try{
   await page.locator('.filament-row').first().hover();
   await page.locator('[data-select="simple-0"]').check();assert.match(await page.locator('#selectionCount').innerText(),/1 件選択/);
   await page.locator('#clearSelection').click();assert.equal(await page.locator('#batchActions').isVisible(),false);await page.locator('[data-select="simple-1"]').check();await page.locator('#selectAll').check();await page.locator('[data-select="simple-0"]').uncheck();assert.match(await page.locator('#selectionCount').innerText(),/2 件選択/);
+  if(width>=1280){const bar=await page.locator('#batchActions').boundingBox(),list=await page.locator('#items').boundingBox();assert.ok(bar.width>=list.width-2&&Math.abs(bar.x-list.x)<2,'Selection bar spans the desktop list');}
   for(const selector of ['#selectionCount','#bulkAdd','#bulkDelete','#clearSelection','.select-all'])assert.ok(await page.locator(selector).evaluate(x=>parseFloat(getComputedStyle(x).fontSize)>=16));
   for(const selector of ['#bulkAdd','#bulkDelete','#clearSelection'])assert.ok(await page.locator(selector).evaluate(x=>x.getBoundingClientRect().height>=44));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
