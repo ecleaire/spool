@@ -1,4 +1,4 @@
-// Slicer estimates are reservation information; they never deduct stock.
+// Importing slicer estimates alone never deducts stock; completion has a separate confirmation.
 let bookingUsageMetadata=null,bookingUsageSource=null;
 function filamentUsageLabel(value){if(!value)return '';return [value.grams!==null?value.grams.toLocaleString('ja-JP',{maximumFractionDigits:3})+' g':'',value.millimeters!==null?(value.millimeters/1000).toLocaleString('ja-JP',{maximumFractionDigits:3})+' m':''].filter(Boolean).join(' / ')}
 function bookingFilamentUsageMarkup(booking){return booking.filamentUsage?'<span class="booking-usage-summary">推定消費量 '+esc(filamentUsageLabel(booking.filamentUsage)||'色別内訳あり')+'</span>':''}

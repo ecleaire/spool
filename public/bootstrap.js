@@ -5,6 +5,7 @@ const EMBEDDED_DATA=(()=>{try{return JSON.parse(document.getElementById('spool-e
 // usable in memory; the explicit JSON file is the durable portable record.
 const storage=(()=>{const memory=new Map();let persistent=true;return {
   get persistent(){return persistent},
+  setMemoryItem(key,value){memory.set(key,String(value))},
   getItem(key){if(memory.has(key))return memory.get(key);try{return localStorage.getItem(key)}catch{persistent=false;return null}},
   setItem(key,value){memory.set(key,String(value));try{localStorage.setItem(key,String(value))}catch{persistent=false}},
   removeItem(key){memory.delete(key);try{localStorage.removeItem(key)}catch{persistent=false}},

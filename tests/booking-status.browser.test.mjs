@@ -28,7 +28,7 @@ try{
   await trigger().click();await dialog.getByRole('button',{name:'未定',exact:true}).click();await dialog.waitFor({state:'hidden'});
   assert.deepEqual(await page.evaluate(()=>reservations[0]),{...booking,printStatus:'未定'});
   await page.reload();await navigate();assert.equal(await page.locator('#bookingStatusFilter').inputValue(),'印刷予定');assert.equal(await trigger().count(),0);await page.locator('[data-booking-status=""]').click();assert.ok((await trigger().innerText()).includes('未定'));
-  await page.locator('[data-booking-status="未定"]').click();await trigger().click();await dialog.getByRole('button',{name:'印刷済み',exact:true}).click();
+  await page.locator('[data-booking-status="未定"]').click();await trigger().click();await dialog.getByRole('button',{name:'印刷済み',exact:true}).click();await page.locator('#consumptionStatusOnly').click();await page.locator('#printConsumptionDialog').waitFor({state:'hidden'});
   assert.equal(await dialog.isVisible(),false);assert.equal(await trigger().count(),0);assert.equal(await page.locator('#bookingTabCompleted').innerText(),'1');
   await page.locator('[data-booking-status=""]').click();await trigger().click();
   await page.evaluate(()=>{window.spoolAuthorizeChange=()=>false});await dialog.getByRole('button',{name:'印刷予定',exact:true}).click();assert.equal(await dialog.isVisible(),true);assert.ok((await page.locator('#bookingStatusError').innerText()).includes('保存できません'));assert.equal(await page.evaluate(()=>reservations[0].printStatus),'印刷済み');

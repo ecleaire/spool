@@ -7,7 +7,7 @@ const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/ht
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)mkdirSync(shots,{recursive:true});
-const stock=['白','青','赤'].map((colorName,i)=>({id:'simple-'+i,name:'確認材料 '+i,brand:'QA',material:'PLA',colorName,color:['#FFFFFF','#2266AA','#AA4433'][i],remaining:800,capacity:1000,image:''}));
+const stock=['白','半透明ライトブルー','赤'].map((colorName,i)=>({id:'simple-'+i,name:'確認材料 '+i,brand:'QA',material:'PLA',colorName,color:['#FFFFFF','#2266AA','#AA4433'][i],remaining:800,capacity:1000,image:''}));
 try{
  for(const width of [320,390,1440]){
   const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -15,7 +15,7 @@ try{
   await page.goto('http://127.0.0.1:'+server.address().port);
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1')));
   await page.locator('#simpleView').click();await page.waitForFunction(()=>document.querySelector('#items').classList.contains('simple-mode'));
-  assert.equal(await page.locator('#batchActions').isVisible(),true);assert.equal(await page.locator('#items .row-select:visible').count(),0);
+  if(width<=1000){const geometry=await page.locator('#items>.filament-row').evaluateAll(rows=>rows.map(row=>{const r=row.getBoundingClientRect(),photo=row.querySelector('.product-photo').getBoundingClientRect(),label=row.querySelector('.color-name').getBoundingClientRect();return {top:r.top,left:r.left,right:r.right,photoBottom:photo.bottom,labelTop:label.top,labelRight:label.right,labelLeft:label.left}}));assert.ok(Math.abs(geometry[0].top-geometry[1].top)<1);assert.ok(geometry[1].left>geometry[0].left);assert.ok(geometry.every(x=>x.labelTop>=x.photoBottom-1&&x.labelLeft>=x.left&&x.labelRight<=x.right));if(shots)await page.locator('#items').screenshot({path:shots+'/simple-gallery-'+width+'.png'});}assert.equal(await page.locator('#batchActions').isVisible(),true);assert.equal(await page.locator('#items .row-select:visible').count(),0);
   assert.equal(await page.locator('#items :is(.product-title,.weight,.tag-list,.actions):visible').count(),0);
   await page.locator('.product-photo').first().click();await page.locator('#filamentDetails').waitFor();await page.locator('#closeFilamentDetails').click();
   await page.locator('#batchActions>summary').click();await page.locator('#items .row-select').first().waitFor();

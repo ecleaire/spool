@@ -1,0 +1,15 @@
+// Pure stock/booking transaction. The online API uses the same plan with a revision check.
+function validConsumptionRecord(r){return !!r&&typeof r==='object'&&!Array.isArray(r)&&typeof r.id==='string'&&/^[0-9a-f-]{36}$/i.test(r.id)&&['active','reverted'].includes(r.status)&&['印刷予定','未定','印刷済み'].includes(r.previousStatus)&&typeof r.recordedAt==='string'&&r.recordedAt.length<=40&&Array.isArray(r.entries)&&r.entries.length>0&&r.entries.length<=64&&r.entries.every(x=>x&&typeof x.itemId==='string'&&x.itemId.length>0&&x.itemId.length<=120&&typeof x.libraryId==='string'&&x.libraryId.length<=120&&typeof x.name==='string'&&x.name.length<=200&&typeof x.colorName==='string'&&x.colorName.length<=200&&Number.isFinite(x.grams)&&x.grams>0&&x.grams<=100000)}
+function makePrintConsumptionState(state,id,allocations,requestId,undo=false,actor='',libraryId='offline'){
+ const next=structuredClone(state),booking=next.reservations.find(x=>x.id===id);if(!booking||booking._sharedBookingSource)throw Error('予約を読み直してください。');const old=booking.filamentConsumption;
+ if(undo){if(!validConsumptionRecord(old)||old.id!==requestId)throw Error('取り消す使用記録が見つかりません。');if(old.status==='reverted')return next;allocations=old.entries.map(x=>({itemId:x.itemId,grams:x.grams}));}
+ if(!/^[0-9a-f-]{36}$/i.test(requestId)||!Array.isArray(allocations)||!allocations.length||allocations.length>64)throw Error('使用するフィラメントとg数を指定してください。');
+ const totals=new Map();for(const row of allocations){if(typeof row.itemId!=='string'||!Number.isFinite(row.grams)||row.grams<=0||row.grams>100000||Math.abs(row.grams*1000-Math.round(row.grams*1000))>0.00001)throw Error('使用量は0より大きいg数（小数3桁まで）で指定してください。');totals.set(row.itemId,Math.round(((totals.get(row.itemId)||0)+row.grams)*1000)/1000);}
+ if(!undo&&old?.status==='active'){if(old.id!==requestId)throw Error('この予約の使用量は記録済みです。取り消してから変更してください。');const recorded=old.entries.map(x=>[x.itemId,x.grams]).sort((a,b)=>a[0].localeCompare(b[0])),requested=[...totals].sort((a,b)=>a[0].localeCompare(b[0]));if(JSON.stringify(recorded)!==JSON.stringify(requested))throw Error('保存済みの使用量と再試行内容が異なります。読み直してください。');return next;}
+ const entries=[];for(const [itemId,grams] of totals){const item=next.items.find(x=>x.id===itemId);if(!item||item._sharedSource||item.inventoryStatus==='planned')throw Error('在庫のフィラメントを選び直してください。');const remaining=Math.round((item.remaining+(undo?grams:-grams))*1000)/1000;if(remaining<0)throw Error(item.name+'の残量が不足しています。');if(remaining>item.capacity)throw Error(item.name+'は取り消すと容量を超えます。残量を確認してください。');item.remaining=remaining;entries.push({itemId,libraryId,name:item.name,colorName:item.colorName,grams});}
+ if(undo){booking.filamentConsumption={...old,status:'reverted',revertedAt:new Date().toISOString()};if((booking.printStatus||'印刷予定')==='印刷済み')booking.printStatus=old.previousStatus;}
+ else{booking.filamentConsumption={id:requestId,status:'active',recordedAt:new Date().toISOString(),recordedBy:actor,contextLibraryId:libraryId,previousStatus:booking.printStatus||'印刷予定',entries};booking.printStatus='印刷済み';}
+ return next;
+}
+
+globalThis.spoolPlanPrintConsumption=makePrintConsumptionState;
