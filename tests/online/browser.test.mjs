@@ -170,7 +170,8 @@ try{
 
  await authenticated.locator('#splitView').click();
  await authenticated.setViewportSize({width:390,height:844});
- await authenticated.waitForFunction(()=>!document.querySelector('#items').classList.contains('split-mode'));assert.equal(await authenticated.locator('#gridView').isVisible(),false);
+ await authenticated.waitForFunction(()=>document.querySelector('#items').classList.contains('split-mode'));for(const mode of ['list','grid','split','simple']){await authenticated.locator('#'+mode+'View').click();assert.equal(await authenticated.locator('#'+mode+'View').getAttribute('aria-pressed'),'true');await authenticated.waitForFunction(mode=>mode==='list'?document.querySelector('#items').className==='':document.querySelector('#items').classList.contains(mode+'-mode'),mode);assert.equal(await authenticated.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
+ await authenticated.locator('#splitView').click();
  await authenticated.locator('#sort').selectOption('remaining-desc');
  await authenticated.locator('#bookingSort').selectOption('registered',{force:true});
  await authenticated.locator('#inventoryFilters>summary').click();

@@ -35,7 +35,7 @@ try{
   await page.locator('[name=remaining]').click();await page.locator('#fillRemaining').click();assert.equal(await page.locator('[name=remaining]').inputValue(),'990');
   await page.locator('[name=remaining]').click();await shot(page,'weight-candidates-'+width);await page.locator('[name=remaining]').press('Escape');assert.equal(await page.locator('#weightCandidates').isVisible(),false);assert.equal(await page.locator('#editor').isVisible(),true);
   assert.equal(await page.locator('[data-tag-suggestions=form] [data-suggested-tag="急ぎ"]').count(),0);assert.equal(await page.locator('[data-tag-suggestions=form] [data-suggested-tag="ゆっくり"]').count(),0);
-  await page.locator('#cancel').click();if(width>1000)await page.locator('#gridView').click();else assert.equal(await page.locator('#gridView').isVisible(),false);await shot(page,'inventory-'+width);
+  await page.locator('#cancel').click();await page.locator('#gridView').click();assert.equal(await page.locator('#gridView').getAttribute('aria-pressed'),'true');await shot(page,'inventory-'+width);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);await page.close();
   console.log('PASS '+width+'px: color-specific link enrichment/preservation, derived tag search, clearable filters, right-aligned close/backdrop, contextual weights and legible responsive layout.');
  }

@@ -12,7 +12,7 @@ try{
   await page.evaluate(()=>showEventView());
   assert.equal(await page.locator('#eventView').isVisible(),true);
   for(const selector of ['#bookingView','.stats','.inventory','#add','#addBooking'])assert.equal(await page.locator(selector).isVisible(),false,selector);
-  assert.match(await page.locator('#eventView').innerText(),/2026年12月中旬予定/);
+  assert.match(await page.locator('#eventView').innerText(),/2026年12月13日（日）/u);assert.equal(await page.locator('.event-deadline-announcement time').getAttribute('datetime'),'2026-12-13');assert.equal(await page.locator('#eventView h3').filter({hasText:'審査基準（仮）'}).count(),1);assert.equal((await page.locator('#eventView').innerText()).includes('正確な日付は決まり次第'),false);
   assert.equal(await page.locator('.event-details').getAttribute('open'),null);
   await page.locator('.event-details summary').click();assert.equal(await page.locator('.event-details ul').isVisible(),true);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

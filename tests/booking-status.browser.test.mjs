@@ -15,7 +15,7 @@ try{
   await page.goto('http://127.0.0.1:'+server.address().port);
   const navigate=()=>page.locator(width>760?'#navBookings':'#showBookings').click();
   const trigger=()=>page.locator('[data-quick-booking-status]:visible');
-  await navigate();const registered=page.locator(width>=1200?'#bookingRows .booking-registered':'#bookingCards .booking-card-registration');assert.equal(await registered.isVisible(),true);assert.ok((await registered.innerText()).includes('2026/11/06'));assert.ok(!(await registered.innerText()).includes('14:35'));
+  await navigate();assert.equal(await page.locator('#bookingStatusFilter').inputValue(),'印刷予定');await page.locator('[data-booking-status=""]').click();const registered=page.locator(width>=1200?'#bookingRows .booking-registered':'#bookingCards .booking-card-registration');assert.equal(await registered.isVisible(),true);assert.ok((await registered.innerText()).includes('2026/11/06'));assert.ok(!(await registered.innerText()).includes('14:35'));
   assert.ok(Number(await registered.locator('time').evaluate(x=>parseFloat(getComputedStyle(x).fontSize)))>=17);
   if(process.env.SPOOL_SCREENSHOT_DIR){mkdirSync(process.env.SPOOL_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/booking-list-'+width+'.png',fullPage:true});}
   await trigger().click();
@@ -27,7 +27,7 @@ try{
   await trigger().click();await page.mouse.click(2,2);assert.equal(await dialog.isVisible(),false);
   await trigger().click();await dialog.getByRole('button',{name:'未定',exact:true}).click();await dialog.waitFor({state:'hidden'});
   assert.deepEqual(await page.evaluate(()=>reservations[0]),{...booking,printStatus:'未定'});
-  await page.reload();await navigate();assert.ok((await trigger().innerText()).includes('未定'));
+  await page.reload();await navigate();assert.equal(await page.locator('#bookingStatusFilter').inputValue(),'印刷予定');assert.equal(await trigger().count(),0);await page.locator('[data-booking-status=""]').click();assert.ok((await trigger().innerText()).includes('未定'));
   await page.locator('[data-booking-status="未定"]').click();await trigger().click();await dialog.getByRole('button',{name:'印刷済み',exact:true}).click();
   assert.equal(await dialog.isVisible(),false);assert.equal(await trigger().count(),0);assert.equal(await page.locator('#bookingTabCompleted').innerText(),'1');
   await page.locator('[data-booking-status=""]').click();await trigger().click();

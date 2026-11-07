@@ -23,12 +23,12 @@ try{
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
  });
  await page.addInitScript(({user,token,project})=>sessionStorage.setItem('spool-auth-'+new URL(project).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,user:{id:user,email:'test@example.com'}})),{user,token,project});
- await page.goto('http://127.0.0.1:'+server.address().port+'/spool/');await page.locator('body:not(.cloud-locked)').waitFor();
+ await page.goto('http://127.0.0.1:'+server.address().port+'/spool/');await page.locator('body:not(.cloud-locked)').waitFor();await page.locator('#cloud-library').selectOption(team);await page.locator('#cloud-shared-settings').waitFor({state:'visible'});
 
  for(const width of [320,390,1440]){
   await page.setViewportSize({width,height:1000});
   await page.locator('[data-cloud-nav="events"]').click();
-  assert.equal(await page.locator('#eventView').isVisible(),true);await page.locator('[data-event-banner]').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
+  assert.equal(await page.locator('#eventView').isVisible(),true);assert.equal(await page.locator('#spool-help-entry').isVisible(),false);assert.equal(await page.locator('#cloud-shared-settings').isVisible(),false);assert.ok((await page.locator('#eventView').innerText()).includes('2026年12月13日（日）'));assert.ok((await page.locator('#eventView').textContent()).includes('内容は予告なく変更となる場合があります。'));assert.equal((await page.locator('#eventView').textContent()).includes('応募方法やルールは確定後'),false);await page.locator('[data-event-banner]').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
   assert.equal(await page.locator('[data-cloud-nav="events"]').getAttribute('aria-current'),'page');
   assert.equal(await page.locator('#add').isVisible(),false);assert.equal(await page.locator('#addBooking').isVisible(),false);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -36,8 +36,8 @@ try{
   assert.ok(nav.every(n=>n.left>=0&&n.right<=width));
   for(let i=1;i<nav.length;i++)assert.ok(nav[i].left>=nav[i-1].right-1,'navigation must not overlap');
   if(shots)await page.screenshot({path:shots+'/online-events-'+width+'.png',fullPage:true});
-  await page.locator('[data-cloud-nav="bookings"]').click();assert.equal(await page.locator('#bookingView').isVisible(),true);assert.equal(await page.locator('#eventView').isVisible(),false);
-  await page.locator('[data-cloud-nav="inventory"]').click();assert.equal(await page.locator('.inventory').isVisible(),true);
+  await page.locator('[data-cloud-nav="bookings"]').click();assert.equal(await page.locator('#bookingView').isVisible(),true);assert.equal(await page.locator('#eventView').isVisible(),false);assert.equal(await page.locator('#spool-help-entry').isVisible(),true);assert.equal(await page.locator('#cloud-shared-settings').isVisible(),true);
+  await page.locator('[data-cloud-nav="inventory"]').click();assert.equal(await page.locator('.inventory').isVisible(),true);assert.equal(await page.locator('#spool-help-entry').isVisible(),true);assert.equal(await page.locator('#cloud-shared-settings').isVisible(),true);
   console.log('PASS online event navigation '+width+'px');
  }
  assert.deepEqual(errors,[]);
