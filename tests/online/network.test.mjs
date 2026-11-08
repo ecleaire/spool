@@ -46,3 +46,11 @@ test('a stalled authentication response body is bounded without replaying the to
 test('an administrative RPC stalled after commit is reported uncertain and never replayed',async()=>{
  let calls=0;const fetcher=retryingFetch(async(input,{signal})=>{calls++;return new Response(new ReadableStream({start(c){signal.addEventListener('abort',()=>c.error(new DOMException('Aborted','AbortError')),{once:true})}}))},{timeout:4});await assert.rejects(fetcher('https://demo.supabase.co/rest/v1/rpc/set_spool_account_access',{method:'POST'}),e=>e.code==='WRITE_RESULT_UNKNOWN');assert.equal(calls,1);
 });
+
+test('gateway responses release their unread body before retrying',async()=>{
+ let cancelled=0,calls=0;
+ const failed=new Response(new ReadableStream({cancel(){cancelled++}}),{status:503});
+ const fetcher=retryingFetch(async()=>++calls===1?failed:new Response('{"ok":true}'));
+ assert.deepEqual(await (await fetcher('https://demo.supabase.co/rest/v1/libraries')).json(),{ok:true});
+ assert.equal(calls,2);assert.equal(cancelled,1,'Discarded gateway response must release its body');
+});

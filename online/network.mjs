@@ -32,7 +32,11 @@ function retryingFetch(fetcher, { context = () => null, onRetry = () => {
       }, method === "GET" && url.pathname.startsWith("/storage/") ? downloadTimeout : timeout);
       try {
         const response = await fetcher(input, { ...init, signal: controller.signal });
-        if (retryable && [502, 503, 504].includes(response.status)) throw new TypeError("Failed to fetch: temporary server error");
+        if (retryable && [502, 503, 504].includes(response.status)) {
+          // Release a discarded response so retries do not leave unread streams open.
+          void response.body?.cancel().catch(() => {});
+          throw new TypeError("Failed to fetch: temporary server error");
+        }
         if (response.body && (url.pathname.startsWith("/rest/") || url.pathname.startsWith("/auth/") || url.pathname.startsWith("/storage/") || /\.json$/.test(url.pathname))) {
           const blob = await response.blob();
           return new Response(blob, { status: response.status, statusText: response.statusText, headers: response.headers });

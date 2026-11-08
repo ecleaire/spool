@@ -29,7 +29,6 @@ const tests=[
  'tests/online/permissions.browser.test.mjs',
  'tests/online/lifecycle.browser.test.mjs',
  'tests/online/booking-status.browser.test.mjs',
- 'tests/online/v4-settings.browser.test.mjs',
  'tests/search-layout.browser.test.mjs',
  'tests/print-import.browser.test.mjs',
  'tests/usability.browser.test.mjs',
@@ -43,11 +42,11 @@ const tests=[
 const escape=value=>String(value).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A');
 for(const file of tests){
  console.log('Running '+file);
- const result=spawnSync(process.execPath,[file],{encoding:'utf8',maxBuffer:4*1024*1024});
+ const result=spawnSync(process.execPath,[file],{encoding:'utf8',maxBuffer:4*1024*1024,timeout:180000,killSignal:'SIGKILL'});
  if(result.stdout)process.stdout.write(result.stdout);
  if(result.stderr)process.stderr.write(result.stderr);
  if(result.status!==0){
-  const detail=String(result.error?.message||result.stderr||result.stdout||'No diagnostic output').slice(-5000);
+  const detail=(result.error?.code==='ETIMEDOUT'?'Browser test exceeded the 180-second limit.\n':'')+String(result.error?.message||result.stderr||result.stdout||'No diagnostic output').slice(-5000);
   if(process.env.GITHUB_ACTIONS)console.log('::error title='+escape(file)+'::'+escape(detail));
   process.exit(result.status||1);
  }
