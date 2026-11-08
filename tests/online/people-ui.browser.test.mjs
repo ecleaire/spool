@@ -8,9 +8,11 @@ const token='eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify({sub:user,role:'a
 const server=http.createServer((req,res)=>{const file=req.url.split('?')[0].split('/').pop()||'index.html';if(!['index.html','online.js','online.css','config.json'].includes(file)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(file)){res.writeHead(404).end();return}res.setHeader('Content-Type',file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/json');res.end(file==='config.json'?JSON.stringify({url:project,key:'sb_publishable_test'}):readFileSync(new URL('../../online-dist/'+file,import.meta.url)))});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)mkdirSync(shots,{recursive:true});
+// Release pending mocked requests if a check fails before the invite completes.
+let releasePendingInvite=()=>{};
 try{
  const page=await browser.newPage({viewport:{width:390,height:900}}),errors=[],invites=[];let narrow='',admin=true,removeFailure=true,removes=0,includeMember=true,holdInvite=true,releaseInvite;
- const inviteGate=new Promise(resolve=>{releaseInvite=resolve});page.on('pageerror',error=>errors.push(error.message));
+ const inviteGate=new Promise(resolve=>{releaseInvite=resolve});releasePendingInvite=releaseInvite;page.on('pageerror',error=>errors.push(error.message));
  await page.route(project+'/**',async route=>{const req=route.request(),url=new URL(req.url()),path=url.pathname,body=req.method()==='POST'?req.postDataJSON():{};let data=[];
   if(path.endsWith('/rpc/ensure_my_library'))data=personal;
   else if(path.endsWith('/rpc/spool_is_admin'))data=admin;
@@ -37,4 +39,4 @@ try{
  await page.locator('[data-people-scope=service]').click();assert.equal(await page.locator('.people-members').isVisible(),false);assert.equal(await page.locator('.people-service-settings').isVisible(),true);if(shots)await page.screenshot({path:shots+'/people-service-320.png'});await page.locator('[data-close-cloud-users]').click();
  admin=false;await page.reload();await page.locator('body:not(.cloud-locked)').waitFor();if(!await page.locator('#cloud-library-details').evaluate(x=>x.open))await page.locator('#cloud-library-more').click();await page.locator('#cloud-mobile-manage').click();await page.locator('.settings-users-entry').click();assert.equal(await page.locator('[data-people-scope=service]').count(),0);assert.equal(await page.locator('.settings-account-access').count(),0);assert.equal(await page.locator('#account-mode option[value=admin]').count(),0);assert.equal(await page.locator('#cloud-users-dialog').getAttribute('data-scope'),'members');for(const [kind,label] of [['plan','＋ 購入予定'],['wish','＋ 購入希望'],['both','＋ 予定・希望']]){narrow=kind;await page.reload();await page.locator('body:not(.cloud-locked)').waitFor();await assertActions(320);assert.equal(await page.locator('#add .mobile-action-label').innerText(),label);assert.equal(await page.locator('.settings-users-entry').count(),0);}assert.deepEqual(errors,[]);
  console.log('PASS: personal/shared mobile action labels and geometry, separate member/service scopes, current invite target, in-flight protection, membership removal confirmation/recovery and non-admin access limits.');
-}finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve))}
+}finally{releasePendingInvite();await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve))}
