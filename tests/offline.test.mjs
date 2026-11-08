@@ -158,10 +158,10 @@ const repaired=JSON.parse(app.run('JSON.stringify(enrichAmazonLinks([{...items[0
 
 // Wishes remain inside planned purchases and survive backup without inflating stock.
 const wishes=boot({cached:[['spool-inventory-v1',JSON.stringify([initialItem,planItem,{...planItem,id:'wish_test',purchaseIntent:'wish'}])]]});
-assert.equal(wishes.get('#statCount').textContent,1);wishes.run('setTab("planned")');assert.ok(wishes.get('#items').innerHTML.includes('購入希望'));wishes.get('#purchaseIntentFilter').value='wish';wishes.run('render()');assert.ok(wishes.get('#items').innerHTML.includes('data-row-id="wish_test"'));assert.ok(!wishes.get('#items').innerHTML.includes('data-row-id="plan_test"'));
+assert.equal(wishes.get('#statCount').textContent,1);wishes.run('setTab("planned")');assert.ok(wishes.get('#items').innerHTML.includes('購入希望'));assert.ok(wishes.get('#items').innerHTML.includes('data-purchase-section="planned"'));assert.ok(wishes.get('#items').innerHTML.includes('data-purchase-section="wish"'));assert.ok(wishes.get('#items').innerHTML.includes('data-row-id="wish_test"'));assert.ok(wishes.get('#items').innerHTML.includes('data-row-id="plan_test"'));
 wishes.run('openEditor("wish_test")');assert.equal(wishes.get('#form').elements.namedItem('inventoryStatus').value,'wish');assert.equal(wishes.run('valid({...items[0],purchaseIntent:"unknown"})'),false);
 const wishFile=fakeFile();wishes.context.window.showSaveFilePicker=async()=>wishFile;await wishes.run('saveDataFileAs()');assert.equal(boot({embedded:JSON.parse(wishFile.read())}).run('items.find(x=>x.id==="wish_test").purchaseIntent'),'wish');
-console.log('Passed: purchase wishes, nested filters, edit prefill, stock exclusion and JSON retention.');
+console.log('Passed: purchase wishes, grouped sections, edit prefill, stock exclusion and JSON retention.');
 
 // Link repair must not change an item outside the member's edit grants.
 const scopedLinks=boot({cached:[['spool-inventory-v1','[]']]});scopedLinks.context.window.spoolCan=key=>key==='inventory_edit';

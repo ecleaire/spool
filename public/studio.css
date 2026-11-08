@@ -1037,10 +1037,8 @@ body.simple-workspace #bookingView .booking-card-footer{align-items:center;gap:1
 body.simple-workspace #bookingView .booking-card-metrics>div>span{color:#38533f;font-size:max(var(--spool-type-floor,16px),16px)}
 @media(min-width:761px) and (max-width:1199px){body.simple-workspace #bookingView .booking-table-scroll{display:none}body.simple-workspace #bookingCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:16px}}
 @media(max-width:760px){body.simple-workspace #bookingView .booking-card{padding:18px}body.simple-workspace #bookingView .booking-card h3{font-size:22px}body.simple-workspace #bookingView .booking-card-top{gap:10px;margin-bottom:12px}body.simple-workspace #bookingView .booking-card-metrics{gap:10px;padding:12px;margin:16px 0}}
-#purchaseIntentFilter{min-height:44px;max-width:100%;padding:9px 36px 9px 12px;border:1px solid #91a78f;border-radius:9px;background:#f7faf3;color:#193f2b;font:inherit;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.4;cursor:pointer}
-#purchaseIntentFilter:focus-visible{outline:3px solid #86ab69;outline-offset:2px}
 .purchase-planned .planned-capacity{display:block;white-space:nowrap;font-weight:600}
-@media(max-width:760px){#purchaseIntentFilter{grid-column:1/-1;width:100%;margin-top:4px}}
+
 .model-file-limit{display:block;margin:12px 0;color:#314f3b;font-size:max(var(--spool-type-floor,16px),15px);line-height:1.7}
 .model-file-list-heading{display:flex;justify-content:space-between;gap:12px;margin-top:18px;color:#193e2c;flex-wrap:wrap}
 .model-file-list-heading[hidden]{display:none}
@@ -1320,16 +1318,9 @@ body.simple-workspace #items.simple-mode[data-selecting=true]>.filament-row{padd
 @media(max-width:1000px){body.simple-workspace #items.simple-mode[data-selecting=true]>.filament-row{padding:10px 8px}}
 body.simple-workspace #items .filament-row>.row-select{top:12px;left:12px}
 body.simple-workspace .inventory .section-top .tabs{width:100%;min-width:0;max-width:100%;flex-wrap:wrap;overflow:visible}
-body.simple-workspace .inventory #purchaseIntentFilter{width:210px;min-width:0;max-width:100%;flex:0 1 210px;min-height:44px;font-size:max(var(--spool-type-floor,16px),16px);padding:8px 28px 8px 10px;border:1px solid #9aaf90;border-radius:8px;background:#fff;color:#244b32}
-@media(max-width:760px){body.simple-workspace .inventory #purchaseIntentFilter{grid-column:1/-1;width:100%}}
-.purchase-tab-group{position:relative;min-width:0;flex:none;z-index:5}
-body.simple-workspace .inventory #purchaseIntentFilter{display:none!important}
+
 body.simple-workspace .inventory #purchaseTabTrigger{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;width:100%}
 body.simple-workspace .inventory #purchaseTabLabel{font:inherit;color:inherit;background:none;padding:0;margin:0}
-.purchase-intent-menu{position:absolute;right:0;top:calc(100% + 6px);width:min(240px,calc(100vw - 48px));padding:6px;border:1px solid #9db294;border-radius:10px;background:#fff;box-shadow:0 8px 24px #183b2926;z-index:20}
-.purchase-intent-menu[hidden]{display:none!important}
-body.simple-workspace .inventory .purchase-intent-menu button{display:block;width:100%;min-height:44px;text-align:left;margin:0;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;border-radius:6px;padding:10px 12px;white-space:normal;color:#244b32}
-body.simple-workspace .inventory .purchase-intent-menu button[aria-pressed=true]{background:#e5efdb;color:#193e2b;font-weight:700}
 
 body.simple-workspace #quickSave{display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.4}.save-icon{display:block;flex:none;vertical-align:middle}
 /* Keep secondary filters and per-plate settings inside their disclosures. */
@@ -1408,3 +1399,10 @@ body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions{display:flex;f
 body.simple-workspace :is(#editor,#bookingDialog) .dialog-actions>button{flex:0 0 auto;max-width:100%;white-space:normal;word-break:keep-all;overflow-wrap:normal;text-wrap:balance}
 body.simple-workspace #editor .filament-save-summary{flex-basis:100%;min-width:0}
 body.simple-workspace #editor #saveAndContinue{flex-basis:100%}
+
+/* One purchase page, with both categories visible in every list layout. */
+body.simple-workspace #items>.purchase-section-heading{grid-column:1/-1;display:flex;align-items:center;gap:10px;min-width:0;padding:10px 2px;border-bottom:1px solid #c6d4bf}
+body.simple-workspace #items>.purchase-section-heading h2{margin:0;font-size:max(var(--spool-type-floor,18px),20px);line-height:1.5;font-weight:700;color:#214b34}
+body.simple-workspace #items>.purchase-section-heading>span{padding:2px 9px;border-radius:6px;background:#e7efdf;color:#284c35;font-size:max(var(--spool-type-floor,16px),16px);white-space:nowrap}
+body.simple-workspace #items>.purchase-section-empty{grid-column:1/-1;min-width:0;margin:0;padding:14px 4px;color:#405c48;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.6}
+body.simple-workspace .inventory #purchaseTabTrigger{width:auto;height:auto;min-height:44px;max-width:100%;white-space:normal;text-wrap:balance;line-height:1.5}
