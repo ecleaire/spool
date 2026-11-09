@@ -54,3 +54,39 @@ test('gateway responses release their unread body before retrying',async()=>{
  assert.deepEqual(await (await fetcher('https://demo.supabase.co/rest/v1/libraries')).json(),{ok:true});
  assert.equal(calls,2);assert.equal(cancelled,1,'Discarded gateway response must release its body');
 });
+
+test('concurrent identical metadata reads share transport, with independent bodies and no persistent cache',async()=>{
+ let calls=0,release;const gate=new Promise(r=>release=r);
+ const fetcher=retryingFetch(async()=>{calls++;await gate;return new Response('{"items":[1]}')});
+ const a=fetcher('https://demo.supabase.co/rest/v1/libraries'),b=fetcher('https://demo.supabase.co/rest/v1/libraries');
+ assert.equal(calls,1);release();
+ const responses=await Promise.all([a,b]);assert.notEqual(responses[0],responses[1]);
+ assert.deepEqual(await Promise.all(responses.map(r=>r.json())),[{items:[1]},{items:[1]}]);
+ await fetcher('https://demo.supabase.co/rest/v1/libraries');assert.equal(calls,2,'A completed read must be fetched fresh');
+});
+test('shared transport retries once for all readers and clears a rejected request',async()=>{
+ let calls=0;const fetcher=retryingFetch(async()=>{calls++;throw Error('Failed to fetch')});
+ const results=await Promise.allSettled([fetcher('https://demo.supabase.co/rest/v1/libraries'),fetcher('https://demo.supabase.co/rest/v1/libraries')]);
+ assert.equal(calls,2);assert.ok(results.every(r=>r.status==='rejected'));
+ await assert.rejects(fetcher('https://demo.supabase.co/rest/v1/libraries'));assert.equal(calls,4);
+});
+test('account changes never share an old pending read, even with the same URL',async()=>{
+ let stamp=1,calls=0,release;const gate=new Promise(r=>release=r);
+ const fetcher=retryingFetch(async()=>{calls++;await gate;return new Response('{}')},{context:()=>stamp});
+ const old=fetcher('https://demo.supabase.co/rest/v1/libraries');stamp=2;
+ const current=fetcher('https://demo.supabase.co/rest/v1/libraries');assert.equal(calls,2);release();
+ await assert.rejects(old,e=>e.code==='CANCELLED');assert.deepEqual(await (await current).json(),{});
+});
+test('read sharing separates credentials, library arguments, and caller cancellation',async()=>{
+ let calls=0,release;const gate=new Promise(r=>release=r);const controller=new AbortController();
+ const fetcher=retryingFetch(async()=>{calls++;await gate;return new Response('{}')});
+ const url='https://demo.supabase.co/rest/v1/rpc/get_my_library_permissions';
+ const options={method:'POST',body:'{"lib":"a"}',headers:{Authorization:'Bearer A'}};
+ const requests=[fetcher(url,options),fetcher(url,{...options,headers:{authorization:'Bearer A'}}),fetcher(url,{...options,body:'{"lib":"b"}'}),fetcher(url,{...options,headers:{Authorization:'Bearer B'}}),fetcher(url,{...options,signal:controller.signal})];
+ assert.equal(calls,4);release();await Promise.all(requests);
+});
+test('writes and binary downloads are never coalesced',async()=>{
+ let calls=0,release;const gate=new Promise(r=>release=r);const fetcher=retryingFetch(async()=>{calls++;await gate;return new Response('{}')});
+ const requests=[];for(const [url,init] of [['https://demo.supabase.co/rest/v1/rpc/set_filament_sharing',{method:'POST',body:'{}'}],['https://demo.supabase.co/storage/v1/object/authenticated/model',{}]])requests.push(fetcher(url,init),fetcher(url,init));
+ assert.equal(calls,4);release();await Promise.all(requests);
+});

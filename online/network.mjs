@@ -16,8 +16,12 @@ async function retryNetwork(operation, { valid = () => true, onRetry = () => {
   }
 }
 const retryableRpcs = /* @__PURE__ */ new Set(["ensure_my_library", "spool_is_admin", "get_spool_accounts", "get_shared_filaments", "get_shared_bookings", "get_booking_sharing_summary", "get_booking_sharing", "set_booking_sharing", "stop_booking_sharing", "get_filament_sharing", "get_my_library_permissions", "get_library_member_permissions", "get_shared_library_deletion_info", "get_library_member_profiles", "library_is_shared", "my_filaments_shared", "set_filament_sharing", "stop_shared_filaments", "update_library_appearance", "rename_spool_library"]);
+// Only identical reads in flight share a response. No saved data or permission cache.
+const readRpcs = new Set(["spool_is_admin", "get_spool_accounts", "get_shared_filaments", "get_shared_bookings", "get_booking_sharing_summary", "get_booking_sharing", "get_filament_sharing", "get_my_library_permissions", "get_library_member_permissions", "get_shared_library_deletion_info", "get_library_member_profiles", "library_is_shared", "my_filaments_shared"]);
 function retryingFetch(fetcher, { context = () => null, onRetry = () => {
 }, timeout = 12e3, downloadTimeout = 12e4 } = {}) {
+  const pending = new Map();
+  let pendingContext;
   return async (input, init = {}) => {
     const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url, globalThis.location?.href), method = (init.method || input.method || "GET").toUpperCase(), retryable = method === "GET" || method === "HEAD" || method === "POST" && url.pathname.startsWith("/storage/v1/object/sign/") || method === "POST" && retryableRpcs.has(url.pathname.split("/").pop());
     const bounded = async () => {
@@ -53,7 +57,23 @@ function retryingFetch(fetcher, { context = () => null, onRetry = () => {
     };
     if (!retryable) return url.pathname.includes("/rest/v1/rpc/") || url.pathname.startsWith("/auth/") ? bounded() : fetcher(input, init);
     const stamp = context();
-    return retryNetwork(bounded, { valid: () => context() === stamp, onRetry });
+    const read = () => retryNetwork(bounded, { valid: () => context() === stamp, onRetry });
+    // A caller with its own cancellation, or a Request/stream body, keeps its own request.
+    const share = (typeof input === "string" || input instanceof URL) && !init.signal &&
+      (init.body == null || typeof init.body === "string") && url.pathname.startsWith("/rest/v1/") &&
+      ((method === "GET" || method === "HEAD") || method === "POST" && url.pathname.startsWith("/rest/v1/rpc/") && readRpcs.has(url.pathname.split("/").pop()));
+    if (!share) return read();
+    if (pendingContext !== stamp) { pending.clear(); pendingContext = stamp; }
+    const headers = [...new Headers(init.headers)].sort(([a], [b]) => a.localeCompare(b));
+    const key = JSON.stringify([url.href, method, init.body ?? null, headers, init.credentials, init.mode, init.cache, init.redirect, init.referrer, init.referrerPolicy, init.integrity]);
+    let request = pending.get(key);
+    if (!request) {
+      request = read().finally(() => { if (pending.get(key) === request) pending.delete(key); });
+      pending.set(key, request);
+    }
+    const response = await request;
+    // Every consumer gets its own readable body, including when the response is an error.
+    return response instanceof Response ? response.clone() : response;
   };
 }
 function sameState(a, b) {

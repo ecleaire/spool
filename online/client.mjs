@@ -285,8 +285,10 @@ async function loadAccount(){
  accountLoading=true;loading=false;loadFailureTarget=null;loadTarget=null;isAdmin=false;lock();library=null;libraries=[];errorText='';errorInfo=null;
  clearTimeout(timer);sync.reset(null);bridge.apply(empty());render();
  try{
-  const [{data,error},admin]=await Promise.all([client.rpc('ensure_my_library'),client.rpc('spool_is_admin')]);if(epoch!==authEpoch)return;if(error)throw error;
-  const result=await client.from('libraries').select('*').order('created_at');if(epoch!==authEpoch)return;if(result.error)throw result.error;
+  // The account must exist and pending invitations must be accepted before listing libraries.
+  // The optional service-admin lookup can run alongside both steps.
+  const [account,admin]=await Promise.all([(async()=>{const {data,error}=await client.rpc('ensure_my_library');if(error)throw error;if(epoch!==authEpoch)return null;const result=await client.from('libraries').select('*').order('created_at');if(result.error)throw result.error;return {data,result}})(),client.rpc('spool_is_admin')]);if(epoch!==authEpoch||!account)return;
+  const {data,result}=account;
   libraries=result.data;
   isAdmin=!admin.error&&admin.data===true;
   if(!libraries.length){errorText='共有ライブラリへの招待をお待ちください。';errorInfo=null;return;}
@@ -301,7 +303,7 @@ async function loadLibrary(id,force=false){
  if(loading||sync.busy||uploading)return;
  if(sync.dirty&&!confirm('未保存の変更があります。JSONで退避してから読み直してください。変更を破棄しますか？')){render();return;}
  const epoch=authEpoch;listedFileLibraries.clear();loading=true;loadTarget=id;loadFailureTarget=null;errorText='';errorInfo=null;lock();clearTimeout(timer);render();
- try {const [{data,error},membership,permissionRead]=await Promise.all([client.from('library_state').select('*').eq('library_id',id).single(),client.from('library_members').select('role').eq('library_id',id).eq('user_id',session.user.id).single(),client.rpc('get_my_library_permissions',{lib:id})]);if(error)throw error;if(membership.error)throw membership.error;if(epoch!==authEpoch)return;
+ try {const required=async request=>{const result=await request;if(result.error)throw result.error;return result};const [{data},membership,permissionRead]=await Promise.all([required(client.from('library_state').select('*').eq('library_id',id).single()),required(client.from('library_members').select('role').eq('library_id',id).eq('user_id',session.user.id).single()),client.rpc('get_my_library_permissions',{lib:id})]);if(epoch!==authEpoch)return;
  capabilities=await fetchPermissions(client,id,membership.data.role,permissionRead);if(epoch!==authEpoch)return;const linked=bridge.apply(data.state);library=id;try{history.replaceState(history.state,'',libraryUrl(location.href,id))}catch{}role=membership.data.role;sync.reset(id,data.revision);if(linked&&role!=='viewer')window.spoolOnlineChanged();if(epoch!==authEpoch)return;errorText='';errorInfo=null;accountLoading=false;loading=false;loadFailureTarget=null;loadTarget=null;pollReadError=null;render();document.body.classList.remove('cloud-locked');document.body.classList.toggle('cloud-viewer',role==='viewer');
  for(const selector of ['#add','#addBooking','#openLibrary','#emptyAddBooking','#undoDelete','#bulkAdd','#bulkDelete','#toggleReorder'])document.querySelector(selector).disabled=role==='viewer';
  applyPermissionControls();
