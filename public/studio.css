@@ -1406,3 +1406,36 @@ body.simple-workspace #items>.purchase-section-heading h2{margin:0;font-size:max
 body.simple-workspace #items>.purchase-section-heading>span{padding:2px 9px;border-radius:6px;background:#e7efdf;color:#284c35;font-size:max(var(--spool-type-floor,16px),16px);white-space:nowrap}
 body.simple-workspace #items>.purchase-section-empty{grid-column:1/-1;min-width:0;margin:0;padding:14px 4px;color:#405c48;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.6}
 body.simple-workspace .inventory #purchaseTabTrigger{width:auto;height:auto;min-height:44px;max-width:100%;white-space:normal;text-wrap:balance;line-height:1.5}
+
+/* Roomier booking editor: larger controls without increasing permanent page chrome. */
+body.simple-workspace #bookingDialog{width:min(1400px,calc(100vw - 48px));max-width:calc(100vw - 48px);max-height:96dvh}
+body.simple-workspace #bookingDialog>form{max-height:calc(96dvh - 2px)}
+body.simple-workspace #bookingDialog .dialog-head{padding:20px 28px}
+body.simple-workspace #bookingDialog .dialog-head h2{font-size:max(var(--spool-type-floor,24px),24px);line-height:1.4}
+body.simple-workspace #bookingDialog .close{width:44px;height:44px;min-height:44px}
+body.simple-workspace #bookingDialog .booking-form-scroll{padding:20px 28px;scroll-padding-block:16px}
+body.simple-workspace #bookingDialog :is(.fields label,.color-field-heading>span,.form-section-heading h3,.booking-subheading){font-size:max(var(--spool-type-floor,18px),18px)}
+body.simple-workspace #bookingDialog .booking-form-scroll :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]),select,textarea){font-size:max(var(--spool-type-floor,18px),18px);min-height:52px;padding:12px 14px;line-height:1.5}
+body.simple-workspace #bookingDialog #bookingForm input[name=title]{font-size:max(var(--spool-type-floor,20px),20px)}
+body.simple-workspace #bookingDialog .booking-color-choice strong{font-size:max(var(--spool-type-floor,18px),18px)}
+body.simple-workspace #bookingDialog .booking-color-choices{max-height:clamp(360px,52dvh,560px)}
+body.simple-workspace #bookingDialog .dialog-actions button{min-height:52px;padding:12px 20px;font-size:max(var(--spool-type-floor,18px),18px)}
+@media(max-width:760px){
+ body.simple-workspace #bookingDialog{inset:0;margin:0;width:100%;max-width:none;height:100dvh;max-height:100dvh;border:0;border-radius:0}
+ body.simple-workspace #bookingDialog>form{height:100%;max-height:100dvh}
+ body.simple-workspace #bookingDialog .dialog-head{padding:14px 16px}
+ body.simple-workspace #bookingDialog .booking-form-scroll{padding:16px 12px}
+ body.simple-workspace #bookingDialog .booking-plan-section{padding:12px 10px}
+ body.simple-workspace #bookingDialog .dialog-actions{padding:10px 12px max(10px,env(safe-area-inset-bottom));gap:8px}
+ body.simple-workspace #bookingDialog .dialog-actions button{padding:10px 12px}
+}
+@media(max-height:560px){
+ body.simple-workspace #bookingDialog .dialog-head{padding:10px 16px;min-height:0}
+ body.simple-workspace #bookingDialog .dialog-head h2{font-size:max(var(--spool-type-floor,20px),20px)}
+ body.simple-workspace #bookingDialog .booking-form-scroll{padding-block:12px}
+ body.simple-workspace #bookingDialog .dialog-actions{padding-block:8px}
+}
+body.simple-workspace #bookingDialog .duration-entry{grid-template-columns:48px minmax(72px,1fr) 48px}
+body.simple-workspace #bookingDialog .duration-entry input{min-height:64px!important;padding:12px 4px!important;font-size:max(var(--spool-type-floor,24px),24px)!important;line-height:1.4}
+body.simple-workspace #bookingDialog .duration-entry button{min-height:64px;font-size:24px}
+body.simple-workspace #bookingDialog .duration-unit{display:none}
