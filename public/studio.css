@@ -1439,3 +1439,18 @@ body.simple-workspace #bookingDialog .duration-entry{grid-template-columns:48px 
 body.simple-workspace #bookingDialog .duration-entry input{min-height:64px!important;padding:12px 4px!important;font-size:max(var(--spool-type-floor,24px),24px)!important;line-height:1.4}
 body.simple-workspace #bookingDialog .duration-entry button{min-height:64px;font-size:24px}
 body.simple-workspace #bookingDialog .duration-unit{display:none}
+
+body.simple-workspace #bookingDialog .booking-schedule-fields{grid-template-columns:minmax(0,1fr);margin:18px 0 0;padding:18px 0 0;border-bottom:0;border-top:1px solid #ccd9c4}
+body.simple-workspace #bookingDialog :is(.booking-time-field,.booking-schedule-fields .deadline-field){width:100%;max-width:640px}
+/* Search appears only when requested; the existing foreground panel keeps filters together. */
+.search-trigger,.booking-color-search-disclosure>summary{position:relative;display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;min-width:48px;min-height:48px;padding:10px;border:1px solid #9caf99;border-radius:9px;background:#fff;color:#214e39;cursor:pointer;flex:0 0 48px;list-style:none}
+.booking-color-search-disclosure>summary::-webkit-details-marker{display:none}
+.search-trigger.has-query,.booking-color-search-disclosure[open]>summary{background:#e4efd9;border-color:#4b7750}
+.search-trigger.has-query:after{content:'';position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#1b6549}
+.booking-color-search-disclosure{margin:12px 0;min-width:0}
+.booking-color-search-disclosure .booking-color-search{margin-top:10px}
+body.simple-workspace #bookingDialog #bookingImportPick{position:relative;cursor:pointer}
+body.simple-workspace #bookingDialog #bookingImportPick .booking-native-file-picker{position:absolute;inset:0;z-index:1;width:100%;height:100%;min-height:0;margin:0;padding:0;opacity:0;border:0;cursor:pointer}
+body.simple-workspace #bookingDialog #bookingImportPick:focus-within,.search-trigger:focus-visible,.booking-color-search-disclosure>summary:focus-visible{outline:3px solid #32694d;outline-offset:3px}
+
+.booking-color-search-disclosure.has-query>summary{background:#e4efd9;border-color:#4b7750}.booking-color-search-disclosure.has-query>summary:after{content:"";position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#1b6549}

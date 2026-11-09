@@ -12,7 +12,7 @@ try{
   const page=await browser.newPage({viewport:{width,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.addInitScript(data=>localStorage.setItem('spool-inventory-v1',JSON.stringify(data)),stock);await page.goto('http://127.0.0.1:'+server.address().port);
   const ids=()=>page.locator('#items [data-row-id]').evaluateAll(nodes=>nodes.map(n=>n.dataset.rowId));
   for(const mode of ['list','split','grid','simple']){await page.locator('#'+mode+'View').click();assert.deepEqual(await ids(),['owned','empty']);assert.equal(await page.locator('#totalCount').innerText(),'2');assert.equal(await page.locator('#navCount').innerText(),'2');assert.match(await page.locator('#shown').innerText(),/2 スプール中 2 件/);}
-  await page.locator('#search').click();await page.locator('#foregroundSearch').fill('購入専用');assert.equal(await page.locator('#foregroundResultCount').innerText(),'0');await page.locator('#clearSearchQuery').click();await page.locator('#closeSearchPanel').click();
+  await page.locator('#inventorySearchTrigger').click();await page.locator('#foregroundSearch').fill('購入専用');assert.equal(await page.locator('#foregroundResultCount').innerText(),'0');await page.locator('#clearSearchQuery').click();await page.locator('#closeSearchPanel').click();
   await page.locator('[data-select=owned]').check();await page.locator('#selectAll').check();assert.deepEqual(await page.evaluate(()=>[...selected].sort()),['empty','owned']);await page.locator('[data-tab=planned]').click();
   assert.equal(await page.locator('#batchActions').isVisible(),false);assert.equal(await page.locator('#purchaseIntentMenu').count(),0);
   for(const mode of ['list','split','grid','simple']){

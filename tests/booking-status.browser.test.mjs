@@ -1,3 +1,4 @@
+import {addBookingReference} from './booking-test-helpers.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync,mkdirSync} from 'node:fs';
 import http from 'node:http';
@@ -34,7 +35,7 @@ try{
   await page.evaluate(()=>{window.spoolAuthorizeChange=()=>false});await dialog.getByRole('button',{name:'印刷予定',exact:true}).click();assert.equal(await dialog.isVisible(),true);assert.ok((await page.locator('#bookingStatusError').innerText()).includes('保存できません'));assert.equal(await page.evaluate(()=>reservations[0].printStatus),'印刷済み');
   await page.keyboard.press('Escape');await page.evaluate(()=>{delete window.spoolAuthorizeChange;window.spoolCan=()=>false;renderBookings()});assert.equal(await trigger().count(),0);assert.ok((await page.locator('[data-readonly-booking-status]:visible').innerText()).includes('印刷済み'));
   await page.evaluate(()=>{delete window.spoolCan;const {registeredTime,...legacy}=reservations[0];saveBookings([legacy])});assert.equal(await registered.locator('.booking-registered-time').count(),0);assert.ok((await registered.innerText()).includes('2026/11/06'));
-  await page.locator('#addBooking').click();await page.locator('#bookingForm [name=title]').fill('新しい予約');await page.locator('#bookingNoPreference').click();await page.locator('#saveBookingButton').click();await page.locator('#bookingDialog').waitFor({state:'hidden'});assert.match(await page.evaluate(()=>reservations.find(x=>x.title==='新しい予約').registeredTime),/^([01]\d|2[0-3]):[0-5]\d$/);
+  await page.locator('#addBooking').click();await page.locator('#bookingForm [name=title]').fill('新しい予約');await page.locator('#bookingNoPreference').click();await addBookingReference(page);await page.locator('#saveBookingButton').click();await page.locator('#bookingDialog').waitFor({state:'hidden'});assert.match(await page.evaluate(()=>reservations.find(x=>x.title==='新しい予約').registeredTime),/^([01]\d|2[0-3]):[0-5]\d$/);
   assert.deepEqual(errors,[]);await page.close();console.log('PASS '+width+'px: anchored status editor, all states, light dismiss, focus, filtered rows, persistence, unrelated fields, denied writes, date-only registration display and legacy dates.');
  }
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}

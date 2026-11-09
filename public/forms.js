@@ -55,6 +55,7 @@ $('#imageDrop').addEventListener('keydown',event=>{if(event.target===$('#imageDr
 let foregroundSearchState={mode:'inventory',tab:'results',fields:null};
 function activeSearchInput(){return $(foregroundSearchState.mode==='bookings'?'#bookingSearch':'#search')}
 function refreshSearchPanel(){
+ for(const [input,trigger,label]of [['#search','#inventorySearchTrigger','フィラメントを検索'],['#bookingSearch','#bookingSearchTrigger','予約を検索']]){const value=$(input).value;$(trigger).classList.toggle('has-query',!!value);$(trigger).setAttribute('aria-label',value?label+'（検索中：'+value+'）':label);$(trigger).title=value?'検索中：'+value:label}
  if(!$('#searchDialog').open)return;
  const bookings=foregroundSearchState.mode==='bookings',records=bookings?searchBookingResults:searchItemResults;
  const filters=bookings?['#bookingTagFilter']:['#brand','#material','#variantFilter','#locationFilter','#tagFilter'];
@@ -163,3 +164,8 @@ $('#activeInventoryFilters').addEventListener('click',e=>{const button=e.target.
 renderActiveInventoryFilters();
 
 $('#openModelHelp').onclick=()=>showModelOpenDialog();
+
+$('#inventorySearchTrigger').onclick=()=>openSearchPanel('inventory');$('#bookingSearchTrigger').onclick=()=>openSearchPanel('bookings');
+$('#bookingReferenceOpen').onclick=()=>{$('#bookingFileDetails').open=true;$('.booking-path-details').open=true;$('#bookingForm').elements.namedItem('files').focus()};
+$('#bookingColorSearchDetails').addEventListener('toggle',()=>{if($('#bookingColorSearchDetails').open)$('#bookingColorSearch').focus()});
+$('#bookingForm').elements.namedItem('files').addEventListener('input',updateBookingFileFeedback);

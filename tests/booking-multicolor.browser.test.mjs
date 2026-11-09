@@ -1,3 +1,4 @@
+import {addBookingReference} from './booking-test-helpers.mjs';
 import {chromium} from '../online/node_modules/playwright-core/index.mjs';
 import http from 'node:http';import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
 const html=readFileSync(new URL('../dist/index.html',import.meta.url));
@@ -10,8 +11,8 @@ try{for(const width of [320,390,1440]){
  await page.evaluate(()=>{showBookingView(true);openBooking()});await page.locator('#bookingForm [name=title]').fill('複数色のキーホルダー');
  const choice=color=>page.locator('[data-booking-color]').filter({has:page.locator('strong',{hasText:color})});
  await choice('クリアレッド').click();await choice('ブルー').click();assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),2);
- await page.locator('#bookingColorSearch').fill('クリア');assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),1);await page.locator('#bookingColorSearch').fill('');assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),2);
- await choice('ブルー').click();assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),1);await choice('ブルー').click();await page.locator('#saveBookingButton').click();await page.locator('#bookingDialog').waitFor({state:'hidden'});
+ if(!await page.locator('#bookingColorSearchDetails').evaluate(x=>x.open))await page.locator('#bookingColorSearchDetails>summary').click();await page.locator('#bookingColorSearch').fill('クリア');assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),1);if(!await page.locator('#bookingColorSearchDetails').evaluate(x=>x.open))await page.locator('#bookingColorSearchDetails>summary').click();await page.locator('#bookingColorSearch').fill('');assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),2);
+ await choice('ブルー').click();assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),1);await choice('ブルー').click();await addBookingReference(page);await page.locator('#saveBookingButton').click();await page.locator('#bookingDialog').waitFor({state:'hidden'});
  const saved=await page.evaluate(()=>reservations[0]);assert.equal(saved.requestedFilaments.length,2);assert.match(saved.desiredColor,/クリアレッド.*ブルー/);assert.equal(saved.requestedFilaments[0].translucent,true);assert.equal(saved.requestedFilaments[1].translucent,false);
  const colors=page.locator(width<761?'#bookingCards .booking-color-samples':'#bookingRows .booking-color-samples');assert.equal(await colors.locator('i').count(),2);assert.equal(await colors.locator('.swatch-translucent').count(),1);
  await page.reload();await page.evaluate(id=>{showBookingView(true);openBooking(id)},saved.id);assert.equal(await page.locator('[data-booking-color][aria-pressed=true]').count(),2);

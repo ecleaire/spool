@@ -48,7 +48,7 @@ async function inspectBookingFiles(auto=true,includeSaved=false){
  const index=Math.max(0,bookingImportRows.findIndex(row=>row.seconds));$('#bookingImportSource').value=String(index);const remembered=bookingFilamentUsageSnapshot()?.plates||[];bookingImportSelection=new Set(bookingImportRows.filter(row=>bookingImportSelection.has(bookingImportRowKey(row))||remembered.some(p=>p.attachmentId===row.attachmentId&&p.plate===String(row.plate||''))).map(bookingImportRowKey));if(!bookingImportSelection.size&&bookingImportRows.length)bookingImportSelection.add(bookingImportRowKey(bookingImportRows[index]));renderImportPlateChoices();renderBookingImport();if(auto&&!remembered.length)applyBookingImport(expected);
  $('#bookingImportFeedback').textContent=issues.join(' / ')||'印刷情報を読み込みました。';
 }
-$('#bookingImportPick').onclick=()=>$('#bookingFileInput').click();
+// The native input receives the trusted click directly (including mobile browsers).
 $('#bookingImportSource').onchange=()=>{const row=bookingImportRows[Number($('#bookingImportSource').value)];bookingImportSelection=new Set(row?[bookingImportRowKey(row)]:[]);renderImportPlateChoices();renderBookingImport();applyImportSelection()};
 $('#bookingImportApply').onclick=()=>applyBookingImport();
 const importOriginalOpenBooking=openBooking;openBooking=function(id){resetBookingImport();importOriginalOpenBooking(id);$('#bookingImportReadSaved').hidden=!bookingAttachments.some(f=>/\.(3mf|gcode)$/i.test(f.name))};
