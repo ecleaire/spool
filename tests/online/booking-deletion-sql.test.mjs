@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {PGlite} from '../../online/node_modules/@electric-sql/pglite/dist/index.js';
+const db=new PGlite(),users=Array.from({length:4},(_,i)=>`${i+1}1111111-1111-4111-8111-111111111111`),emails=['owner@example.com','creator@example.com','viewer@example.com','outsider@example.com'];
+try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create schema storage;create table auth.users(id uuid primary key,email text);
+ create function auth.uid() returns uuid language sql stable as $$select (nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub')::uuid$$;
+ create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
+ grant usage on schema auth,public,storage to authenticated,anon;grant execute on all functions in schema auth to authenticated,anon;
+ create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;grant select,insert,delete on storage.objects to authenticated;`);
+ for(let i=0;i<users.length;i++)await db.query('insert into auth.users values($1,$2)',[users[i],emails[i]]);
+ await db.exec(readFileSync(new URL('../../supabase/schema.sql',import.meta.url),'utf8'));await db.exec(readFileSync(new URL('../../supabase/upgrade-existing.sql',import.meta.url),'utf8'));
+ for(const email of emails)await db.query('insert into public.spool_users values($1)',[email]);
+ const as=async(i,fn)=>{await db.exec('set role authenticated');await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:users[i],email:emails[i],app_metadata:{provider:'google'}})]);try{return await fn()}finally{await db.exec('reset role')}};
+ const scalar=async(sql,args=[])=>(await db.query(sql,args)).rows[0].value;
+ let mine,team;
+ await as(0,async()=>{mine=await scalar('select public.ensure_my_library() as value');team=await scalar("select public.create_shared_library('Deletion test') as value");await db.query("select public.invite_library_member($1,$2,'editor')",[team,emails[1]]);await db.query("select public.invite_library_member($1,$2,'viewer')",[team,emails[2]])});
+ await as(1,()=>db.query('select public.ensure_my_library()'));await as(2,()=>db.query('select public.ensure_my_library()'));
+ await as(0,()=>db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[team,users[1],{bookings_create:true}]));
+ const file={id:'file-a',kind:'embedded',name:'a.stl',size:1,data:'data:application/octet-stream;base64,YQ=='},booking={id:'booking-a',title:'Other person',createdBy:users[0],attachments:[file],modelColors:[{kind:'attachment',id:file.id,color:'#FFFFFF'}],filamentUsage:{plates:[{attachmentId:file.id}]},filamentConsumption:{audit:'keep'},customMetadata:{keep:true}},stock={id:'stock',remaining:50};
+ await db.query('update public.library_state set state=$2 where library_id=$1',[mine,{items:[stock],deleted:[],customColorPresets:[],reservations:[booking,{...booking,id:'unshared'}]}]);
+ await as(0,()=>db.query('select public.set_booking_sharing($1,$2,$3)',[mine,booking.id,[team]]));
+ const del=(lib,source,id,revision,fileId)=>db.query('select public.delete_booking_content($1,$2,$3,$4,$5) as value',[lib,source,id,revision,fileId]);
+ await as(2,()=>assert.rejects(del(team,mine,booking.id,0,file.id),e=>e.code==='42501'));
+ await as(3,()=>assert.rejects(del(team,mine,booking.id,0,file.id),e=>e.code==='42501'));
+ await as(1,async()=>{
+  assert.equal(await scalar("select public.spool_has_permission($1,'bookings_edit') as value",[team]),false);
+  await assert.rejects(del(team,mine,'unshared',0,file.id),e=>e.code==='42501');await assert.rejects(del(team,'99999999-9999-4999-8999-999999999999',booking.id,0,file.id),e=>e.code==='42501');
+  await assert.rejects(del(team,mine,booking.id,1,file.id),e=>e.code==='40001');
+  assert.equal((await del(team,mine,booking.id,0,file.id)).rows[0].value,1);
+  await assert.rejects(db.query('select public.update_shared_booking($1,$2,$3,1,$4)',[team,mine,booking.id,{title:'unauthorized edit'}]),e=>e.code==='42501');
+ });
+ let saved=await scalar('select state as value from public.library_state where library_id=$1',[mine]);assert.deepEqual(saved.items,[stock]);assert.deepEqual(saved.reservations[0].attachments,[]);assert.deepEqual(saved.reservations[0].modelColors,[]);assert.equal(saved.reservations[0].filamentUsage,null);assert.deepEqual(saved.reservations[0].filamentConsumption,booking.filamentConsumption);assert.deepEqual(saved.reservations[0].customMetadata,{keep:true});assert.deepEqual(saved.reservations[1].attachments,[file]);
+ await as(1,async()=>{assert.equal((await del(team,mine,booking.id,1,null)).rows[0].value,2);await assert.rejects(del(team,mine,booking.id,2,null),e=>e.code==='42501')});
+ assert.equal(await scalar('select count(*)::int as value from public.shared_bookings where source_library_id=$1 and booking_id=$2',[mine,booking.id]),0);
+ saved=await scalar('select state as value from public.library_state where library_id=$1',[mine]);assert.deepEqual(saved.reservations.map(b=>b.id),['unshared']);assert.deepEqual(saved.items,[stock]);
+ await db.query('update public.library_state set state=$2 where library_id=$1',[team,{items:[],deleted:[],customColorPresets:[],reservations:[{...booking,id:'native',attachments:[file,{...file,id:'file-b'}]}]}]);
+ await as(0,()=>db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[team,users[1],{files_delete:true}]));
+ await as(1,async()=>{assert.equal((await del(team,team,'native',0,file.id)).rows[0].value,1);await assert.rejects(del(team,team,'native',1,null),e=>e.code==='42501')});
+ await as(0,()=>db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[team,users[1],{bookings_delete:true}]));
+ await as(1,()=>assert.rejects(del(team,team,'native',1,null),e=>e.code==='42501'));
+ await db.exec('set role anon');await assert.rejects(del(team,mine,'unshared',2,null),e=>e.code==='42501');await db.exec('reset role');
+ console.log('PASS SQL: creator deletes others only in its library/explicit shared bookings, viewers/outsiders denied, CAS, narrow fields, audit/stock/history preservation and shared-link cleanup.');
+}finally{await db.close()}

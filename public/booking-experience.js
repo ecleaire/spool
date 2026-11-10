@@ -122,3 +122,5 @@ window.spoolBookingExperienceRendered=()=>{updateBookingQuickControls();$$('[dat
 renderBookings();
 
 window.spoolBookingAwaitingFiles=()=>missingBookingDraftFiles().map(f=>f.id);
+
+window.spoolBookingAttachmentDeleted=booking=>{bookingDraftBaseSignature=bookingDraftSignature(booking);persistBookingDraft()};

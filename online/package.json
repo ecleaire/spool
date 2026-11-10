@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node ../tests/online/security.test.mjs && node ../tests/online/sync.test.mjs && node ../tests/online/errors.test.mjs && node ../tests/online/profile.test.mjs && node ../tests/online/network.test.mjs && node ../tests/online/model-files.test.mjs && node ../tests/online/library-location.test.mjs && node ../tests/online/booking-sharing.test.mjs && node ../tests/online/booking-sharing-status.test.mjs && node ../tests/booking-drafts.test.mjs && node ../tests/consumption-core.test.mjs",
+    "test": "node ../tests/online/security.test.mjs && node ../tests/online/sync.test.mjs && node ../tests/online/errors.test.mjs && node ../tests/online/profile.test.mjs && node ../tests/online/network.test.mjs && node ../tests/online/booking-deletion.test.mjs && node ../tests/online/booking-deletion-sql.test.mjs && node ../tests/online/model-files.test.mjs && node ../tests/online/library-location.test.mjs && node ../tests/online/booking-sharing.test.mjs && node ../tests/online/booking-sharing-status.test.mjs && node ../tests/booking-drafts.test.mjs && node ../tests/consumption-core.test.mjs",
     "test:browser": "node ../tests/online/browser.test.mjs"
   },
   "dependencies": {

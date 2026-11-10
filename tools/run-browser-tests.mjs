@@ -15,6 +15,8 @@ const tests=[
  'tests/online/booking-experience.browser.test.mjs',
  'tests/booking-inputs.browser.test.mjs',
  'tests/booking-registration.browser.test.mjs',
+ 'tests/booking-delete.browser.test.mjs',
+ 'tests/online/booking-delete.browser.test.mjs',
  'tests/online/booking-save.browser.test.mjs',
  'tests/model-open.browser.test.mjs',
  'tests/events.browser.test.mjs',

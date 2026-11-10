@@ -1454,3 +1454,5 @@ body.simple-workspace #bookingDialog #bookingImportPick .booking-native-file-pic
 body.simple-workspace #bookingDialog #bookingImportPick:focus-within,.search-trigger:focus-visible,.booking-color-search-disclosure>summary:focus-visible{outline:3px solid #32694d;outline-offset:3px}
 
 .booking-color-search-disclosure.has-query>summary{background:#e4efd9;border-color:#4b7750}.booking-color-search-disclosure.has-query>summary:after{content:"";position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#1b6549}
+/* Saved attachments use text actions, not the square staging-cancel control. */
+body.simple-workspace #bookingDialog .booking-pending-files [data-remove-saved-booking-file]{width:auto!important;height:auto!important;min-width:44px;min-height:44px;max-width:100%;flex:0 1 auto;padding:10px 14px;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;white-space:normal;overflow-wrap:anywhere;color:#87372c;border:1px solid #c8aaa1;background:#fff8f4;border-radius:8px}
