@@ -1196,15 +1196,14 @@ body.simple-workspace :is(input,select,textarea,button){line-height:1.5}
 
 /* Event editorial layout: artwork first, essential facts next. */
 .event-redesign{gap:28px}.event-redesign .event-poster-hero{border:1px solid #b9c8b3;border-radius:18px}
-.event-intro{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px;align-items:center;padding:12px 4px}
+.event-intro{padding:12px 4px}
 .event-section-label{display:block;font-size:max(var(--spool-type-floor,18px),17px);font-weight:750;letter-spacing:.08em;color:#38523d;margin-bottom:10px}
 .event-intro h2{font-size:clamp(28px,3vw,42px);line-height:1.5;letter-spacing:.01em;margin:0 0 16px}.event-intro p{margin:0;line-height:1.9}
-.event-redesign .event-prize{padding:26px 30px}.event-redesign .event-prize-title{margin:14px 0;font-size:25px}.event-redesign .event-prize-title em{font-size:44px}.event-redesign .event-prize p{margin:0}
-.event-redesign .event-overview{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px}.event-redesign .event-facts>div:first-child{padding-top:0}.event-redesign .event-facts>div{grid-template-columns:150px minmax(0,1fr)}
+.event-redesign :is(.event-overview,.event-awards){display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px}.event-redesign .event-facts>div:first-child{padding-top:0}.event-redesign .event-facts>div{grid-template-columns:150px minmax(0,1fr)}
 .event-redesign .event-facts strong{font-size:23px;color:#75401d}.event-redesign .event-section-heading h3{margin:0;font-size:26px}
 .event-redesign .event-ideas{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}.event-redesign .event-ideas p{grid-column:1/-1;margin:0}.event-redesign .event-examples{gap:10px}.event-redesign .event-examples span{font-size:max(var(--spool-type-floor,18px),18px);padding:9px 16px;background:#edf2e7;color:#244531}
 .event-redesign .event-details{background:#f8faf4}.event-redesign .event-details summary{font-size:20px;color:#244531;line-height:1.7}
-@media(max-width:760px){.event-redesign{gap:20px}.event-intro{grid-template-columns:minmax(0,1fr);gap:22px;padding:0}.event-intro h2{font-size:29px}.event-intro p br{display:none}.event-redesign .event-overview,.event-redesign .event-ideas{grid-template-columns:minmax(0,1fr);gap:20px}.event-redesign .event-facts>div{grid-template-columns:minmax(0,1fr);gap:4px;padding:14px 0}.event-redesign .event-prize{padding:22px}.event-redesign .event-prize-title{font-size:23px}.event-redesign .event-prize-title em{font-size:40px}.event-redesign .event-facts strong{font-size:21px}}
+@media(max-width:760px){.event-redesign{gap:20px}.event-intro{padding:0}.event-intro h2{font-size:29px}.event-intro p br{display:none}.event-redesign :is(.event-overview,.event-awards,.event-ideas){grid-template-columns:minmax(0,1fr);gap:20px}.event-redesign .event-facts>div{grid-template-columns:minmax(0,1fr);gap:4px;padding:14px 0}.event-redesign .event-facts strong{font-size:21px}}
 
 body.simple-workspace :is(.content,dialog) :is(.library-note,.field-feedback,.optional-tag,.help-details>summary,.booking-quality-label,.detail-note,.upload-hint,.color-name,.brand-name){color:#263f2f;font-weight:500}
 body.simple-workspace .event-redesign :is(p,dd,li){font-size:19px;color:#203d2c;line-height:1.8}
