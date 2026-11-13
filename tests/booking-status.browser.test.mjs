@@ -26,6 +26,12 @@ try{
   if(process.env.SPOOL_SCREENSHOT_DIR){mkdirSync(process.env.SPOOL_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/booking-status-'+width+'.png'});}
   await page.keyboard.press('Escape');assert.equal(await dialog.isVisible(),false);assert.equal(await trigger().evaluate(x=>x===document.activeElement),true);
   await trigger().click();await page.mouse.click(2,2);assert.equal(await dialog.isVisible(),false);
+  await trigger().click();await dialog.getByRole('button',{name:'印刷途中',exact:true}).click();await dialog.waitFor({state:'hidden'});
+  assert.deepEqual(await page.evaluate(()=>reservations[0]),{...booking,printStatus:'印刷途中'});
+  assert.equal(await page.locator('#bookingTabPrinting').innerText(),'1');
+  await page.locator('[data-booking-status="印刷途中"]').click();assert.ok((await trigger().innerText()).includes('印刷途中'));
+  await page.reload();await navigate();await page.locator('[data-booking-status="印刷途中"]').click();assert.ok((await trigger().innerText()).includes('印刷途中'));
+  await page.locator('[data-edit-booking]:visible').click();await page.locator('#bookingExtraDetails').evaluate(el=>el.open=true);assert.equal(await page.locator('#bookingForm [name=printStatus]').inputValue(),'印刷途中');await page.keyboard.press('Escape');
   await trigger().click();await dialog.getByRole('button',{name:'未定',exact:true}).click();await dialog.waitFor({state:'hidden'});
   assert.deepEqual(await page.evaluate(()=>reservations[0]),{...booking,printStatus:'未定'});
   await page.reload();await navigate();assert.equal(await page.locator('#bookingStatusFilter').inputValue(),'印刷予定');assert.equal(await trigger().count(),0);await page.locator('[data-booking-status=""]').click();assert.ok((await trigger().innerText()).includes('未定'));

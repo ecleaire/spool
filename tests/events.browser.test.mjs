@@ -17,12 +17,12 @@ try{
   assert.equal(await page.locator('.event-award-entry').count(),3);
   for(const award of ['デザイン賞','アイデア賞'])assert.equal((await page.locator('.event-award-entry').filter({has:page.locator('dt',{hasText:award})}).innerText()).replace(/\s+/g,' ').trim(),award+' 近日公開');
   assert.equal((await page.locator('#eventView').textContent()).includes('景品'),false);
-  assert.equal(await page.locator('.event-poster-preview').getAttribute('open'),null);
+  assert.equal(await page.locator('#eventView>article:first-child [data-event-banner]').isVisible(),true);await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
   if(process.env.SPOOL_SCREENSHOT_DIR){mkdirSync(process.env.SPOOL_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/events-initial-'+width+'.png',fullPage:true})}
   await page.getByRole('button',{name:'審査基準へ移動',exact:true}).click();assert.equal(await page.locator('.event-details ul').isVisible(),true);
   assert.equal(await page.locator('.event-details').evaluate(el=>el===document.activeElement),true);
   await page.getByRole('button',{name:'各賞へ移動',exact:true}).click();assert.equal(await page.locator('#eventAwards').evaluate(el=>el===document.activeElement),true);
-  await page.locator('.event-poster-preview>summary').click();await page.locator('[data-event-banner]').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
+await page.locator('[data-event-banner]').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.ok(await page.locator('.event-card p').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=17));
   if(process.env.SPOOL_SCREENSHOT_DIR){mkdirSync(process.env.SPOOL_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/events-'+width+'.png',fullPage:true})}

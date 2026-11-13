@@ -1492,15 +1492,18 @@ body.simple-workspace #bookingDialog .booking-pending-files [data-remove-saved-b
 .event-renewal .event-examples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
 .event-renewal .event-examples span{padding:8px 13px;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.5;background:#edf3e5;color:#2b4b35}
 .event-renewal .event-ideas p{margin:0;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.85}
-.event-renewal :is(.event-details,.event-poster-preview){padding:0;background:#fbfcf8;overflow:hidden}
-.event-renewal :is(.event-details,.event-poster-preview)>summary{min-height:58px;padding:17px 22px;font-size:max(var(--spool-type-floor,18px),18px);font-weight:650;line-height:1.6;color:#254c35;cursor:pointer}
+.event-renewal .event-details{padding:0;background:#fbfcf8;overflow:hidden}
+.event-renewal .event-details>summary{min-height:58px;padding:17px 22px;font-size:max(var(--spool-type-floor,18px),18px);font-weight:650;line-height:1.6;color:#254c35;cursor:pointer}
 .event-renewal .event-details>div{padding:4px 24px 24px}
 .event-renewal .event-details h3{margin-top:20px;font-size:max(var(--spool-type-floor,22px),22px)}
 .event-renewal .event-details>div>h3:first-child{margin-top:0}
-.event-renewal .event-poster-hero{margin:0 20px 20px;border-radius:10px;border:1px solid #b9c8b3}
+.event-renewal>.event-poster-hero{margin:0;border-radius:18px;border:1px solid #b9c8b3;overflow:hidden}
 .event-renewal [tabindex="-1"]{scroll-margin-top:140px}
 .event-renewal :is(button,summary,[tabindex="-1"]):focus-visible{outline:3px solid #386c47;outline-offset:3px}
 @media(max-width:1100px){.event-renewal .event-award-grid{grid-template-columns:minmax(0,1fr)}.event-renewal .event-lead{grid-template-columns:minmax(0,1fr)}.event-renewal .event-deadline-announcement{display:grid;grid-template-columns:1fr auto;gap:5px 16px}.event-renewal .event-deadline-announcement>small{grid-column:2;grid-row:1}.event-renewal .event-deadline-announcement time{grid-column:1/-1}.event-renewal .event-secondary{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:760px){.event-renewal{gap:16px}.event-renewal .event-lead{padding:22px 20px;gap:22px}.event-renewal .event-lead h2{font-size:clamp(26px,6.4vw,32px)}.event-renewal .event-lead-copy br{display:none}.event-renewal .event-deadline-announcement{padding:16px}.event-renewal .event-card{padding:20px}.event-renewal .event-section-nav button{flex:1;min-width:0;padding:10px}.event-renewal .event-award-entry{padding:18px;gap:12px}.event-renewal .event-facts>div{grid-template-columns:minmax(0,1fr);gap:5px;padding:12px 0}.event-renewal :is(.event-details,.event-poster-preview){padding:0}.event-renewal .event-details>div{padding:0 20px 20px}.event-renewal .event-poster-hero{margin:0 12px 12px}}
+@media(max-width:760px){.event-renewal{gap:16px}.event-renewal .event-lead{padding:22px 20px;gap:22px}.event-renewal .event-lead h2{font-size:clamp(26px,6.4vw,32px)}.event-renewal .event-lead-copy br{display:none}.event-renewal .event-deadline-announcement{padding:16px}.event-renewal .event-card{padding:20px}.event-renewal .event-section-nav button{flex:1;min-width:0;padding:10px}.event-renewal .event-award-entry{padding:18px;gap:12px}.event-renewal .event-facts>div{grid-template-columns:minmax(0,1fr);gap:5px;padding:12px 0}.event-renewal .event-details{padding:0}.event-renewal .event-details>div{padding:0 20px 20px}}
 
 .event-renewal .event-lead h2>span{display:inline-block;max-width:100%}
+
+body.simple-workspace #bookingView .print-state.printing{background:#e0edf4;color:#234e68;border:1px solid #87aabd}
+@media(min-width:381px) and (max-width:760px){body.simple-workspace #bookingView .booking-status-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}

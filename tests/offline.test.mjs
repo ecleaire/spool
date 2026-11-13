@@ -197,3 +197,5 @@ assert.ok(app.run('deadlineMarkup({...reservations[0],deadline:todayJST(),printS
 console.log('Passed: distinct color-name counts, cross-brand grouping, verified Bambu photo fallback, custom-photo preservation and today-only attention.');
 
 assert.equal(distinctColors.run("filamentProductImage({brand:'Other',color:'#123456',image:''},false)"),'');
+
+const printingApp=boot({embedded:{...saved,reservations:saved.reservations.map(x=>({...x,printStatus:'印刷途中'}))}});const printingFile=fakeFile();printingApp.context.window.showSaveFilePicker=async()=>printingFile;await printingApp.run('saveDataFileAs()');const printingData=JSON.parse(printingFile.read());assert.equal(printingData.reservations[0].printStatus,'印刷途中');const printingRestored=boot({embedded:printingData});assert.equal(printingRestored.run('reservations[0].printStatus'),'印刷途中');assert.equal(printingRestored.run('validBookings([{...reservations[0],printStatus:"不正"}])'),false);

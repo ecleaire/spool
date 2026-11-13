@@ -87,7 +87,7 @@ begin
  if b ? 'registeredTime' and (jsonb_typeof(b->'registeredTime')<>'string' or b->>'registeredTime' !~ '^([01]\d|2[0-3]):[0-5]\d$') then return false;end if;
  if b ? 'creator' and (jsonb_typeof(b->'creator')<>'string' or length(b->>'creator')>100) then return false;end if;
  if b ? 'quality' and (jsonb_typeof(b->'quality') is distinct from 'string' or b->>'quality' not in ('speed','standard','fine')) then return false;end if;
- if b ? 'printStatus' and (jsonb_typeof(b->'printStatus') is distinct from 'string' or b->>'printStatus' not in ('印刷予定','印刷済み','未定')) then return false;end if;
+ if b ? 'printStatus' and (jsonb_typeof(b->'printStatus') is distinct from 'string' or b->>'printStatus' not in ('印刷予定','印刷途中','印刷済み','未定')) then return false;end if;
  if b ? 'colorPreference' and (jsonb_typeof(b->'colorPreference') is distinct from 'string' or b->>'colorPreference' not in ('specified','none','random')) then return false;end if;
  if b ? 'colorTranslucent' and jsonb_typeof(b->'colorTranslucent')<>'boolean' then return false;end if;
  if b ? 'tags' then if jsonb_typeof(b->'tags')<>'array' or jsonb_array_length(b->'tags')>20 then return false;end if;for entry in select value from jsonb_array_elements(b->'tags') loop if jsonb_typeof(entry)<>'string' or length(trim(entry#>>'{}')) not between 1 and 30 then return false;end if;end loop;end if;

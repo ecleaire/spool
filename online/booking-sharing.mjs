@@ -6,7 +6,7 @@ export function createBookingSharing({context,bridge,esc,prepare,refresh}){
  let busy=false;
  const message=error=>error.code==='PGRST202'?'予約の同期にはデータベース更新が必要です。管理者に確認してください。':error.code==='40001'?'共有元の予約が更新されています。画面を再読み込みしてから保存してください。':error.code?classifyError(error).action:error.message||'予約を同期できませんでした。';
  const current=c=>{const n=context();if(c.epoch!==n.epoch||c.library!==n.library||!n.session)throw Error('表示先が変わりました。開き直してください。')};
- async function rpc(c,name,args){current(c);const r=await c.client.rpc(name,args);current(c);if(r.error){if(name==='update_shared_booking'&&r.error.code==='22023'&&r.error.message==='Invalid booking changes'&&args.changes?.filamentUsage!==undefined)throw Error('消費量を共有予約に保存するにはデータベース更新が必要です。入力内容は保持されています。管理者に確認してください。');throw r.error;}return r.data}
+ async function rpc(c,name,args){current(c);const r=await c.client.rpc(name,args);current(c);if(r.error){if(name==='update_shared_booking'&&r.error.code==='22023'&&r.error.message==='Invalid booking data'&&args.changes?.printStatus==='印刷途中')throw Error('印刷途中を共有予約に保存できませんでした。データベース更新（booking-printing-status.sql）が必要な可能性があります。入力内容は保持されています。管理者に確認してください。');if(name==='update_shared_booking'&&r.error.code==='22023'&&r.error.message==='Invalid booking changes'&&args.changes?.filamentUsage!==undefined)throw Error('消費量を共有予約に保存するにはデータベース更新が必要です。入力内容は保持されています。管理者に確認してください。');throw r.error;}return r.data}
  async function open(id){
   if(document.querySelector('#booking-sharing-dialog[open]'))return;
   const c=context(),source=c.libraries.find(x=>x.personal&&x.owner_id===c.session?.user.id);if(!source){bridge.notify('個人ライブラリの所有者が予約の同期先を選べます。');return}
