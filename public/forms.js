@@ -62,7 +62,7 @@ function refreshSearchPanel(){
  const count=filters.filter(id=>$(id).value).length;
  $('#foregroundResultCount').textContent=String(records.length);$('#foregroundFilterCount').textContent=count?String(count):'';
  $('#clearSearchFilters').hidden=!count;$('#clearSearchQuery').hidden=!activeSearchInput().value;
- const scope=bookings?($('#bookingStatusFilter').value||'すべての予約'):({all:'すべてのフィラメント',low:'残量が少ない',empty:'使い切り',planned:'購入予定'}[tab]||'フィラメント');
+ const scope=bookings?($('[data-booking-status][aria-pressed=true] .booking-status-label')?.textContent||'すべての予約'):({all:'すべてのフィラメント',low:'残量が少ない',empty:'使い切り',planned:'購入予定'}[tab]||'フィラメント');
  $('#searchResultHint').textContent=scope+' · '+records.length+'件'+(records.length>12?'（先頭12件を表示）':'');
  $('#foregroundResults').classList.toggle('filament-search-cards',!bookings);
  $('#foregroundResults').innerHTML=records.length?records.slice(0,12).map((item,index)=>bookings?

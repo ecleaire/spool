@@ -48,7 +48,13 @@ $$('[data-set-booking-status]').forEach(button=>button.onclick=async()=>{
  else $('#bookingStatusError').textContent='印刷情報を保存できませんでした。権限と保存容量を確認してください。';
 });
 function deadlineMarkup(booking){if(!booking.deadline)return '<span class="deadline-undecided">未定</span>'; const due=bookingDue(booking);return '<div class="booking-deadline '+due.tone+(due.days===0&&due.tone==='soon'?' is-today':'')+'"><time datetime="'+booking.deadline+'">'+esc(displayDate(booking.deadline))+'</time><small>'+due.label+'</small></div>'}
-function resetBookingFilters(){window.spoolBookingResetQuick?.();$('#bookingSearch').value='';$('#bookingClass').value='';$('#bookingStatusFilter').value='';$('#bookingTagFilter').value='';renderBookings()}
+const defaultBookingStatusFilter = 'unfinished';
+function bookingMatchesStatus(booking, filter) {
+  if (!filter) return true;
+  const status = bookingStatus(booking);
+  return filter === defaultBookingStatusFilter ? status !== '印刷済み' : status === filter;
+}
+function resetBookingFilters(){window.spoolBookingResetQuick?.();$('#bookingSearch').value='';$('#bookingClass').value='';$('#bookingStatusFilter').value=defaultBookingStatusFilter;$('#bookingTagFilter').value='';renderBookings()}
 function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatMap(bookingTags),'すべてのタグ','タグなし');
   const q=$('#bookingSearch').value.trim().toLowerCase().replace(/^#/,''),tag=$('#bookingTagFilter').value,cls=$('#bookingClass').value,status=$('#bookingStatusFilter').value;
   const planned=reservations.filter(x=>bookingStatus(x)==='印刷予定'),completed=reservations.filter(x=>bookingStatus(x)==='印刷済み'),undecided=reservations.filter(x=>bookingStatus(x)==='未定');
@@ -56,9 +62,10 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
   $('#bookingCompleted').textContent=completed.length;
   const urgent=reservations.filter(x=>bookingStatus(x)!=='印刷済み'&&bookingDue(x).days<=2).length;$('#bookingUrgent').textContent=urgent;$('.booking-urgent-stat').classList.toggle('has-urgent',urgent>0);
   $('#bookingPendingTime').textContent=durationLabel(reservations.filter(x=>bookingStatus(x)!=='印刷済み').reduce((sum,x)=>sum+x.printMinutes,0));
-  $('#bookingTabPrinting').textContent=reservations.filter(x=>bookingStatus(x)==='印刷途中').length;$('#bookingTabAll').textContent=reservations.length;$('#bookingTabPlanned').textContent=planned.length;$('#bookingTabUndecided').textContent=undecided.length;$('#bookingTabCompleted').textContent=completed.length;$('#navBookingCount').textContent=reservations.length;
+  $('#bookingTabPrinting').textContent=reservations.filter(x=>bookingStatus(x)==='印刷途中').length;$('#bookingTabAll').textContent=reservations.length;
+  $('#bookingTabUnfinished').textContent=reservations.length-completed.length;$('#bookingTabPlanned').textContent=planned.length;$('#bookingTabUndecided').textContent=undecided.length;$('#bookingTabCompleted').textContent=completed.length;$('#navBookingCount').textContent=reservations.length;
   $$('[data-booking-status]').forEach(button=>{const active=button.dataset.bookingStatus===status;button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active))});
-  const shown=reservations.filter(x=>(!window.spoolBookingQuickMatches||window.spoolBookingQuickMatches(x))&&(!cls||(cls==='__blank__'?!x.className:x.className===cls))&&(!status||bookingStatus(x)===status)&&facetMatches(tag,bookingTags(x))&&[x.title,x.creator,displayColorName(x.desiredColor),...(x.requestedFilaments||[]).map(f=>displayColorName(f.name)),...bookingTags(x)].join(' ').toLowerCase().includes(q)).sort((a,b)=>{
+  const shown=reservations.filter(x=>(!window.spoolBookingQuickMatches||window.spoolBookingQuickMatches(x))&&(!cls||(cls==='__blank__'?!x.className:x.className===cls))&&bookingMatchesStatus(x,status)&&facetMatches(tag,bookingTags(x))&&[x.title,x.creator,displayColorName(x.desiredColor),...(x.requestedFilaments||[]).map(f=>displayColorName(f.name)),...bookingTags(x)].join(' ').toLowerCase().includes(q)).sort((a,b)=>{
     if($('#bookingSort').value==='registered')return b.registeredDate.localeCompare(a.registeredDate)||(a.deadline||'9999-99-99').localeCompare(b.deadline||'9999-99-99');
     return Number(bookingStatus(a)==='印刷済み')-Number(bookingStatus(b)==='印刷済み')||(a.deadline||'9999-99-99').localeCompare(b.deadline||'9999-99-99')||a.registeredDate.localeCompare(b.registeredDate);
   });
@@ -151,4 +158,4 @@ $('#bookingDeadlineUnknown').onchange=updateBookingDeadline;$('#bookingColorSear
 $('#bookingFileInput').onchange=()=>{try{stageBookingFiles($('#bookingFileInput').files)}finally{$('#bookingFileInput').value=''}};
 $('#deleteBooking').onclick=()=>deleteBookingContent();
 $('#addBooking').onclick=$('#emptyAddBooking').onclick=()=>openBooking();$('#closeBooking').onclick=$('#cancelBooking').onclick=()=>{if(bookingSaving){$('#bookingError').textContent='ファイルの保存が終わるまでお待ちください。';return}closeBookingEditor()};$('#bookingDialog').addEventListener('cancel',event=>{if(bookingSaving)event.preventDefault()});$('#bookingSearch').oninput=renderBookings;$('#bookingTagFilter').onchange=$('#bookingClass').onchange=$('#bookingSort').onchange=$('#bookingStatusFilter').onchange=renderBookings;
-$('#bookingStatusFilter').value='印刷予定';showBookingView(false);renderBookings();
+$('#bookingStatusFilter').value=defaultBookingStatusFilter;showBookingView(false);renderBookings();
