@@ -1407,8 +1407,8 @@ body.simple-workspace #items>.purchase-section-empty{grid-column:1/-1;min-width:
 body.simple-workspace .inventory #purchaseTabTrigger{width:auto;height:auto;min-height:44px;max-width:100%;white-space:normal;text-wrap:balance;line-height:1.5}
 
 /* Roomier booking editor: larger controls without increasing permanent page chrome. */
-body.simple-workspace #bookingDialog{width:min(1400px,calc(100vw - 48px));max-width:calc(100vw - 48px);max-height:96dvh}
-body.simple-workspace #bookingDialog>form{max-height:calc(96dvh - 2px)}
+body.simple-workspace #bookingDialog{width:min(1520px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 16px)}
+body.simple-workspace #bookingDialog>form{max-height:calc(100dvh - 18px)}
 body.simple-workspace #bookingDialog .dialog-head{padding:20px 28px}
 body.simple-workspace #bookingDialog .dialog-head h2{font-size:max(var(--spool-type-floor,24px),24px);line-height:1.4}
 body.simple-workspace #bookingDialog .close{width:44px;height:44px;min-height:44px}
