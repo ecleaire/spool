@@ -58,12 +58,13 @@ function resetBookingFilters(){window.spoolBookingResetQuick?.();$('#bookingSear
 function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatMap(bookingTags),'すべてのタグ','タグなし');
   const q=$('#bookingSearch').value.trim().toLowerCase().replace(/^#/,''),tag=$('#bookingTagFilter').value,cls=$('#bookingClass').value,status=$('#bookingStatusFilter').value;
   const planned=reservations.filter(x=>bookingStatus(x)==='印刷予定'),completed=reservations.filter(x=>bookingStatus(x)==='印刷済み'),undecided=reservations.filter(x=>bookingStatus(x)==='未定');
-  $('#bookingPlanned').textContent=planned.length;
+  const unfinishedCount = reservations.length - completed.length;
+  $('#bookingUnfinished').textContent = unfinishedCount;
   $('#bookingCompleted').textContent=completed.length;
   const urgent=reservations.filter(x=>bookingStatus(x)!=='印刷済み'&&bookingDue(x).days<=2).length;$('#bookingUrgent').textContent=urgent;$('.booking-urgent-stat').classList.toggle('has-urgent',urgent>0);
   $('#bookingPendingTime').textContent=durationLabel(reservations.filter(x=>bookingStatus(x)!=='印刷済み').reduce((sum,x)=>sum+x.printMinutes,0));
   $('#bookingTabPrinting').textContent=reservations.filter(x=>bookingStatus(x)==='印刷途中').length;$('#bookingTabAll').textContent=reservations.length;
-  $('#bookingTabUnfinished').textContent=reservations.length-completed.length;$('#bookingTabPlanned').textContent=planned.length;$('#bookingTabUndecided').textContent=undecided.length;$('#bookingTabCompleted').textContent=completed.length;$('#navBookingCount').textContent=reservations.length;
+  $('#bookingTabUnfinished').textContent=unfinishedCount;$('#bookingTabPlanned').textContent=planned.length;$('#bookingTabUndecided').textContent=undecided.length;$('#bookingTabCompleted').textContent=completed.length;$('#navBookingCount').textContent=reservations.length;
   $$('[data-booking-status]').forEach(button=>{const active=button.dataset.bookingStatus===status;button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active))});
   const shown=reservations.filter(x=>(!window.spoolBookingQuickMatches||window.spoolBookingQuickMatches(x))&&(!cls||(cls==='__blank__'?!x.className:x.className===cls))&&bookingMatchesStatus(x,status)&&facetMatches(tag,bookingTags(x))&&[x.title,x.creator,displayColorName(x.desiredColor),...(x.requestedFilaments||[]).map(f=>displayColorName(f.name)),...bookingTags(x)].join(' ').toLowerCase().includes(q)).sort((a,b)=>{
     if($('#bookingSort').value==='registered')return b.registeredDate.localeCompare(a.registeredDate)||(a.deadline||'9999-99-99').localeCompare(b.deadline||'9999-99-99');
