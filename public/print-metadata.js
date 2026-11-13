@@ -22,11 +22,22 @@ function parseGcodeMetadata(text){
  const values=value=>value?value.split(/[;,]/).map(x=>x.trim().replace(/^"|"$/g,'')):[];
  const colors=values(field('filament_colou?r')),types=values(field('filament_type'));
  const weights=values(field('filament used \\[g\\]')),lengths=values(field('filament used \\[mm\\]')),meters=values(field('filament used \\[m\\]'));
- const count=Math.max(colors.filter(Boolean).length,weights.filter(Boolean).length,lengths.filter(Boolean).length,meters.filter(Boolean).length),usage=Array.from({length:count},(_,i)=>({color:colors[i]||'',type:types[i]||types[0],grams:weights.length===count?weights[i]:null,millimeters:lengths.length===count?printUsageNumber(lengths[i]):meters.length===count?printUsageNumber(meters[i],1000):null}));
+ // Keep the slicer's slot positions, including empty entries. Trim only
+ // trailing empty slots that occur in every field.
+ const slotCount=Math.min(64,Math.max(colors.length,weights.length,lengths.length,meters.length));
+ const usage=Array.from({length:slotCount},(_,i)=>({
+  color:colors[i]||'',type:types[i]||types[0],
+  grams:printUsageNumber(weights[i]),
+  millimeters:printUsageNumber(lengths[i])??printUsageNumber(meters[i],1000)
+ }));
+ while(usage.length&&!usage.at(-1).color&&usage.at(-1).grams===null&&usage.at(-1).millimeters===null)usage.pop();
+ const count=usage.length;
+ // An empty unused slot must not make an otherwise complete total unknown.
+ const hasUsage=f=>f.color||f.grams!==null||f.millimeters!==null;
  const generic=text.match(/^;\s*filament used\s*:\s*(\d+(?:\.\d+)?)\s*(mm|m|g)\s*$/mi),totalGrams=field('total filament (?:used |weight )?\\[g\\]')||(weights.length===1?weights[0]:generic?.[2]?.toLowerCase()==='g'?generic[1]:null),totalMm=field('total filament length \\[mm\\]')||field('total filament used \\[mm\\]')||(lengths.length===1?lengths[0]:meters.length===1?printUsageNumber(meters[0],1000):generic&&generic[2].toLowerCase()!=='g'?printUsageNumber(generic[1],generic[2].toLowerCase()==='m'?1000:1):null);
  if(count===1){usage[0].grams=usage[0].grams??totalGrams;usage[0].millimeters=usage[0].millimeters??printUsageNumber(totalMm);}
  const duration=text.match(/total estimated time\s*:\s*([^;\r\n]+)/i)?.[1]||text.match(/estimated printing time\s*(?:\([^)]*\))?\s*=\s*([^\r\n]+)/i)?.[1]||field('TIME')||text.match(/model printing time\s*:\s*([^;\r\n]+)/i)?.[1];
- return cleanPrintMetadata({seconds:slicerSeconds(duration),layerHeight:field('layer_height'),grams:totalGrams,millimeters:totalMm,usageFilaments:usage,filaments:colors.map((color,i)=>({color,type:types[i]||types[0],usage:usage[i]})).filter(f=>!f.usage||!(printUsageNumber(f.usage.grams)===0&&(f.usage.millimeters===null||f.usage.millimeters===0)||f.usage.millimeters===0&&(printUsageNumber(f.usage.grams)===null||printUsageNumber(f.usage.grams)===0)))});
+ return cleanPrintMetadata({seconds:slicerSeconds(duration),layerHeight:field('layer_height'),grams:totalGrams,millimeters:totalMm,usageFilaments:usage.filter(hasUsage),filaments:colors.map((color,i)=>({color,type:types[i]||types[0],usage:usage[i]})).filter(f=>!f.usage||!(printUsageNumber(f.usage.grams)===0&&(f.usage.millimeters===null||f.usage.millimeters===0)||f.usage.millimeters===0&&(printUsageNumber(f.usage.grams)===null||printUsageNumber(f.usage.grams)===0)))});
 }
 async function readZipMetadata(file){
  // Central directory inspection avoids reading or expanding model meshes/images.

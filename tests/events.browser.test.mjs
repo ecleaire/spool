@@ -26,6 +26,19 @@ await page.locator('[data-event-banner]').scrollIntoViewIfNeeded();await page.wa
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.ok(await page.locator('.event-card p').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=17));
   if(process.env.SPOOL_SCREENSHOT_DIR){mkdirSync(process.env.SPOOL_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:process.env.SPOOL_SCREENSHOT_DIR+'/events-'+width+'.png',fullPage:true})}
+  if(width===1440){
+   const exported=await page.evaluate(async()=>{
+    const originalDownload=downloadBlob;
+    let snapshot;
+    try{
+     downloadBlob=blob=>{snapshot=blob};
+     await downloadOfflineHtml();
+    }finally{downloadBlob=originalDownload}
+    const exportedPage=new DOMParser().parseFromString(await snapshot.text(),'text/html');
+    return {eventHidden:exportedPage.querySelector('#eventView').hidden,inventoryHidden:exportedPage.querySelector('.inventory').hidden,eventSelected:exportedPage.querySelector('#navEvents').hasAttribute('aria-current')};
+   });
+   assert.deepEqual(exported,{eventHidden:true,inventoryHidden:false,eventSelected:false});
+  }
   await page.evaluate(()=>showBookingView(true));assert.equal(await page.locator('#eventView').isVisible(),false);assert.equal(await page.locator('#bookingView').isVisible(),true);
   await page.evaluate(()=>showBookingView(false));assert.equal(await page.locator('.inventory').isVisible(),true);assert.equal(await page.locator('#eventView').isVisible(),false);
   assert.deepEqual(errors,[]);await page.close();console.log('PASS events '+width+'px: navigation, disclosure, readable text, no overflow.');

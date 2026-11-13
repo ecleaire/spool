@@ -199,3 +199,41 @@ console.log('Passed: distinct color-name counts, cross-brand grouping, verified 
 assert.equal(distinctColors.run("filamentProductImage({brand:'Other',color:'#123456',image:''},false)"),'');
 
 const printingApp=boot({embedded:{...saved,reservations:saved.reservations.map(x=>({...x,printStatus:'印刷途中'}))}});const printingFile=fakeFile();printingApp.context.window.showSaveFilePicker=async()=>printingFile;await printingApp.run('saveDataFileAs()');const printingData=JSON.parse(printingFile.read());assert.equal(printingData.reservations[0].printStatus,'印刷途中');const printingRestored=boot({embedded:printingData});assert.equal(printingRestored.run('reservations[0].printStatus'),'印刷途中');assert.equal(printingRestored.run('validBookings([{...reservations[0],printStatus:"不正"}])'),false);
+
+const switched = boot();
+const oldFile = fakeFile('old.json');
+switched.context.window.showSaveFilePicker = async () => oldFile;
+await switched.run('saveDataFileAs()');
+const oldSnapshot = oldFile.read();
+let remembered = oldFile;
+switched.run('rememberFile = async handle => window.recordFileLink(handle)');
+switched.context.window.recordFileLink = handle => { remembered = handle; };
+const input = {files:[{size:200,text:async()=>JSON.stringify({version:2,items:[{...initialItem,name:'別の在庫'}]})}],value:'old'};
+await switched.get('#importFile').onchange({target:input});
+assert.equal(remembered,null);
+assert.equal(switched.run('dataFile'),null);
+assert.equal(switched.run('fileDirty'),true);
+assert.equal(switched.run('items[0].name'),'別の在庫');
+assert.equal(oldFile.read(),oldSnapshot);
+assert.equal(input.value,'');
+
+const raced = boot();
+const racedFile = fakeFile('raced.json');
+raced.context.window.showSaveFilePicker = async () => racedFile;
+await raced.run('saveDataFileAs()');
+const createWriter = racedFile.createWritable;
+racedFile.createWritable = async options => {
+  racedFile.externalWrite(racedFile.read()+'\n');
+  return createWriter(options);
+};
+await raced.run('writeDataFile(true)');
+assert.equal(racedFile.writes(),1);
+assert.match(raced.get('#storageDetail').textContent,/別の画面/);
+
+const parsedSlots = app.run(String.raw`parseGcodeMetadata('; filament_colour = #FF0000;;#0000FF\n; filament_type = PLA;;PETG\n; filament used [g] = 4,,6\n; filament used [m] = 1,,2')`);
+assert.equal(parsedSlots.filamentUsage.grams,10);
+assert.equal(parsedSlots.filamentUsage.millimeters,3000);
+assert.equal(parsedSlots.filamentUsage.filaments.length,2);
+assert.equal(parsedSlots.filamentUsage.filaments[1].type,'PETG');
+assert.equal(parsedSlots.filamentUsage.filaments[1].grams,6);
+console.log('PASS: imported backups detach old files, concurrent file edits are detected under the write lock, and sparse G-code slots retain their material and usage.');
