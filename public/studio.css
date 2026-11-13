@@ -1455,3 +1455,52 @@ body.simple-workspace #bookingDialog #bookingImportPick:focus-within,.search-tri
 .booking-color-search-disclosure.has-query>summary{background:#e4efd9;border-color:#4b7750}.booking-color-search-disclosure.has-query>summary:after{content:"";position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#1b6549}
 /* Saved attachments use text actions, not the square staging-cancel control. */
 body.simple-workspace #bookingDialog .booking-pending-files [data-remove-saved-booking-file]{width:auto!important;height:auto!important;min-width:44px;min-height:44px;max-width:100%;flex:0 1 auto;padding:10px 14px;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.5;white-space:normal;overflow-wrap:anywhere;color:#87372c;border:1px solid #c8aaa1;background:#fff8f4;border-radius:8px}
+
+/* Event announcement: key facts first, consistent award cards, optional detail below. */
+.event-renewal{gap:22px;--event-line:#cfdbce}
+.event-renewal .event-lead{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,.5fr);gap:28px;align-items:center;padding:32px;border:1px solid #bfcfbc;border-radius:18px;background:linear-gradient(125deg,#edf3e5,#f8f8ef);min-width:0}
+.event-renewal .event-topic{margin:0 0 14px;font-size:max(var(--spool-type-floor,16px),16px);font-weight:600;line-height:1.6;color:#3d5a43}
+.event-renewal .event-lead h2{margin:0 0 16px;font-size:clamp(28px,3vw,44px);font-weight:750;letter-spacing:.01em;line-height:1.45;color:#173f30;text-wrap:balance}
+.event-renewal .event-lead-copy>p:last-child{margin:0;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.8}
+.event-renewal .event-deadline-announcement{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:0;padding:24px;border:1px solid #b7c8ae;border-radius:14px;background:#fffef8;min-width:0;box-shadow:none}
+.event-renewal .event-deadline-announcement>span{font-size:max(var(--spool-type-floor,18px),18px);font-weight:650;color:#34583c}
+.event-renewal .event-deadline-announcement>small{font-size:max(var(--spool-type-floor,16px),16px);color:#465f47}
+.event-renewal .event-deadline-announcement time{font-size:clamp(24px,2.4vw,32px);font-weight:750;line-height:1.4;color:#183e2d;white-space:normal;overflow-wrap:anywhere}
+.event-renewal .event-section-nav{display:flex;flex-wrap:wrap;gap:8px}
+.event-renewal .event-section-nav button{min-width:88px;min-height:44px;padding:10px 20px;border:1px solid #b6c8b1;border-radius:999px;background:#fff;color:#244c36;font-size:max(var(--spool-type-floor,16px),16px);font-weight:600}
+.event-renewal .event-section-nav button:hover{background:#e7f0df;border-color:#557b52}
+.event-renewal .event-card{padding:24px;border-color:var(--event-line);border-radius:16px;box-shadow:none}
+.event-renewal :is(.event-awards,.event-overview,.event-ideas){display:block}
+.event-renewal .event-section-heading{display:block;margin:0 0 18px}
+.event-renewal .event-section-label{margin-bottom:6px;font-size:max(var(--spool-type-floor,16px),14px);letter-spacing:.08em;color:#47644b}
+.event-renewal .event-section-heading h3{margin:0;font-size:max(var(--spool-type-floor,24px),24px);line-height:1.5;color:#214632}
+.event-renewal .event-award-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0}
+.event-renewal .event-award-entry{display:flex;flex-direction:column;gap:18px;padding:22px 20px;border:1px solid #c6d4bd;border-radius:12px;background:#f6f9f0;min-width:0}
+.event-renewal .event-award-entry.is-featured{background:#fbf3dc;border-color:#c1a45f}
+.event-renewal .event-award-entry dt{font-size:max(var(--spool-type-floor,18px),18px);font-weight:750;line-height:1.5;color:#234a32}
+.event-renewal .event-award-entry dd{margin:0;line-height:1.6;color:#254a34;overflow-wrap:anywhere}
+.event-renewal .event-award-entry dd>strong{display:block;font-size:max(var(--spool-type-floor,28px),28px);font-weight:750;line-height:1.5}
+.event-renewal .event-award-entry dd>small{display:block;margin-top:12px;font-size:max(var(--spool-type-floor,16px),16px);line-height:1.7;color:#40573d}
+.event-renewal .event-award-lead{display:block;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.6}
+.event-renewal .event-secondary{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:stretch;min-width:0}
+.event-renewal .event-facts{margin:0}
+.event-renewal .event-facts>div{display:grid;grid-template-columns:100px minmax(0,1fr);gap:16px;padding:14px 0;border-color:#e0e8db;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.7}
+.event-renewal .event-facts>div:first-child{padding-top:0}
+.event-renewal .event-facts dt{font-weight:600;color:#38583e}
+.event-renewal .event-facts dd{margin:0;font-size:inherit;color:#243f30;overflow-wrap:anywhere}
+.event-renewal .event-facts strong{font-size:inherit;color:inherit}
+.event-renewal .event-examples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.event-renewal .event-examples span{padding:8px 13px;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.5;background:#edf3e5;color:#2b4b35}
+.event-renewal .event-ideas p{margin:0;font-size:max(var(--spool-type-floor,18px),18px);line-height:1.85}
+.event-renewal :is(.event-details,.event-poster-preview){padding:0;background:#fbfcf8;overflow:hidden}
+.event-renewal :is(.event-details,.event-poster-preview)>summary{min-height:58px;padding:17px 22px;font-size:max(var(--spool-type-floor,18px),18px);font-weight:650;line-height:1.6;color:#254c35;cursor:pointer}
+.event-renewal .event-details>div{padding:4px 24px 24px}
+.event-renewal .event-details h3{margin-top:20px;font-size:max(var(--spool-type-floor,22px),22px)}
+.event-renewal .event-details>div>h3:first-child{margin-top:0}
+.event-renewal .event-poster-hero{margin:0 20px 20px;border-radius:10px;border:1px solid #b9c8b3}
+.event-renewal [tabindex="-1"]{scroll-margin-top:140px}
+.event-renewal :is(button,summary,[tabindex="-1"]):focus-visible{outline:3px solid #386c47;outline-offset:3px}
+@media(max-width:1100px){.event-renewal .event-award-grid{grid-template-columns:minmax(0,1fr)}.event-renewal .event-lead{grid-template-columns:minmax(0,1fr)}.event-renewal .event-deadline-announcement{display:grid;grid-template-columns:1fr auto;gap:5px 16px}.event-renewal .event-deadline-announcement>small{grid-column:2;grid-row:1}.event-renewal .event-deadline-announcement time{grid-column:1/-1}.event-renewal .event-secondary{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){.event-renewal{gap:16px}.event-renewal .event-lead{padding:22px 20px;gap:22px}.event-renewal .event-lead h2{font-size:clamp(26px,6.4vw,32px)}.event-renewal .event-lead-copy br{display:none}.event-renewal .event-deadline-announcement{padding:16px}.event-renewal .event-card{padding:20px}.event-renewal .event-section-nav button{flex:1;min-width:0;padding:10px}.event-renewal .event-award-entry{padding:18px;gap:12px}.event-renewal .event-facts>div{grid-template-columns:minmax(0,1fr);gap:5px;padding:12px 0}.event-renewal :is(.event-details,.event-poster-preview){padding:0}.event-renewal .event-details>div{padding:0 20px 20px}.event-renewal .event-poster-hero{margin:0 12px 12px}}
+
+.event-renewal .event-lead h2>span{display:inline-block;max-width:100%}
