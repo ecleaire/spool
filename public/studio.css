@@ -1507,3 +1507,47 @@ body.simple-workspace #bookingDialog .booking-pending-files [data-remove-saved-b
 
 body.simple-workspace #bookingView .print-state.printing{background:#e0edf4;color:#234e68;border:1px solid #87aabd}
 @media(min-width:381px) and (max-width:760px){body.simple-workspace #bookingView .booking-status-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Keep booking actions together and put the deadline beside the colors when there is room. */
+body.simple-workspace #bookingDialog .booking-upload-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 16px;
+  width: 100%;
+}
+body.simple-workspace #bookingDialog .booking-upload-tools > * { width: auto; max-width: 100%; }
+body.simple-workspace #bookingDialog #bookingReferenceOpen {
+  min-height: 44px;
+  padding: 6px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+body.simple-workspace #bookingDialog #bookingFileFeedback:empty { display: none; }
+body.simple-workspace #bookingDialog .booking-color-search-disclosure > summary {
+  width: fit-content;
+  gap: 8px;
+  padding-inline: 12px;
+}
+body.simple-workspace #bookingDialog .booking-color-search-disclosure > summary span { white-space: nowrap; }
+@media (min-width: 1101px) {
+  body.simple-workspace #bookingDialog .booking-plan-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 26%);
+    align-items: start;
+    column-gap: 18px;
+  }
+  body.simple-workspace #bookingDialog .booking-plan-section > :is(.form-section-heading, .booking-model-colors) { grid-column: 1 / -1; }
+  body.simple-workspace #bookingDialog .booking-schedule-fields {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid #ccd9c4;
+    border-radius: 10px;
+    background: #fff;
+  }
+}
+@media (max-width: 760px) {
+  body.simple-workspace #bookingDialog .dialog-actions > #saveBookingButton { flex: 1 1 auto; }
+}
