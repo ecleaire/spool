@@ -29,3 +29,14 @@ test('purchase-specific grants separate wish, plan and owned stock including con
  assert.throws(()=>assertStatePermissions(old,{...base,items:[{...wish,purchaseIntent:'planned'}]},edit),/権限/);
  assert.doesNotThrow(()=>assertStatePermissions(old,{...base,items:[{...wish,purchaseIntent:'planned'}]},{...edit,purchase_create:true}));
 });
+
+test('save error, retry and confirmed timestamp follow only acknowledged saves',async()=>{
+ let fail=true;const sync=new LibrarySync(async()=>{if(fail)throw Error('Offline');assert.equal(sync.recovering,true);return 4});sync.reset('a',3);sync.edit();await assert.rejects(sync.save({}));assert.ok(sync.lastError);const confirmed=sync.confirmedAt;fail=false;await sync.save({});assert.equal(sync.lastError,null);assert.equal(sync.dirty,false);assert.ok(sync.confirmedAt>=confirmed);
+});
+test('invalid save receipt preserves changes while a no-op revision is allowed',async()=>{
+ const sync=new LibrarySync(async()=>null);sync.reset('a',2);sync.edit();await assert.rejects(sync.save({}),/版番号/);assert.equal(sync.dirty,true);assert.equal(sync.revision,2);sync.api=async()=>2;await sync.save({});assert.equal(sync.dirty,false);
+});
+
+test('a definitive permission rejection does not trigger uncertain-write recovery',async()=>{
+ let reject=true;const sync=new LibrarySync(async()=>{if(reject)throw Object.assign(Error('permission denied'),{code:'42501'});assert.equal(sync.recovering,false);return 1});sync.reset('a');sync.edit();await assert.rejects(sync.save({}));reject=false;await sync.save({});assert.equal(sync.dirty,false);
+});

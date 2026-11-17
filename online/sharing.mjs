@@ -1,6 +1,6 @@
 import {classifyError} from './errors.mjs';
 export function sharingIncludes(link,id,item){return item?.inventoryStatus==='planned'?!!link.included_ids?.includes(id):link.mode==='all'?!link.excluded_ids?.includes(id):!!link.included_ids?.includes(id)}
-export function createFilamentSharing({context,bridge,esc,fail,refreshShared,prepare,authorizeTarget=async()=>true}){
+export function createFilamentSharing({context,bridge,esc,fail,refreshShared,prepare,authorizeTarget=async()=>true,supported=()=>true}){
  let links=[],sourceItems=[],sourceLinks=[],loadedLibrary=null,job=0;
  const missing=error=>error?.code==='PGRST202';
  const message=error=>missing(error)?'選択共有のデータベース更新が必要です。管理者に確認してください。':classifyError(error).category==='network'?'通信できませんでした。「共有設定を再読み込み」で再試行してください。共有設定は変更していません。':classifyError(error).action;
@@ -36,6 +36,7 @@ export function createFilamentSharing({context,bridge,esc,fail,refreshShared,pre
 
  }
  async function open({selected=[],target=null,addOnly=false}={}){
+  if(!supported())return;
   const c=ctx();if(!c.session)return;const epoch=c.epoch,owned=c.libraries.filter(x=>x.owner_id===c.session.user.id&&(!addOnly||x.personal===true)&&x.id!==target&&c.libraries.some(to=>to.personal===false&&to.id!==x.id)),targets=c.libraries.filter(x=>x.personal===false&&(!addOnly||x.id===target));
   document.querySelector('#filament-sharing-dialog')?.remove();
   const dialog=document.createElement('dialog');dialog.id='filament-sharing-dialog';dialog.className='cloud-tools-dialog filament-sharing-dialog';

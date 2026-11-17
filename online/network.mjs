@@ -15,9 +15,9 @@ async function retryNetwork(operation, { valid = () => true, onRetry = () => {
     }
   }
 }
-const retryableRpcs = /* @__PURE__ */ new Set(["ensure_my_library", "spool_is_admin", "get_spool_accounts", "get_shared_filaments", "get_shared_bookings", "get_booking_sharing_summary", "get_booking_sharing", "set_booking_sharing", "stop_booking_sharing", "get_filament_sharing", "get_my_library_permissions", "get_library_member_permissions", "get_shared_library_deletion_info", "get_library_member_profiles", "library_is_shared", "my_filaments_shared", "set_filament_sharing", "stop_shared_filaments", "update_library_appearance", "rename_spool_library"]);
+const retryableRpcs = /* @__PURE__ */ new Set(["get_spool_feature_support", "ensure_my_library", "spool_is_admin", "get_spool_accounts", "get_shared_filaments", "get_shared_bookings", "get_booking_sharing_summary", "get_booking_sharing", "set_booking_sharing", "stop_booking_sharing", "get_filament_sharing", "get_my_library_permissions", "get_library_member_permissions", "get_shared_library_deletion_info", "get_library_member_profiles", "library_is_shared", "my_filaments_shared", "set_filament_sharing", "stop_shared_filaments", "update_library_appearance", "rename_spool_library"]);
 // Only identical reads in flight share a response. No saved data or permission cache.
-const readRpcs = new Set(["spool_is_admin", "get_spool_accounts", "get_shared_filaments", "get_shared_bookings", "get_booking_sharing_summary", "get_booking_sharing", "get_filament_sharing", "get_my_library_permissions", "get_library_member_permissions", "get_shared_library_deletion_info", "get_library_member_profiles", "library_is_shared", "my_filaments_shared"]);
+const readRpcs = new Set(["get_spool_feature_support", "spool_is_admin", "get_spool_accounts", "get_shared_filaments", "get_shared_bookings", "get_booking_sharing_summary", "get_booking_sharing", "get_filament_sharing", "get_my_library_permissions", "get_library_member_permissions", "get_shared_library_deletion_info", "get_library_member_profiles", "library_is_shared", "my_filaments_shared"]);
 function retryingFetch(fetcher, { context = () => null, onRetry = () => {
 }, timeout = 12e3, downloadTimeout = 12e4 } = {}) {
   const pending = new Map();
@@ -82,7 +82,7 @@ function sameState(a, b) {
 }
 async function saveWithRetry(api, read, library, revision, state, options) {
   return retryNetwork(async (attempt) => {
-    if (attempt) {
+    if (attempt || options?.verifyFirst) {
       const latest = await read(library);
       if (latest.error) throw latest.error;
       const saved = latest.data;

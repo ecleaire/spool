@@ -90,3 +90,11 @@ test('writes and binary downloads are never coalesced',async()=>{
  const requests=[];for(const [url,init] of [['https://demo.supabase.co/rest/v1/rpc/set_filament_sharing',{method:'POST',body:'{}'}],['https://demo.supabase.co/storage/v1/object/authenticated/model',{}]])requests.push(fetcher(url,init),fetcher(url,init));
  assert.equal(calls,4);release();await Promise.all(requests);
 });
+
+// An earlier failed/unknown receipt may already have committed. Verify before replay.
+{
+ let writes=0,reads=0;const state={items:[],reservations:[],deleted:[],customColorPresets:[]};
+ assert.equal(await saveWithRetry(async()=>{writes++;return 3},async()=>{reads++;return {data:{revision:3,state}}},'recovery',2,state,{verifyFirst:true,wait:async()=>{}}),3);
+ assert.equal(writes,0);assert.equal(reads,1);
+ await assert.rejects(saveWithRetry(async()=>{writes++;return 4},async()=>({data:{revision:3,state:{...state,items:[{id:'other'}]}}}),'recovery',2,state,{verifyFirst:true,wait:async()=>{}}),error=>error.code==='40001');assert.equal(writes,0);
+}

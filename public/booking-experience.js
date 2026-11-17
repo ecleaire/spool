@@ -124,3 +124,6 @@ renderBookings();
 window.spoolBookingAwaitingFiles=()=>missingBookingDraftFiles().map(f=>f.id);
 
 window.spoolBookingAttachmentDeleted=booking=>{bookingDraftBaseSignature=bookingDraftSignature(booking);persistBookingDraft()};
+
+window.spoolBookingQuickState=()=>({range:bookingQuickRange,mine:bookingQuickMine});
+window.spoolBookingClearQuick=key=>{if(key==='range')bookingQuickRange='all';if(key==='mine')bookingQuickMine=false;};

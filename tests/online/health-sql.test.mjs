@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {PGlite} from '../../online/node_modules/@electric-sql/pglite/dist/index.js';
+const db=new PGlite();try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('app.test_user',true),'')::uuid$$;create table public.test_members(user_id uuid,library_id uuid);create function public.spool_member(lib uuid) returns boolean language sql stable as $$select exists(select 1 from public.test_members where user_id=auth.uid() and library_id=lib)$$;grant usage on schema auth to authenticated;grant execute on function auth.uid(),public.spool_member(uuid) to authenticated;`);
+ const sql=readFileSync(new URL('../../supabase/site-health.sql',import.meta.url),'utf8');await db.exec(sql);await db.exec(sql);
+ const user='11111111-1111-4111-8111-111111111111',library='22222222-2222-4222-8222-222222222222',other='33333333-3333-4333-8333-333333333333';await db.query('insert into public.test_members values($1,$2)',[user,library]);await db.exec(`select set_config('app.test_user','${user}',false)`);
+ const get=async id=>(await db.query('select public.get_spool_feature_support($1) as result',[id])).rows[0].result;
+ let result=await get(library);assert.equal(result.version,1);assert.equal(result.features.filament_sharing,false);assert.equal(result.features.printing_status,false);
+ await assert.rejects(get(other),/membership/);
+ await db.exec(`create function public.get_filament_sharing(uuid) returns jsonb language sql as $$select '[]'::jsonb$$;create function public.set_filament_sharing(uuid,uuid,text,text[],text[]) returns void language sql as $$select$$;create function public.spool_validate_shared_booking(b jsonb) returns boolean language sql as $$select b->>'printStatus'='印刷途中'$$;`);
+ result=await get(library);assert.equal(result.features.filament_sharing,true);assert.equal(result.features.printing_status,true);assert.equal(result.features.consumption,false);
+ const grants=(await db.query("select has_function_privilege('anon','public.get_spool_feature_support(uuid)','execute') as anon,has_function_privilege('authenticated','public.get_spool_feature_support(uuid)','execute') as member")).rows[0];assert.equal(grants.anon,false);assert.equal(grants.member,true);await db.exec("select set_config('app.test_user','',false)");await assert.rejects(get(library),/membership/);
+ console.log('PASS: read-only feature checks are repeatable, membership scoped, anonymous blocked and reflect installed API/status support.');
+}finally{await db.close()}
