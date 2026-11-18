@@ -291,6 +291,7 @@ function scheduleAccountLoad(){
 async function start(){
  const initialEpoch=authEpoch;
  client.auth.onAuthStateChange((event,s)=>{
+  if(event!=='SIGNED_OUT'&&s&&!authPersistence.matchesSession(s))return;
   if(event==='SIGNED_OUT'){
    clearSignedOutState();
   }else if(s&&(!session||session.user.id!==s.user.id)){
@@ -299,7 +300,7 @@ async function start(){
  });
  const {data,error}=await client.auth.getSession();
  if(error)fail(error);
- if(!session&&data.session&&initialEpoch===authEpoch){session=data.session;scheduleAccountLoad()}
+ if(!session&&data.session&&initialEpoch===authEpoch&&authPersistence.matchesSession(data.session)){session=data.session;scheduleAccountLoad()}
  else render();
 }
 async function loadAccount(){

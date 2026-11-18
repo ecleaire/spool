@@ -19,7 +19,8 @@ export function createRememberedAuthStorage({key,session=browserStore('sessionSt
   try{original=snapshot(source);targetOriginal=snapshot(destination);restore(destination,original);if(next)persistent.setItem(preferenceKey,'1');else persistent.setItem(preferenceKey,'0');for(const k of keys)source.removeItem(k);persistentUsed=next;return next;}
   catch{try{if(original)restore(source,original);if(targetOriginal)restore(destination,targetOriginal);if(previousPreference!==null)persistent.setItem(preferenceKey,previousPreference);else persistent?.removeItem(preferenceKey)}catch{}throw unavailable()}
  }
- return {key,preferenceKey,remembered,loginDefault,setRemember,clear,assertAvailable:()=>probe(target()),
+ function matchesSession(value){try{if(!value?.access_token||!value?.user?.id)return false;const stored=JSON.parse(target()?.getItem(key)||'null');return stored?.access_token===value.access_token&&stored?.user?.id===value.user.id}catch{return false}}
+ return {key,preferenceKey,remembered,loginDefault,setRemember,clear,matchesSession,assertAvailable:()=>probe(target()),
   externalClear(event){return persistentUsed&&event.storageArea===persistent&&(event.key===key||event.key===null)&&event.newValue===null},
   storage:{getItem(k){checkKey(k);try{return target()?.getItem(k)??null}catch{throw unavailable()}},setItem(k,value){checkKey(k);try{const store=target();if(!store)throw Error();store.setItem(k,value)}catch{throw unavailable()}},removeItem(k){checkKey(k);if(k===key){clear();return}try{session?.removeItem(k);persistent?.removeItem(k)}catch{if(persistentUsed)throw unavailable()}}},
  };
