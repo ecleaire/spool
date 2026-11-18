@@ -22,7 +22,7 @@ window.spoolBookingProgress=(phase,details={})=>{
 let bookingDraftStorage;try{bookingDraftStorage=localStorage}catch{}
 const bookingDraftStore=createBookingDraftStore(bookingDraftStorage);
 const bookingDraftFields=['title','creator','desiredColor','registeredDate','weekday','className','quality','printStatus','printDuration','filamentGrams','filamentMeters','deadline','tags','files'];
-let bookingDraftScope=null,bookingDraftSlot=null,bookingDraftWasNew=false,bookingDraftBaseline='',bookingDraftBaseSignature=null,bookingDraftTimer,bookingDraftRecoveredId=null,bookingDraftContext='',bookingDraftExpiresAt=null;
+let bookingDraftScope=null,bookingDraftSlot=null,bookingDraftWasNew=false,bookingDraftBaseline='',bookingDraftBaseSignature=null,bookingDraftTimer,bookingDraftExpiryTimer,bookingDraftRecoveredId=null,bookingDraftContext='',bookingDraftExpiresAt=null;
 function bookingExperienceContext(){if(window.spoolBookingContext)return window.spoolBookingContext();if(storage.persistent!==false)return {account:'offline',library:'offline',name:'この端末のライブラリ',personal:true};return null}
 function bookingExperienceKey(c=bookingExperienceContext()){return c?JSON.stringify([c.account,c.library]):''}
 function validBookingDraftColor(value){try{const c=JSON.parse(value);return !!c&&typeof c.name==='string'&&c.name.length>0&&c.name.length<=200&&/^#[0-9a-f]{6}$/i.test(c.color)&&(c.preference===undefined||['specified','none','random'].includes(c.preference))&&(c.translucent===undefined||typeof c.translucent==='boolean')&&(c.filaments===undefined||Array.isArray(c.filaments)&&c.filaments.length<=64&&c.filaments.every(f=>f&&/^#[0-9a-f]{6}$/i.test(f.color)&&typeof f.type==='string'&&f.type.length<=40))}catch{return false}}
@@ -62,6 +62,7 @@ function persistBookingDraft(){
 function scheduleBookingDraft(){if($('#bookingDialog').open&&!bookingSaving){clearTimeout(bookingDraftTimer);bookingDraftTimer=setTimeout(persistBookingDraft,400)}}
 function updateBookingDraftBanner(){
  bookingDraftStore.cleanup();if(bookingDraftScope&&bookingDraftExpiresAt&&Date.now()>=bookingDraftExpiresAt&&$('#bookingDialog').open&&!bookingSaving)$('#bookingDraftStatus').textContent='下書きの保存期限が切れました。入力を変更すると再度保存します。';const drafts=bookingDraftStore.list(bookingExperienceContext()),select=$('#bookingDraftPicker'),previous=select.value;
+ clearTimeout(bookingDraftExpiryTimer);if(drafts.length){const next=Math.min(...drafts.map(d=>d.expiresAt));bookingDraftExpiryTimer=setTimeout(updateBookingDraftBanner,Math.max(0,Math.min(2147483647,next-Date.now())));}
  $('#bookingDraftBanner').hidden=!drafts.length;$('#bookingDraftHeading').textContent='この端末の下書き '+drafts.length+'件';
  select.innerHTML=drafts.map(d=>'<option value="'+esc(d.slot)+'">'+esc(d.data.fields?.title||'作品名未入力')+' · '+esc(new Date(d.updatedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}))+'</option>').join('');if(drafts.some(d=>d.slot===previous))select.value=previous;
 }
