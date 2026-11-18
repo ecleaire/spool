@@ -15,5 +15,10 @@ context={...context,resolveFileLibrary:id=>id==='shared-file'?'canonical-source'
 pending=files.download('shared-file');release(meta);await Promise.resolve();await Promise.resolve();context={...context,epoch:3};releaseBlob({data:new Blob(['stale'])});await assert.rejects(pending,/変わりました/);assert.equal(downloads,1);
 pending=files.download('file');release(meta);await Promise.resolve();await Promise.resolve();releaseBlob({error:Error('Storage denied')});await assert.rejects(pending,/Storage denied/);assert.equal(downloads,1);
 pending=files.read('shared-file');release(meta);await Promise.resolve();await Promise.resolve();releaseBlob({data:new Blob(['bulk bytes'])});const bulk=await pending;assert.equal(bulk.name,meta.data.name);assert.equal(await bulk.blob.text(),'bulk bytes');assert.equal(downloads,1,'Reading for a ZIP must not emit individual downloads');const guard=files.guard();context={...context,epoch:context.epoch+1};assert.throws(guard,/変わりました/);
+
+// Auth events may run between the signing guard and the caller's continuation.
+const beforeSigned=signedCalls,previousOpened=opened;let scheduled=false;
+const raceFiles=createOnlineModelFiles({context:()=>{if(signedCalls>beforeSigned&&!scheduled){scheduled=true;queueMicrotask(()=>{context={...context,epoch:context.epoch+1,session:null}})}return context}});
+pending=raceFiles.open('file');release(meta);await assert.rejects(pending,/変わりました/);assert.equal(opened,previousOpened,'Stale signed URL must not open a new dialog after logout');
 console.log('PASS: exact Japanese attachment filenames and bytes, canonical file scope, delayed URL cleanup, stale download cancellation and storage failure.');
 }finally{delete globalThis.document;delete globalThis.window;globalThis.setTimeout=originalTimer;URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;}

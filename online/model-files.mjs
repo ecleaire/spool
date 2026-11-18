@@ -7,6 +7,6 @@ export function createOnlineModelFiles({context}){
   read,
   guard(){const c=context();return ()=>current(c)},
   async download(id){const c=context(),meta=await metadata(c,id),result=await c.client.storage.from('spool-models').download(meta.object_path);if(result.error)throw result.error;current(c);const url=URL.createObjectURL(result.data),link=document.createElement('a');try{link.hidden=true;link.href=url;link.download=meta.name;link.rel='noopener noreferrer';document.body.append(link);link.click();}finally{setTimeout(()=>{link.remove();URL.revokeObjectURL(url)},60000)}},
-  async open(id){window.spoolShowModelOpen(await signed(id))},
+  async open(id){const c=context(),file=await signed(id);current(c);window.spoolShowModelOpen(file)},
  };
 }

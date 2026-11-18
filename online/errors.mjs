@@ -2,6 +2,7 @@
 export function classifyError(error){
  const message=String(error?.message||error||'不明なエラー'),code=String(error?.code||''),status=Number(error?.status||error?.statusCode||0);
  const result=(category,title,action)=>({category,title,action,detail:[code&&'コード: '+code,message].filter(Boolean).join('\n')});
+ if(code==='AUTH_STORAGE_UNAVAILABLE')return result('auth-storage','ログイン情報を保存できません','ブラウザーのサイトデータ保存設定を確認してください。保持せずに使う場合は、チェックをオフにしてログインしてください。');
  if(code==='LOGOUT_FAILED')return result('logout','ログアウトを完了できませんでした','この端末はまだログイン中です。接続を確認し、ログアウトを再試行してください。');
  if(code==='PGRST202')return result('settings','データベース更新が必要です','管理者がupgrade-existing.sqlを適用した後、再試行してください。');
  if(code==='WRITE_RESULT_UNKNOWN'||/保存結果を確認できませんでした/.test(message))return result('uncertain','保存結果を確認できませんでした','サーバー側で保存済みの可能性があります。再読み込みして現在の状態を確認してから、必要な場合だけ保存してください。');

@@ -10,3 +10,5 @@ for(const error of [{code:'WRITE_RESULT_UNKNOWN',message:'request timed out'},{m
 
 for(const error of [{status:404,message:'Object not found'},{code:'PGRST116',message:'Cannot coerce the result to a single JSON object'}])assert.equal(classifyError(error).category,'missing');
 const logout=classifyError({code:'LOGOUT_FAILED',message:'Temporarily unavailable'});assert.equal(logout.category,'logout');assert.match(logout.action,/まだログイン中/);
+
+const authStorage=classifyError({code:'AUTH_STORAGE_UNAVAILABLE',message:'denied'});assert.equal(authStorage.category,'auth-storage');assert.match(authStorage.action,/チェックをオフ/);

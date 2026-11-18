@@ -2,7 +2,7 @@
 let bookingDownloadJob=null,bookingDownloadUrl=null;
 const bookingDownloadDialog=document.createElement('dialog');bookingDownloadDialog.id='bookingDownloadDialog';bookingDownloadDialog.className='booking-download-dialog';bookingDownloadDialog.setAttribute('aria-labelledby','bookingDownloadTitle');
 bookingDownloadDialog.innerHTML='<div class="dialog-head"><h2 id="bookingDownloadTitle">ファイルの一括保存</h2><button type="button" id="bookingDownloadClose" aria-label="一括保存を閉じる">×</button></div><div class="booking-download-body"><p id="bookingDownloadStatus" role="status" aria-live="polite"></p><progress id="bookingDownloadProgress"></progress><ul id="bookingDownloadIssues"></ul><p id="bookingDownloadError" class="error" role="alert"></p></div><div class="dialog-actions"><button type="button" id="bookingDownloadCancel">キャンセル</button><button type="button" class="primary" id="bookingDownloadSave" disabled>ZIPを保存</button></div>';document.body.append(bookingDownloadDialog);
-function bookingDownloadKey(){const c=window.spoolBookingContext?.();return c?JSON.stringify([c.account,c.library]):typeof window.spoolBookingContext==='function'?'':'offline'}
+function bookingDownloadKey(){const c=window.spoolBookingContext?.();return c?JSON.stringify([c.account,c.library]):typeof window.spoolBookingContext==='function'?'':JSON.stringify(['offline',typeof fileLinkEpoch==='number'?fileLinkEpoch:0])}
 function bookingDownloadFiles(x){return (x.attachments||[]).filter(validBookingAttachment)}
 function decorateBookingDownloads(){
  if(bookingDownloadJob&&bookingDownloadJob.key!==bookingDownloadKey())cancelBookingDownload();
@@ -19,7 +19,7 @@ async function startBookingModelDownload(id){
  cancelBookingDownload();const job={cancelled:false,busy:true,key:bookingDownloadKey(),online:window.spoolBookingDownloadContext?.()},entries=[],issues=[];bookingDownloadJob=job;
  const chosen=[booking],files=chosen.flatMap((booking,i)=>bookingDownloadFiles(booking).map(file=>({file,folder:String(i+1).padStart(3,'0')+' '+booking.title})));
  const check=()=>{if(job.cancelled||bookingDownloadJob!==job||job.key!==bookingDownloadKey())throw Error('表示先またはログイン状態が変わったため中止しました。');job.online?.();};
- $('#bookingDownloadSave').disabled=true;$('#bookingDownloadSave').textContent='ZIPを保存';$('#bookingDownloadError').textContent='';$('#bookingDownloadIssues').replaceChildren();$('#bookingDownloadProgress').hidden=false;$('#bookingDownloadProgress').max=files.length;$('#bookingDownloadProgress').value=0;$('#bookingDownloadStatus').textContent='添付を取得しています…';bookingDownloadDialog.showModal();
+ $('#bookingDownloadSave').disabled=true;$('#bookingDownloadSave').textContent='ZIPを保存';$('#bookingDownloadError').textContent='';$('#bookingDownloadIssues').replaceChildren();$('#bookingDownloadProgress').hidden=false;$('#bookingDownloadProgress').max=files.length;$('#bookingDownloadProgress').value=0;$('#bookingDownloadStatus').textContent='添付を取得しています…';$('#bookingDownloadCancel').textContent='キャンセル';bookingDownloadDialog.showModal();
  try{
   if(files.length>100||files.reduce((n,x)=>n+x.file.size,0)>200*1024*1024)throw Error('1回100件・合計200MBまでです。個別にダウンロードしてください。');
   let total=0;for(const [i,{file,folder}] of files.entries()){
