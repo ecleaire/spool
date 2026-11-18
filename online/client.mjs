@@ -49,6 +49,7 @@ window.spoolPreparePrintConsumption=prepareBookingSharing;
 window.spoolFlushBookingSave=async()=>{window.spoolBookingProgress?.('save');await prepareBookingSharing();window.spoolBookingProgress?.('done')};
 const bookingSharingStatus=createBookingSharingStatus({context:()=>({client,session,library,active:libraries.find(x=>x.id===library),epoch:authEpoch}),changed:()=>window.spoolBookingSharingChanged?.()});
 window.spoolBookingSharingLabel=bookingSharingStatus.label;
+window.spoolWorkspaceEpoch=()=>authEpoch;
 window.spoolBookingContext=()=>session&&library?{account:session.user.id,library,name:libraries.find(x=>x.id===library)?.name||'',personal:libraries.find(x=>x.id===library)?.personal,revision:sync.revision}:null;
 const bookingSharing=createBookingSharing({context:()=>({client,session,libraries,library,epoch:authEpoch,can}),bridge,esc,prepare:prepareBookingSharing,refresh:async()=>{await refreshSharedInventory();await bookingSharingStatus.refresh(true)}});
 window.spoolBookingSharing=(...args)=>requireFeature('booking_sharing')?bookingSharing.open(...args):undefined;window.spoolSaveSharedBooking=async(id,changes)=>{if(!requireFeature('booking_sharing')||changes.printStatus==='印刷途中'&&!requireFeature('printing_status'))throw Error('DB更新が必要です。入力内容は保持されています。');window.spoolBookingProgress?.('save');return bookingSharing.mutate(id,changes)};window.spoolDeleteSharedBooking=id=>bookingSharing.mutate(id,null,true);window.spoolStopBookingSharing=bookingSharing.stop;
@@ -191,6 +192,7 @@ function bindSharingHub(){
  for(const id of ['#cloud-manage-sharing','#cloud-select-sharing','#cloud-shared-settings']){const entry=document.querySelector(id);if(entry)entry.onclick=open;}
 }
 function applyPermissionControls(){
+ window.spoolBulkEditRefresh?.();
  if(session&&library)updateSaveDestination();
  let syncEntry=document.querySelector('#booking-sync-open');if(!syncEntry){syncEntry=document.createElement('button');syncEntry.id='booking-sync-open';syncEntry.type='button';syncEntry.textContent='予約の同期先';syncEntry.onclick=()=>bookingSharing.open();document.querySelector('.booking-overview-header')?.append(syncEntry);}syncEntry.hidden=!session||!libraries.some(x=>x.personal&&x.owner_id===session.user.id);
 

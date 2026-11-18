@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {filamentSharingPreview} from '../../online/sharing-preview.mjs';
+const items=[{id:'a',name:'<img onerror=x>',colorName:'白'},{id:'b',name:'青'},{id:'p',name:'購入予定',inventoryStatus:'planned'}];
+const links=[{shared_library_id:'target',mode:'all',included_ids:['p'],excluded_ids:['b']}];
+const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+const original=JSON.stringify({items,links});
+const render=extra=>filamentSharingPreview({items,links,target:'target',checked:new Set(['b']),automatic:false,esc,...extra});
+let html=render({});assert.ok(html.includes('新しく共有（1件）'));assert.ok(html.includes('共有を停止（2件）'));assert.ok(html.includes('&lt;img'));assert.ok(!html.includes('<img'));assert.ok(html.includes('今後参加する人も対象'));assert.ok(html.includes('予約と添付ファイルはこの操作では共有しません'));
+html=render({addOnly:true,automatic:true});assert.ok(html.includes('共有を停止（0件）'));assert.ok(html.includes('共有を維持（2件）'));assert.ok(html.includes('在庫は自動共有'));assert.equal(JSON.stringify({items,links}),original);
+console.log('PASS: sharing preview matches selected/all modes, preserves existing add-only shares, escapes names and never mutates source.');
