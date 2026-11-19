@@ -74,6 +74,8 @@ try{
  assert.equal(writes.length,1);assert.equal(saveAttempts,2);assert.equal(writes[0].lib,lib);assert.equal(writes[0].expected_revision,0);assert.equal(writes[0].next_state.items.find(item=>item.id==='demo-blue').amazonUrl,'https://www.amazon.co.jp/dp/B0CFXTSV3C');
    if(screenshots){await authenticated.setViewportSize({width:1920,height:1080});await authenticated.locator('#gridView').click();await authenticated.screenshot({path:screenshots+'/compact-cards-desktop.png',animations:'disabled'});await authenticated.locator('#listView').click();await authenticated.setViewportSize({width:1440,height:1000});}
  if(screenshots)await authenticated.screenshot({path:screenshots+'/SPOOL-desktop.png',fullPage:true});
+ for(const width of [1440,390]){await authenticated.setViewportSize({width,height:1000});for(const view of ['inventory','bookings','events','inventory']){await authenticated.locator('[data-cloud-nav="'+view+'"]').click();await authenticated.evaluate(()=>window.spoolRefreshPermissions());assert.equal(await authenticated.locator('#addBooking').isVisible(),view==='bookings','Reservation registration belongs only to the bookings page after permission refresh');assert.equal(await authenticated.locator('#add').isVisible(),view==='inventory');assert.equal(await authenticated.locator('#openLibrary').evaluate(x=>x.hidden),view!=='inventory');}}await authenticated.setViewportSize({width:1440,height:1000});
+
  await authenticated.locator('[data-cloud-nav="bookings"]').click();
  assert.equal(await authenticated.locator('#bookingView').isVisible(),true);
  assert.equal(await authenticated.locator('[data-cloud-nav="bookings"]').getAttribute('aria-current'),'page');
