@@ -10,6 +10,13 @@ try{for(const width of [1440,390,320]){
  const page=await browser.newPage({viewport:{width,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:'+server.address().port);assert.equal(await page.locator('#search').isVisible(),false);await page.locator('#inventorySearchTrigger').click();await page.locator('#foregroundSearch').fill('test');await page.locator('#applySearchPanel').click();assert.equal(await page.locator('#inventorySearchTrigger').evaluate(el=>el.classList.contains('has-query')),true);
  await page.evaluate(()=>{showBookingView(true);openBooking()});
+ // A deadline overrides a legacy weekday in the editor, saved record and both list layouts.
+ await page.evaluate(()=>{const f=document.querySelector('#bookingForm').elements;f.registeredDate.value='2026-11-01';f.registeredDate.dispatchEvent(new Event('change',{bubbles:true}));});
+ await page.locator('[name=deadline]').fill('2026-11-04');assert.equal(await page.locator('[name=weekday]').inputValue(),'水');
+ await page.evaluate(()=>{const f=document.querySelector('#bookingForm').elements;f.registeredDate.value='2026-11-02';f.registeredDate.dispatchEvent(new Event('change',{bubbles:true}));});assert.equal(await page.locator('[name=weekday]').inputValue(),'水');
+ await page.locator('#bookingDeadlineUnknown').check();assert.equal(await page.locator('[name=weekday]').inputValue(),'水');await page.locator('#bookingDeadlineUnknown').uncheck();
+ await page.locator('[name=deadline]').fill('2026-11-06');assert.equal(await page.locator('[name=weekday]').inputValue(),'金');
+
  assert.equal(await page.locator('#bookingColorSearch').isVisible(),false);assert.equal(await page.locator('[name=printDuration]').isVisible(),false);
  const order=await page.evaluate(()=>{const nodes=['[name=title]','[name=creator]','#bookingImportPick','#bookingColorChoices','[name=deadline]'].map(s=>document.querySelector('#bookingForm '+s));return nodes.slice(1).every((node,i)=>!!(nodes[i].compareDocumentPosition(node)&Node.DOCUMENT_POSITION_FOLLOWING))});assert.equal(order,true);
  if(shots)await page.screenshot({path:shots+'/registration-'+width+'.png'});
@@ -25,6 +32,6 @@ try{for(const width of [1440,390,320]){
  await page.locator('#bookingColorSearchDetails>summary').click();assert.equal(await page.locator('#bookingColorSearch').isVisible(),true);await page.locator('#bookingColorSearchDetails>summary').click();await page.locator('#bookingNoPreference').click();
  await page.locator('#bookingExtraDetails>summary').click();await page.locator('[name=printDuration]').fill('');await page.locator('#bookingExtraDetails>summary').click();await page.locator('#saveBookingButton').click();assert.equal(await page.locator('#bookingExtraDetails').evaluate(el=>el.open),true);
  await page.locator('[name=printDuration]').fill('1:30');await page.locator('[name=printDuration]').press('Tab');await page.locator('#bookingExtraDetails>summary').click();await page.locator('#saveBookingButton').click();await page.locator('#bookingDialog').waitFor({state:'hidden'});
- const saved=await page.evaluate(()=>reservations[0]);assert.equal(saved.printMinutes,90);assert.equal(saved.attachments.length,1);assert.equal(saved.colorPreference,'none');assert.equal(saved.files[0],'箱の中に保管');assert.deepEqual(errors,[]);
+ const saved=await page.evaluate(()=>reservations[0]);assert.equal(saved.weekday,'金');assert.equal(saved.printMinutes,90);assert.equal(saved.attachments.length,1);assert.equal(saved.colorPreference,'none');assert.equal(saved.files[0],'箱の中に保管');await page.evaluate(()=>{reservations[0].weekday='月';renderBookings();openBooking(reservations[0].id)});assert.equal(await page.locator('[name=weekday]').inputValue(),'金');assert.equal(await page.locator('#bookingRows .booking-weekday').innerText(),'金曜日');assert.equal(await page.locator('#bookingCards .booking-card-weekday').innerText(),'金曜日');assert.deepEqual(errors,[]);
  console.log('PASS registration '+width+'px: required title/file/explicit color, inert notes, native chooser/reselection, live removal count, color-before-deadline, collapsed duration validation and icon search.');await page.close();
 }}finally{await browser.close();await new Promise(r=>server.close(r))}
