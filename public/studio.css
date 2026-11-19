@@ -1567,3 +1567,10 @@ body.simple-workspace .inventory .tabs #purchaseTabLabel>span{display:inline-blo
 .detail-remaining-form{margin-top:16px;border-top:1px solid #ccd8c5;padding-top:14px}.detail-remaining-form>label{display:block;font-weight:700;margin-bottom:8px}.detail-remaining-form>div{display:flex;gap:8px;flex-wrap:wrap}.detail-remaining-form input{width:150px;min-width:0;max-width:100%;min-height:44px;border:1px solid #8eaa83;border-radius:8px;padding:8px 10px}.detail-remaining-form button{min-height:44px;border-radius:8px;background:#1c5341;color:#fff;padding:8px 16px}.detail-remaining-form small{display:block;margin-top:8px;color:#355a46}.detail-remaining-form p{margin:8px 0 0;overflow-wrap:anywhere}.detail-remaining-form p:empty{display:none}@media(max-width:600px){.detail-remaining-form input{font-size:16px;flex:1}.detail-remaining-form button{font-size:16px}}
 
 .detail-remaining-form .detail-remaining-quick{align-items:center;margin-bottom:14px}.detail-remaining-form .detail-remaining-quick small{margin:0;flex:1;min-width:120px}.detail-remaining-form .detail-remaining-quick button{min-width:84px;font-weight:700;background:#e5eddb;color:#1c4b3b;border:1px solid #8eaa83}.detail-remaining-form button:disabled{opacity:.5;cursor:default}
+
+/* Low stock: a quiet outline and dot; no warning fill or extra card height. */
+body.simple-workspace #items .filament-row.low:not(.is-selected){outline:1px solid #c6b795;outline-offset:-1px}body.simple-workspace #items .product-photo{position:relative}body.simple-workspace #items .low-stock-mark{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:#aa8750;box-shadow:0 0 0 2px #fff;pointer-events:none}
+
+/* A small readable label explains the subtle border without tinting the card. */
+body.simple-workspace #items .low-stock-mark{width:auto;height:auto;padding:2px 4px;border-radius:4px;border:1px solid #d6cbb4;background:#fffef8;color:#715a34;box-shadow:none;font-size:12px;font-weight:500;line-height:1.25;white-space:nowrap}
+.detail-remaining-form .detail-remaining-quick{margin-bottom:10px;gap:8px}.detail-remaining-form .detail-remaining-quick small{flex-basis:100%;min-width:0}
