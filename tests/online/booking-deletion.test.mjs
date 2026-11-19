@@ -18,3 +18,8 @@ let release,started,duplicateCalls=0;const begun=new Promise(r=>started=r),gate=
 const guarded=make({context:()=>({...ctx(),client:{async rpc(){duplicateCalls++;started();await gate;return {data:4}}}})});
 const first=guarded('b','f');await begun;await assert.rejects(guarded('b','f'),/削除が終わる/);release();await first;assert.equal(duplicateCalls,1);
 console.log('PASS: uncertain deletions are not replayed and simultaneous delete requests are blocked.');
+
+state.reservations[0].filamentUsage={grams:1,millimeters:null,filaments:[],progress:[{kind:'attachment',id:'other',plate:'',status:'印刷済み'}]};
+can=key=>key==='bookings_create';error={code:'PGRST202'};const beforeCalls=requests.length;await assert.rejects(make()('b','f'),/他のモデルの進捗/);assert.equal(requests.length,beforeCalls+1);assert.equal(requests.at(-1).name,'supports_booking_progress_deletion');
+can=()=>true;const beforeFallback=fallbackCalls;await make()('b','f');assert.equal(fallbackCalls,beforeFallback+1);error=null;
+console.log('PASS: progress-aware deletion fails safely on older DBs and uses authorized whole-record fallback without losing other progress.');

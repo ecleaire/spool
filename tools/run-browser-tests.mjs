@@ -11,6 +11,8 @@ const tests=[
  'tests/help.browser.test.mjs',
  'tests/layout-audit.browser.test.mjs',
  'tests/multi-plate.test.mjs',
+ 'tests/print-progress.browser.test.mjs',
+ 'tests/online/print-progress.browser.test.mjs',
  'tests/print-consumption.browser.test.mjs',
  'tests/online/print-consumption.browser.test.mjs',
  'tests/model-zip.test.mjs',

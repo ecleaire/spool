@@ -39,5 +39,11 @@ try{
  await as(0,()=>db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[team,users[1],{bookings_delete:true}]));
  await as(1,()=>assert.rejects(del(team,team,'native',1,null),e=>e.code==='42501'));
  await db.exec('set role anon');await assert.rejects(del(team,mine,'unshared',2,null),e=>e.code==='42501');await db.exec('reset role');
+
+ const tracked={...booking,id:'tracked',attachments:[file,{...file,id:'file-b'}],filamentUsage:{grams:3,millimeters:null,filaments:[],plates:[{attachmentId:file.id,name:'a',plate:'1',seconds:60,grams:1,millimeters:null},{attachmentId:'file-b',name:'b',plate:'1',seconds:180,grams:2,millimeters:null}],progress:[{kind:'attachment',id:file.id,plate:'1',status:'印刷済み'},{kind:'attachment',id:'file-b',plate:'1',status:'印刷途中'}]}};
+ await db.query('update public.library_state set state=$2,revision=10 where library_id=$1',[team,{items:[stock],deleted:[],customColorPresets:[],reservations:[tracked]}]);
+ await as(0,()=>db.query("select public.set_library_member_access($1,$2,'editor',$3,false)",[team,users[1],{bookings_create:true}]));
+ await as(1,async()=>{assert.equal(await scalar('select public.supports_booking_progress_deletion() as value'),true);await del(team,team,'tracked',10,file.id)});
+ const remaining=(await scalar('select state as value from public.library_state where library_id=$1',[team])).reservations[0];assert.equal(remaining.printMinutes,3);assert.equal(remaining.filamentUsage.grams,2);assert.equal(remaining.filamentUsage.plates.length,1);assert.deepEqual(remaining.filamentUsage.progress,[{kind:'attachment',id:'file-b',plate:'1',status:'印刷途中'}]);
  console.log('PASS SQL: creator deletes others only in its library/explicit shared bookings, viewers/outsiders denied, CAS, narrow fields, audit/stock/history preservation and shared-link cleanup.');
 }finally{await db.close()}

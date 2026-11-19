@@ -13,6 +13,16 @@ export function createBookingDeletion({context,prepare,apply,refresh,fallback,st
    if(fileId&&!booking.attachments?.some(f=>f.id===fileId))throw Error('添付が見つかりません。開き直してください。');
    const source=booking._sharedBookingSource,revision=source?.revision??c.revision;
    const updated=fileId?stripFile(booking,fileId):null;
+   // Old deletion RPCs discard every plate estimate, including progress for other files.
+   if(fileId&&(booking.filamentUsage?.plates?.length||booking.filamentUsage?.progress?.length)){
+    const support=await c.client.rpc('supports_booking_progress_deletion',{});current(c);
+    if(support.error||support.data!==true){
+     if(support.error&&!['PGRST202','42883'].includes(support.error.code))throw support.error;
+     const legacy=c.can('bookings_edit')&&c.can('files_delete')&&(!source||source.canEdit);
+     if(!legacy)throw Error('他のモデルの進捗を保ったまま削除するにはDB更新が必要です。管理者に booking-deletion.sql の適用を依頼してください。');
+     await fallback(c,booking,updated);current(c);try{await refresh();current(c)}catch(error){if(error.code==='CANCELLED')throw error;return {refreshFailed:true}}return {refreshFailed:false};
+    }
+   }
    const result=await c.client.rpc('delete_booking_content',{context_lib:c.library,source_lib:source?.id||c.library,booking:source?.bookingId||id,expected_revision:revision,attachment_id:fileId});current(c);
    if(result.error){
     if(result.error.code==='WRITE_RESULT_UNKNOWN')throw Object.assign(Error('削除結果を確認できませんでした。予約を再読み込みして削除済みか確認してください。'),{code:'WRITE_RESULT_UNKNOWN'});

@@ -3,7 +3,7 @@
 begin;
 create or replace function public.delete_booking_content(context_lib uuid,source_lib uuid,booking text,expected_revision integer,attachment_id text default null)
 returns integer language plpgsql security definer set search_path='' as $$
-declare old public.library_state;entry jsonb;updated jsonb;next_bookings jsonb;next_revision integer;
+declare old public.library_state;entry jsonb;updated jsonb;next_bookings jsonb;next_revision integer;usage jsonb;plates jsonb;progress jsonb;
 begin
  if context_lib is null or source_lib is null or booking is null or length(booking) not between 1 and 120 or expected_revision is null or (attachment_id is not null and length(attachment_id) not between 1 and 120) then raise exception 'Invalid deletion request' using errcode='22023';end if;
  if not public.spool_member(context_lib) or not(public.spool_has_permission(context_lib,'bookings_create') or public.spool_has_permission(context_lib,case when attachment_id is null then 'bookings_delete' else 'files_delete' end)) then raise exception 'Booking deletion permission required' using errcode='42501';end if;
@@ -24,7 +24,25 @@ begin
   if not exists(select 1 from jsonb_array_elements(coalesce(entry->'attachments','[]'::jsonb)) f where f->>'id'=attachment_id) then raise exception 'Attachment not found' using errcode='22023';end if;
   updated=jsonb_set(entry,'{attachments}',coalesce((select jsonb_agg(f order by n) from jsonb_array_elements(entry->'attachments') with ordinality t(f,n) where f->>'id'<>attachment_id),'[]'::jsonb));
   if entry ? 'modelColors' then updated=jsonb_set(updated,'{modelColors}',coalesce((select jsonb_agg(c order by n) from jsonb_array_elements(entry->'modelColors') with ordinality t(c,n) where not(c->>'kind'='attachment' and c->>'id'=attachment_id)),'[]'::jsonb));end if;
-  if exists(select 1 from jsonb_array_elements(coalesce(entry->'filamentUsage'->'plates','[]'::jsonb)) p where p->>'attachmentId'=attachment_id) then updated=jsonb_set(updated,'{filamentUsage}','null'::jsonb);end if;
+  usage:=entry->'filamentUsage';
+  if jsonb_typeof(usage)='object' then
+   if jsonb_typeof(usage->'progress')='array' then
+    select coalesce(jsonb_agg(p order by n),'[]'::jsonb) into progress from jsonb_array_elements(usage->'progress') with ordinality t(p,n) where not(p->>'kind'='attachment' and p->>'id'=attachment_id);
+    usage:=jsonb_set(usage,'{progress}',progress);
+   end if;
+   if exists(select 1 from jsonb_array_elements(coalesce(usage->'plates','[]'::jsonb)) p where p->>'attachmentId'=attachment_id) then
+    select coalesce(jsonb_agg(p order by n),'[]'::jsonb) into plates from jsonb_array_elements(usage->'plates') with ordinality t(p,n) where p->>'attachmentId'<>attachment_id;
+    if jsonb_array_length(plates)>0 then
+     usage:=jsonb_set(usage,'{plates}',plates)||jsonb_build_object('filaments','[]'::jsonb,
+      'grams',(select case when bool_and(jsonb_typeof(p->'grams')='number') then to_jsonb(sum(case when jsonb_typeof(p->'grams')='number' then (p->>'grams')::numeric end)) else 'null'::jsonb end from jsonb_array_elements(plates) p),
+      'millimeters',(select case when bool_and(jsonb_typeof(p->'millimeters')='number') then to_jsonb(sum(case when jsonb_typeof(p->'millimeters')='number' then (p->>'millimeters')::numeric end)) else 'null'::jsonb end from jsonb_array_elements(plates) p));
+     if (select bool_and(jsonb_typeof(p->'seconds')='number') from jsonb_array_elements(plates) p) then updated:=jsonb_set(updated,'{printMinutes}',to_jsonb(greatest(1,(select ceil(sum(case when jsonb_typeof(p->'seconds')='number' then (p->>'seconds')::numeric end)/60)::integer from jsonb_array_elements(plates) p))));end if;
+    elsif usage ? 'grams' and usage ? 'millimeters' then
+     usage:=(usage-'plates')||jsonb_build_object('grams',null,'millimeters',null,'filaments','[]'::jsonb,'missingPrintData',true);
+    else usage:='null'::jsonb;end if;
+   end if;
+   updated:=jsonb_set(updated,'{filamentUsage}',usage);
+  end if;
   select coalesce(jsonb_agg(case when b->>'id'=booking then updated else b end order by n),'[]'::jsonb) into next_bookings from jsonb_array_elements(old.state->'reservations') with ordinality t(b,n);
  else
   select coalesce(jsonb_agg(b order by n),'[]'::jsonb) into next_bookings from jsonb_array_elements(old.state->'reservations') with ordinality t(b,n) where b->>'id'<>booking;
@@ -38,5 +56,10 @@ begin
 end;$$;
 revoke all on function public.delete_booking_content(uuid,uuid,text,integer,text) from public,anon;
 grant execute on function public.delete_booking_content(uuid,uuid,text,integer,text) to authenticated;
+-- Version gate for older deployments whose deletion RPC clears all plate metadata.
+create or replace function public.supports_booking_progress_deletion() returns boolean
+language sql stable set search_path='' as $$select true$$;
+revoke all on function public.supports_booking_progress_deletion() from public,anon;
+grant execute on function public.supports_booking_progress_deletion() to authenticated;
 notify pgrst,'reload schema';
 commit;
