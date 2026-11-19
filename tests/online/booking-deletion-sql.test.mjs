@@ -7,6 +7,7 @@ try{
  grant usage on schema auth,public,storage to authenticated,anon;grant execute on all functions in schema auth to authenticated,anon;
  create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;grant select,insert,delete on storage.objects to authenticated;`);
  for(let i=0;i<users.length;i++)await db.query('insert into auth.users values($1,$2)',[users[i],emails[i]]);
+ await db.exec("alter table auth.users add column raw_user_meta_data jsonb not null default '{}'");
  await db.exec(readFileSync(new URL('../../supabase/schema.sql',import.meta.url),'utf8'));await db.exec(readFileSync(new URL('../../supabase/upgrade-existing.sql',import.meta.url),'utf8'));
  for(const email of emails)await db.query('insert into public.spool_users values($1)',[email]);
  const as=async(i,fn)=>{await db.exec('set role authenticated');await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:users[i],email:emails[i],app_metadata:{provider:'google'}})]);try{return await fn()}finally{await db.exec('reset role')}};
