@@ -1172,6 +1172,7 @@ begin
   'booking_sharing',to_regprocedure('public.set_booking_sharing(uuid,text,uuid[])') is not null and to_regprocedure('public.get_shared_bookings(uuid)') is not null,
   'shared_edit',to_regprocedure('public.update_shared_filament(uuid,uuid,text,integer,jsonb)') is not null,
   'consumption',to_regprocedure('public.record_booking_consumption(uuid,uuid,text,jsonb,jsonb,uuid,boolean)') is not null,
+  'booking_progress_deletion',to_regprocedure('public.supports_booking_progress_deletion()') is not null,
   'booking_deletion',to_regprocedure('public.delete_booking_content(uuid,uuid,text,integer,text)') is not null,
   'permissions',to_regprocedure('public.get_my_library_permissions(uuid)') is not null and to_regprocedure('public.set_library_member_permissions(uuid,uuid,text,jsonb)') is not null);
  if to_regprocedure('public.spool_validate_shared_booking(jsonb)') is not null then

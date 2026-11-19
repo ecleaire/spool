@@ -1614,3 +1614,15 @@ body.simple-workspace #filamentDetails{width:min(1120px,calc(100vw - 24px));max-
 @media(max-width:600px){.progress-group-top{flex-wrap:wrap;gap:8px}.progress-group-top>div{flex-basis:100%}.progress-group-top>select{width:100%}.progress-models>div{align-items:stretch;flex-direction:column;gap:4px}.progress-models>div>select{width:100%}.progress-groups{max-height:320px}}
 .progress-file-title{font-size:15px;line-height:1.5;margin:10px 0 4px;overflow-wrap:anywhere;color:#35563e}.booking-print-progress .progress-group strong{color:#244a34;font-weight:700}
 @media(max-width:600px){.booking-print-progress .progress-group-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}.booking-print-progress .progress-group-top>select{width:auto;max-width:125px}.booking-print-progress .progress-group{padding:9px}.booking-print-progress .progress-colors{margin-top:4px}}
+
+/* Larger file target and compact, readable import diagnostics. */
+body.simple-workspace #bookingDialog #bookingImportPick{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px;padding:24px 18px;gap:10px;text-align:center;width:100%;box-sizing:border-box}
+body.simple-workspace #bookingDialog #bookingImportPick::before{display:none;content:none}
+.booking-drop-icon{width:32px;height:32px;flex:none;color:inherit}
+body.simple-workspace #bookingDialog #bookingImportPick>:is(strong,span,small){white-space:normal;text-align:center;max-width:100%}
+body.simple-workspace #bookingDialog #bookingImportPick>span{font-size:17px;line-height:1.5}
+.import-duplicate-warning{color:#774818;font-weight:600;overflow-wrap:anywhere}
+.import-change-summary,.booking-metadata-state{padding:10px 12px;border:1px solid #c1d0b7;border-radius:8px;background:#f0f5eb;color:#284b34;overflow-wrap:anywhere;font-size:15px}
+.import-change-summary ul,.booking-metadata-state ul{padding-left:20px;margin:6px 0}.import-change-summary p,.booking-metadata-state p{margin:6px 0}.booking-metadata-state{margin:0 0 12px}.booking-metadata-state[data-metadata-state=error]{background:#fff6e9;border-color:#c4a574}.booking-metadata-state summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
+body.simple-workspace .booking-progress-summary[data-progress-state=完了]{color:#285638}
+@media(max-width:760px){body.simple-workspace #bookingDialog #bookingImportPick{min-height:180px;padding:20px 12px;gap:8px}}

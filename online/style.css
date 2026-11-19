@@ -379,3 +379,5 @@ body.cloud-locked:has(#cloud-account-open) #cloud-panel>:is(p,.cloud-load-recove
 #profile-form .profile-text-field{display:flex;flex-direction:column;align-self:start;gap:7px;min-width:0}
 #profile-form .profile-field-heading{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:1.5em;line-height:1.5}
 #profile-form .profile-text-field input{margin:0;box-sizing:border-box;min-height:48px}
+
+.cloud-db-summary{display:block;width:100%;min-height:44px;padding:10px 12px;text-align:left;border:1px solid #b4c6aa;border-radius:8px;background:#f1f6eb;color:#264e36;white-space:normal}.cloud-db-summary[data-state=missing]{border-color:#b49667;background:#fff6e7;color:#70471c}

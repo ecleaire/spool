@@ -6,6 +6,11 @@ function slicerSeconds(value){
  return parts.reduce((n,m)=>n+Number(m[1])*({d:86400,h:3600,m:60,s:1}[m[2].toLowerCase()]),0);
 }
 function printUsageNumber(value,scale=1){if(value===null||value===undefined||String(value).trim()==='')return null;const number=Number(value)*scale;return Number.isFinite(number)&&number>=0&&number<=1000000000?Math.round(number*1000)/1000:null}
+// Hashes identify identical print files, regardless of their names. They contain no file contents.
+const printFileDigests=new WeakMap();
+async function printFileFingerprint(file){if(!globalThis.crypto?.subtle)return '';if(!printFileDigests.has(file))printFileDigests.set(file,(async()=>{const bytes=await file.arrayBuffer();return 'sha256:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('')})());return printFileDigests.get(file)}
+function duplicatePrintFiles(rows){const seen=new Map(),duplicates=new Map();for(const row of rows){if(!row.fingerprint)continue;const prior=seen.get(row.fingerprint);if(prior&&prior.attachmentId!==row.attachmentId)duplicates.set(row.attachmentId,{id:prior.attachmentId,name:prior.file?.name||prior.name});else seen.set(row.fingerprint,prior||row);}return duplicates;}
+function printProgressSummary(booking){const groups=bookingPrintGroups(booking),units=groups.flatMap(g=>g.units),done=units.filter(u=>u.status==='印刷済み').length;return {groups:groups.length,total:units.length,done,status:!units.length?'未着手':done===units.length?'完了':units.some(u=>u.status==='印刷途中'||u.status==='印刷済み')?'印刷途中':'未着手'};}
 function validPrintProgress(rows){return Array.isArray(rows)&&rows.length<=128&&new Set(rows.map(x=>JSON.stringify([x?.kind,x?.id,x?.plate,x?.object||'']))).size===rows.length&&rows.every(x=>x&&['attachment','reference'].includes(x.kind)&&typeof x.id==='string'&&x.id.length>0&&x.id.length<=(x.kind==='attachment'?120:2048)&&typeof x.plate==='string'&&x.plate.length<=40&&(x.object===undefined||typeof x.object==='string'&&x.object.length<=120)&&['印刷予定','印刷途中','印刷済み','未定'].includes(x.status))}
 function bookingPrintGroups(booking){const records=booking.filamentUsage?.progress||[],plates=booking.filamentUsage?.plates||[],groups=[];const add=(kind,id,name,plate='',metadata=null)=>{const objects=metadata?.objects?.length?metadata.objects:[{id:'',name:plate?'プレート '+plate:name}];const units=objects.map(o=>{const saved=records.find(p=>p.kind===kind&&p.id===id&&p.plate===plate&&(p.object||'')===o.id)||records.find(p=>p.kind===kind&&p.id===id&&p.plate===plate&&!p.object)||records.find(p=>p.kind===kind&&p.id===id&&!p.plate&&!p.object);return {kind,id,plate,object:o.id,name:o.name,status:booking.printStatus==='印刷済み'?'印刷済み':saved?.status||'印刷予定'}});groups.push({kind,id,name,plate,metadata,units});};for(const f of booking.attachments||[]){const selected=plates.filter(p=>p.attachmentId===f.id);if(selected.length)for(const p of selected)add('attachment',f.id,f.name,p.plate,p);else add('attachment',f.id,f.name);}for(const f of booking.files||[])if(/\.(?:stl|obj|3mf|amf|step|stp|gcode)(?:[?#].*)?$/i.test(f))add('reference',f,f.split(/[\\/]/).pop().split(/[?#]/)[0]);return groups;}
 function bookingPrintUnits(booking){return bookingPrintGroups(booking).flatMap(g=>g.units)}
@@ -114,12 +119,14 @@ function validPrintPlates(plates){
  return plates.every(p=>{
   if(!p||typeof p.attachmentId!=='string'||!p.attachmentId.length||p.attachmentId.length>120||typeof p.name!=='string'||!p.name.length||p.name.length>240||typeof p.plate!=='string'||p.plate.length>40)return false;
   if(!['seconds','grams','millimeters'].every(k=>p[k]===null||(typeof p[k]==='number'&&Number.isFinite(p[k])&&p[k]>=0&&p[k]<=(k==='seconds'?3600000:1000000000))))return false;
+  if(p.fingerprint!==undefined&&(typeof p.fingerprint!=='string'||!/^sha256:[a-f0-9]{64}$/.test(p.fingerprint)))return false;
   if(p.filaments!==undefined&&!validFilamentUsage({grams:null,millimeters:null,filaments:p.filaments}))return false;
   if(p.objects!==undefined&&(!Array.isArray(p.objects)||p.objects.length>128||new Set(p.objects.map(o=>o?.id)).size!==p.objects.length||!p.objects.every(o=>o&&typeof o.id==='string'&&o.id.length>0&&o.id.length<=120&&typeof o.name==='string'&&o.name.length>0&&o.name.length<=240)))return false;
   return true;
  });
 }
 function aggregatePrintMetadata(rows){
+ if(duplicatePrintFiles(rows).size)throw Error('同じ内容の印刷ファイルが重複しています。対象プレートから重複分を外してください。');
  if(!rows.length||rows.length>64)throw Error('対象のプレートを1〜64件選択してください。');
  const sum=values=>values.every(v=>v!==null&&v!==undefined)?Math.round(values.reduce((a,b)=>a+b,0)*1000)/1000:null;
  const missingTime=rows.some(r=>!r.seconds),missingUsage=rows.some(r=>!r.filamentUsage),seconds=missingTime?null:sum(rows.map(r=>r.seconds));
@@ -133,7 +140,7 @@ function aggregatePrintMetadata(rows){
  const breakdownComplete=rows.every(r=>r.filamentUsage?.filaments?.length&&r.filamentUsage.filaments.every(f=>f.grams!==null)&&r.filamentUsage.grams!==null&&Math.abs(r.filamentUsage.filaments.reduce((n,f)=>n+f.grams,0)-r.filamentUsage.grams)<0.0011);
  const usageRows=[...usage.values()].map(f=>({...f,grams:breakdownComplete?f.grams:null,millimeters:missingUsage?null:f.millimeters}));
  if(filaments.size>64||usageRows.length>64)throw Error('色の内訳が64件を超えています。プレートを分けて選択してください。');
- const plates=rows.map(r=>({attachmentId:r.attachmentId,name:r.file.name,plate:String(r.plate||''),seconds:r.seconds??null,grams:r.filamentUsage?.grams??null,millimeters:r.filamentUsage?.millimeters??null,filaments:(r.filamentUsage?.filaments||[]).map(f=>({...f})),...(r.objects?.length?{objects:r.objects.map(o=>({...o}))}:{})}));
+ const plates=rows.map(r=>({...(r.fingerprint?{fingerprint:r.fingerprint}:{}),attachmentId:r.attachmentId,name:r.file.name,plate:String(r.plate||''),seconds:r.seconds??null,grams:r.filamentUsage?.grams??null,millimeters:r.filamentUsage?.millimeters??null,filaments:(r.filamentUsage?.filaments||[]).map(f=>({...f})),...(r.objects?.length?{objects:r.objects.map(o=>({...o}))}:{})}));
  const filamentUsage={grams:total('grams'),millimeters:total('millimeters'),filaments:usageRows,plates};
  if(!validPrintPlates(plates)||!validFilamentUsage(filamentUsage))throw Error('プレートの合計値が保存できる範囲を超えています。');
  return {rows,files:[...new Set(rows.map(r=>r.file))],file:rows[0].file,plate:rows.map(r=>r.plate||'1').join('・'),seconds:seconds&&seconds<=3600000?seconds:null,missingTime,missingUsage,layerHeight:rows.every(r=>r.layerHeight===rows[0].layerHeight)?rows[0].layerHeight:null,filaments:[...filaments.values()],filamentUsage};
