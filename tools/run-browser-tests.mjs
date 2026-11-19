@@ -23,6 +23,7 @@ const tests=[
  'tests/booking-inputs.browser.test.mjs',
  'tests/booking-registration.browser.test.mjs',
  'tests/booking-delete.browser.test.mjs',
+ 'tests/booking-bulk-files.browser.test.mjs',
  'tests/online/booking-delete.browser.test.mjs',
  'tests/online/booking-save.browser.test.mjs',
  'tests/model-open.browser.test.mjs',
