@@ -70,7 +70,7 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
     if($('#bookingSort').value==='registered')return b.registeredDate.localeCompare(a.registeredDate)||(a.deadline||'9999-99-99').localeCompare(b.deadline||'9999-99-99');
     return Number(bookingStatus(a)==='印刷済み')-Number(bookingStatus(b)==='印刷済み')||(a.deadline||'9999-99-99').localeCompare(b.deadline||'9999-99-99')||a.registeredDate.localeCompare(b.registeredDate);
   });
-  searchBookingResults=shown;$('#bookingFilterCount').textContent=[cls,tag,window.spoolBookingQuickActive?.()].filter(Boolean).length||'';$('#bookingCount').textContent=shown.length+' 件を表示 / 全 '+reservations.length+' 件';
+  searchBookingResults=shown;$('#bookingFilterCount').textContent=[cls,tag,window.spoolBookingQuickActive?.()].filter(Boolean).length||'';
   const editButton=x=>'<div class="booking-row-actions"><button type="button" data-review-booking="'+esc(x.id)+'" title="印刷前に予約内容を確認" aria-label="印刷前に予約内容を確認">内容確認</button>'+(x._sharedBookingSource?''+(x._sharedBookingSource.canStop?'<button data-stop-booking-sync="'+esc(x.id)+'">同期を停止</button>':''):(window.spoolCanShareBooking?.()?'<button data-sync-booking="'+esc(x.id)+'">共有先と同期</button>':''))+'<button class="booking-edit" data-edit-booking="'+esc(x.id)+'" aria-label="'+esc(x.title)+'の予約を編集">編集 ↗</button></div>'+(window.spoolBookingWorkflowMarkup?.(x)||'');
   const bookingDetails=bookingDetailsMarkup;
   const colorLabel=bookingRequestedColorMarkup;
