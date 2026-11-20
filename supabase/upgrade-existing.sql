@@ -1172,6 +1172,7 @@ begin
   'booking_sharing',to_regprocedure('public.set_booking_sharing(uuid,text,uuid[])') is not null and to_regprocedure('public.get_shared_bookings(uuid)') is not null,
   'shared_edit',to_regprocedure('public.update_shared_filament(uuid,uuid,text,integer,jsonb)') is not null,
   'consumption',to_regprocedure('public.record_booking_consumption(uuid,uuid,text,jsonb,jsonb,uuid,boolean)') is not null,
+  'attachment_organizer',to_regprocedure('public.supports_attachment_organizer()') is not null,
   'booking_progress_deletion',to_regprocedure('public.supports_booking_progress_deletion()') is not null,
   'booking_deletion',to_regprocedure('public.delete_booking_content(uuid,uuid,text,integer,text)') is not null,
   'permissions',to_regprocedure('public.get_my_library_permissions(uuid)') is not null and to_regprocedure('public.set_library_member_permissions(uuid,uuid,text,jsonb)') is not null);
@@ -1241,6 +1242,19 @@ revoke all on function public.is_spool_handle_available(text) from public,anon;
 grant execute on function public.is_spool_handle_available(text) to authenticated;
 
 notify pgrst, 'reload schema';
+
+
+-- attachment-organizer.sql
+-- Adds a library-scoped UI operation grant. Existing member records are retained.
+-- Library members still share the same data viewing scope; this controls the organizer tool.
+
+create or replace function public.spool_permission_keys() returns text[] language sql immutable set search_path='' as $$
+ select array['inventory_create','inventory_edit','inventory_delete','inventory_use','bookings_create','bookings_edit','bookings_delete','files_upload','files_delete','sharing_manage','purchase_create','purchase_edit','wishlist_create','wishlist_edit','files_organize'];
+$$;
+create or replace function public.supports_attachment_organizer() returns boolean language sql stable set search_path='' as $$select 'files_organize'=any(public.spool_permission_keys())$$;
+revoke all on function public.spool_permission_keys(),public.supports_attachment_organizer() from public,anon;
+grant execute on function public.spool_permission_keys(),public.supports_attachment_organizer() to authenticated;
+notify pgrst,'reload schema';
 
 commit;
 notify pgrst, 'reload schema';

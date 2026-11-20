@@ -1,3 +1,4 @@
+import {writeWebAppAssets} from './pwa-build.mjs';
 import {readFileSync,writeFileSync,mkdirSync,readdirSync,lstatSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -57,7 +58,9 @@ const scriptMatches=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].
 for(const match of scriptMatches){const result=await transform(match[2],{loader:'js',target:'es2022',minifyWhitespace:true,minifySyntax:true,minifyIdentifiers:false,charset:'utf8'});html=html.replace(match[0],()=>'<script'+match[1]+'>'+result.code.replace(/<\/script/gi,'<\\/script')+'</script>');}
 const styleMatches=[...html.matchAll(/<style>([\s\S]*?)<\/style>/gi)];for(const match of styleMatches){const result=await transform(match[1],{loader:'css',minify:true,charset:'utf8'});html=html.replace(match[0],()=>'<style>'+result.code+'</style>');}
 const inlineHashes=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('application/json')).map(x=>digest(x[2].replace(/\r\n?/g,'\n')));
-const policy=["default-src 'none'",'script-src '+[...inlineHashes,bundleHash].map(x=>"'"+x+"'").join(' '),"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data: blob:","font-src 'self'","connect-src 'self' "+config.url+' '+config.url.replace('https:','wss:'),"object-src 'none'","base-uri 'none'","form-action 'self'","frame-src 'none'","worker-src 'none'"].join('; ');
+const policy=["default-src 'none'",'script-src '+[...inlineHashes,bundleHash].map(x=>"'"+x+"'").join(' '),"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data: blob:","font-src 'self'","connect-src 'self' "+config.url+' '+config.url.replace('https:','wss:'),"object-src 'none'","base-uri 'none'","form-action 'self'","frame-src 'none'","worker-src 'self'","manifest-src 'self'"].join('; ');
+const webAppAssets=writeWebAppAssets({root,out,version,html,bundleHash,styleVersion,catalogFile});
+html=html.replace('</head>',webAppAssets.head+'</head>').replace('width=device-width,initial-scale=1','width=device-width,initial-scale=1,viewport-fit=cover');
 const charset='<meta charset="UTF-8">';
 if(!html.includes(charset))throw Error('Missing character encoding marker');
 html=html.replace(charset,charset+'<link rel="icon" type="image/svg+xml" href="./favicon.svg">'+'<meta http-equiv="Content-Security-Policy" content="'+policy+'"><meta name="referrer" content="no-referrer">');
@@ -66,7 +69,7 @@ writeFileSync(path.join(out,'index.html'),html);
 const hosted=path.join(root,'out');mkdirSync(hosted,{recursive:true});
 writeFileSync(path.join(out,'favicon.svg'),readFileSync(path.join(root,'public/favicon.svg')));
 writeFileSync(path.join(out,'event-christmas-2026.png'),readFileSync(path.join(root,'public/event-christmas-2026.png')));
-const publicFiles=['event-christmas-2026.png','favicon.svg','index.html','online.js','online.css','config.json','offline.html',catalogFile];
+const publicFiles=[...webAppAssets.files,'event-christmas-2026.png','favicon.svg','index.html','online.js','online.css','config.json','offline.html',catalogFile];
 if(lstatSync(hosted).isSymbolicLink())throw Error('Public output must be a regular directory');
 if(readdirSync(hosted).some(name=>(!publicFiles.includes(name)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(name))||!lstatSync(path.join(hosted,name)).isFile()))throw Error('Unexpected files in public output; review them before publication');
 for(const name of publicFiles)writeFileSync(path.join(hosted,name),readFileSync(path.join(out,name)));

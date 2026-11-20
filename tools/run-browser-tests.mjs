@@ -1,5 +1,7 @@
 import {spawnSync} from 'node:child_process';
 const tests=[
+ 'tests/online/pwa.browser.test.mjs',
+ 'tests/online/tablet-ui.browser.test.mjs',
  'tests/low-stock.browser.test.mjs',
  'tests/online/remaining-details.browser.test.mjs',
  'tests/online/remember-login.browser.test.mjs',
@@ -57,7 +59,7 @@ const tests=[
 const escape=value=>String(value).replaceAll('%','%25').replaceAll('\r','%0D').replaceAll('\n','%0A');
 for(const file of tests){
  console.log('Running '+file);
- const result=spawnSync(process.execPath,[file],{encoding:'utf8',maxBuffer:4*1024*1024,timeout:180000,killSignal:'SIGKILL'});
+ const result=spawnSync(process.execPath,[file],{encoding:'utf8',maxBuffer:4*1024*1024,timeout:file==='tests/online/tablet-ui.browser.test.mjs'?300000:180000,killSignal:'SIGKILL'});
  if(result.stdout)process.stdout.write(result.stdout);
  if(result.stderr)process.stderr.write(result.stderr);
  if(result.status!==0){

@@ -7,3 +7,6 @@ const pendingKey=href=>'spool-login-library:'+new URL(href).pathname;
 export function rememberLoginLibrary(storage,href){try{const id=libraryFromUrl(href);if(id)storage.setItem(pendingKey(href),id);else storage.removeItem(pendingKey(href))}catch{}}
 export function pendingLoginLibrary(storage,href){try{return libraryFromUrl(libraryUrl(href,storage.getItem(pendingKey(href))))}catch{return null}}
 export function clearLoginLibrary(storage,href){try{storage.removeItem(pendingKey(href))}catch{}}
+
+export function recentLibraryKey(user){return 'spool-recent-library-v1:'+user;}
+export function startingLibrary(libraries,{requested,recent,personal}={}){return [requested,recent,personal,libraries[0]?.id].find(id=>id&&libraries.some(lib=>lib.id===id))||null;}
