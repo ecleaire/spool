@@ -99,11 +99,11 @@ window.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&eve
 
 // Display preferences are separate from stock, backups and authentication tokens.
 const DISPLAY_KEY='spool-display-v1';
-let displayAccount=document.body.classList.contains('cloud-locked')?null:'offline',restoringDisplay=false;
+let displayAccount=document.body.classList.contains('cloud-locked')?null:'offline',restoringDisplay=false,bookingDisplayPreference='list';
 function displayStorageKey(){return displayAccount?DISPLAY_KEY+':'+displayAccount:null}
 function saveDisplayPreferences(){
  if(restoringDisplay||!displayStorageKey())return;
- try{localStorage.setItem(displayStorageKey(),JSON.stringify({version:1,view,sort:$('#sort').value,bookingSort:$('#bookingSort').value,inventoryFilters:$('#inventoryFilters').open,bookingFilters:$('#bookingFilters').open}))}catch{}
+ try{localStorage.setItem(displayStorageKey(),JSON.stringify({version:1,view,bookingView:bookingDisplayPreference,sort:$('#sort').value,bookingSort:$('#bookingSort').value,inventoryFilters:$('#inventoryFilters').open,bookingFilters:$('#bookingFilters').open}))}catch{}
 }
 function restoreDisplayPreferences(account){
  displayAccount=account;restoringDisplay=true;
@@ -112,6 +112,7 @@ function restoreDisplayPreferences(account){
   const field=$(id),allowed=[...(field.options||[])].map(option=>option.value);field.value=allowed.includes(saved[key])?saved[key]:fallback;
  }
  for(const id of ['inventoryFilters','bookingFilters'])$('#'+id).open=saved[id]===true;
+ bookingDisplayPreference=['list','cards','compact','table','week'].includes(saved.bookingView)?saved.bookingView:'list';window.spoolSetBookingDisplay?.(bookingDisplayPreference,false);
  changeView(['list','split','grid','simple'].includes(saved.view)?saved.view:'simple');renderBookings();restoringDisplay=false;
 }
 for(const id of ['#listView','#splitView','#gridView','#simpleView','#toggleReorder'])$(id).addEventListener('click',saveDisplayPreferences);

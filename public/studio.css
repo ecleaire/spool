@@ -1644,3 +1644,23 @@ body.simple-workspace #editor .library-products img{height:var(--library-image-s
 body.simple-workspace #editor .library-products button>span:not(.library-image-placeholder),body.simple-workspace #editor .library-products button>small{min-width:0;overflow-wrap:anywhere}
 body.simple-workspace #editor .library-image-placeholder{aspect-ratio:1;display:grid;place-items:center;text-align:center}
 @media(max-width:760px){body.simple-workspace #editor .library-products{--library-image-size:84px}}
+
+/* Explicit booking layouts stay available on tablets, phones and desktop. */
+body.simple-workspace #bookingView .list-view-switch{min-width:0;max-width:100%;gap:6px}body.simple-workspace #bookingView .list-view-switch button{min-height:44px;white-space:nowrap;flex:0 1 auto}
+.booking-display-hint{margin:0;padding:0 12px 10px;font-size:14px;color:#37563f;line-height:1.5}
+body.simple-workspace #bookingView[data-booking-view=table] .booking-table-scroll{display:block!important;width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+body.simple-workspace #bookingView[data-booking-view=table] .booking-table{min-width:1100px}
+body.simple-workspace #bookingView[data-booking-view=table] #bookingCards{display:none!important}
+body.simple-workspace #bookingView:is([data-booking-view=cards],[data-booking-view=compact]) .booking-table-scroll{display:none!important}
+body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:14px;align-items:start}
+body.simple-workspace #bookingView[data-booking-view=compact] #bookingCards{display:grid!important;grid-template-columns:minmax(0,1fr);gap:8px;padding:12px}
+body.simple-workspace .booking-compact-meta,body.simple-workspace .booking-expand{display:none}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-card{padding:12px;min-width:0}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-card h3{margin:6px 0;font-size:max(var(--spool-type-floor,18px),18px)}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-card .booking-compact-meta{display:flex;gap:6px 18px;flex-wrap:wrap;color:#34573d;font-size:max(var(--spool-type-floor,16px),16px);margin:6px 0}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-expand{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;border:1px solid #adc0a3;border-radius:8px;background:#f2f6ed;color:#254d36;font-size:16px;margin:6px 0 0;max-width:100%;white-space:normal}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) :is(.booking-card-metrics,.booking-row-details,.booking-card-footer,.booking-plates-summary,.booking-progress-summary,.booking-usage-summary){display:none!important}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) .booking-work-meta .tag-list,body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) .booking-color-pill strong,body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) .booking-random-label{display:none!important}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-card .booking-work-meta{margin:4px 0}
+@media(min-width:1400px){body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{grid-template-columns:minmax(0,1fr)}body.simple-workspace #bookingView .list-view-switch{width:100%}body.simple-workspace #bookingView .list-view-switch button{flex:1 1 auto}}
