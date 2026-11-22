@@ -1636,3 +1636,11 @@ body.simple-workspace .booking-progress-summary[data-progress-state=完了]{colo
 body.simple-workspace #editor .dialog-actions{gap:8px;align-items:center;justify-content:flex-end}body.simple-workspace #editor .filament-save-summary{margin:0;line-height:1.5}body.simple-workspace #editor #saveAndContinue{flex-basis:auto;width:auto;margin:0}body.simple-workspace #editor #cancel,body.simple-workspace #editor .dialog-actions>.primary{margin:0}body.simple-workspace #editor #delete{margin-right:auto}body.simple-workspace #editor .dialog-actions>[hidden]{display:none!important}
 @media(max-width:600px){body.simple-workspace #editor .dialog-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.simple-workspace #editor .filament-save-summary{grid-column:1/-1;order:0}body.simple-workspace #editor #delete{grid-column:1/-1;order:1;justify-self:start;width:auto}body.simple-workspace #editor #cancel{order:2;width:100%}body.simple-workspace #editor .dialog-actions>.primary{order:3;width:100%;min-width:0}body.simple-workspace #editor #saveAndContinue{order:4;grid-column:1/-1;width:100%;min-width:0}}
 @media(max-width:600px){body.simple-workspace #editor .dialog-actions>button{word-break:normal;overflow-wrap:anywhere;line-height:1.4;height:auto;text-wrap:balance}}
+/* Keep product thumbnails and their grid column the same width. */
+body.simple-workspace #editor .library-products{--library-image-size:100px}
+body.simple-workspace #editor .library-products button{grid-template-columns:var(--library-image-size) minmax(0,1fr)}
+body.simple-workspace #editor .library-products button>:first-child{grid-column:1;grid-row:1/span 2;width:var(--library-image-size);max-width:100%}
+body.simple-workspace #editor .library-products img{height:var(--library-image-size)}
+body.simple-workspace #editor .library-products button>span:not(.library-image-placeholder),body.simple-workspace #editor .library-products button>small{min-width:0;overflow-wrap:anywhere}
+body.simple-workspace #editor .library-image-placeholder{aspect-ratio:1;display:grid;place-items:center;text-align:center}
+@media(max-width:760px){body.simple-workspace #editor .library-products{--library-image-size:84px}}
