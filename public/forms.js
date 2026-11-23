@@ -72,7 +72,7 @@ function refreshSearchPanel(){
   const item=records[Number(button.dataset.searchResult)];closeSearchPanel();
   if(!bookings){openFilamentDetails(item.id);return;}
   const row=$$('[data-booking-id]').find(node=>node.dataset.bookingId===item.id&&node.getBoundingClientRect().width>0);
-  if(row){row.scrollIntoView({block:'center'});row.classList.add('search-result-highlight');setTimeout(()=>row.classList.remove('search-result-highlight'),2200)}
+  if(row){row.scrollIntoView({block:'center'});row.classList.add('search-result-highlight');setTimeout(()=>row.classList.remove('search-result-highlight'),2200)}else openBookingReview(item.id);
  });
 }
 function setSearchPanelTab(value){foregroundSearchState.tab=value;for(const [id,tabValue]of [['#searchQueryTab','results'],['#searchFiltersTab','filters']]){const active=value===tabValue;$(id).setAttribute('aria-selected',String(active));$(id).tabIndex=active?0:-1}$('#searchResultsPanel').hidden=value!=='results';$('#searchFiltersPanel').hidden=value!=='filters'}

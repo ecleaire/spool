@@ -1664,3 +1664,20 @@ body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(
 body.simple-workspace #bookingView[data-booking-view=compact] .booking-card .booking-work-meta{margin:4px 0}
 @media(min-width:1400px){body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{grid-template-columns:minmax(0,1fr)}body.simple-workspace #bookingView .list-view-switch{width:100%}body.simple-workspace #bookingView .list-view-switch button{flex:1 1 auto}}
+
+/* Card actions and progress controls wrap by their available card width. */
+body.simple-workspace #bookingView .booking-card-footer{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:10px}
+body.simple-workspace #bookingView .booking-card-footer>div,body.simple-workspace #bookingView .booking-card-footer>details{min-width:0;max-width:100%}
+body.simple-workspace #bookingView .booking-card-registration{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px}
+body.simple-workspace #bookingView .booking-card .booking-row-actions{grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))}
+body.simple-workspace #bookingView .booking-card .booking-workflow-menu{margin-top:0}
+body.simple-workspace .progress-group-top{display:flex;flex-wrap:wrap;align-items:start;gap:8px 12px}
+body.simple-workspace .progress-group-top>div{flex:1 1 200px;min-width:0;max-width:100%}
+body.simple-workspace .progress-group-top>select{flex:0 1 auto;width:auto;max-width:100%}
+
+body.simple-workspace #bookingView .booking-details-body{grid-template-columns:minmax(0,1fr)}
+body.simple-workspace #bookingView .booking-details-body>*{min-width:0;max-width:100%}
+body.simple-workspace #bookingView .booking-details-body .model-file-actions :is(a,button){min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+
+body.simple-workspace #bookingView .booking-model-download{min-width:0;max-width:100%}
+body.simple-workspace #bookingView .booking-model-zip>span{max-width:100%;white-space:normal;text-wrap:balance;overflow-wrap:anywhere}

@@ -31,7 +31,7 @@ function layoutIssues() {
       if (r2.top < 0 || r2.bottom > innerHeight + 1 || !hit || !close.contains(hit)) issues.push("unreachable close " + name(close));
     }
   }
-  const selectors = ".page-actions,.toolbar,.booking-tools,.actions,.booking-row-actions,.bulk-selection-controls,.bulk-action-buttons,.dialog-actions,.sharing-actions,.permission-footer,.fields,.cloud-dialog-body,.search-panel-head,.duration-entry,.hex-control";
+  const selectors = ".page-actions,.toolbar,.booking-tools,.actions,.booking-row-actions,.bulk-selection-controls,.bulk-action-buttons,.dialog-actions,.sharing-actions,.permission-footer,.fields,.cloud-dialog-body,.search-panel-head,.duration-entry,.hex-control,.model-file-actions,.progress-group-top";
   for (const group of root.querySelectorAll(selectors)) {
     if (!visibleRect(group)) continue;
     const bounds = group.getBoundingClientRect(), controls = [...group.querySelectorAll("button,input:not([type=hidden]),select,textarea,a[href]")].filter((el) => el.closest(selectors) === group).map((el) => ({ el, r: visibleRect(el) })).filter((x) => x.r);
@@ -71,6 +71,13 @@ function layoutIssues() {
       const a = parts[i], b = parts[j];
       if (a.ink.some((r) => b.ink.some((s) => Math.min(r.right, s.right) - Math.max(r.left, s.left) > 2 && Math.min(r.bottom, s.bottom) - Math.max(r.top, s.top) > 2))) issues.push("row content overlap " + name(a.el) + " / " + name(b.el));
     }
+  }
+  for (const detail of root.querySelectorAll(".booking-details-body")) {
+    if (visibleRect(detail) && detail.scrollWidth > detail.clientWidth + 2) issues.push("booking details overflow " + name(detail));
+  }
+  for (const group of root.querySelectorAll(".progress-group-top")) {
+    const label = group.querySelector(":scope>div"), box = label && visibleRect(label);
+    if (box && label.textContent.trim().length > 12 && box.original.width < Math.min(120, group.clientWidth - 20) - 2) issues.push("progress name compressed " + name(label));
   }
   for (const button of root.querySelectorAll("button")) {
     const b = visibleRect(button);
