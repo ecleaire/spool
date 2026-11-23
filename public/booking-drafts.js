@@ -9,6 +9,10 @@ function createBookingDraftStore(target,now=()=>Date.now()){
   cleanup(){for(const key of keys())get(key)},
   list(scope){const base=scopeKey(scope);if(!base||!target)return [];return keys().filter(k=>k.startsWith(base)).map(get).filter(Boolean).sort((a,b)=>b.updatedAt-a.updatedAt)},
   save(scope,slot,data){const base=scopeKey(scope);if(!base||!target)throw Error('この端末では下書きを保存できません。');const stamp=now(),value={version:1,slot:String(slot),updatedAt:stamp,expiresAt:stamp+ttl,data},text=JSON.stringify(value);if(text.length>160000)throw Error('下書きの容量が大きすぎます。');target.setItem(base+encodeURIComponent(slot),text);return value},
-  remove(scope,slot){const base=scopeKey(scope);if(base&&target){try{target.removeItem(base+encodeURIComponent(slot));return true}catch{return false}}return false},
+  remove(scope,slot,expected){const base=scopeKey(scope);if(base&&target){try{
+    const key=base+encodeURIComponent(slot);
+    if(expected && target.getItem(key)!==JSON.stringify(expected))return false;
+    target.removeItem(key);return true
+   }catch{return false}}return false},
  };
 }

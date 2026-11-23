@@ -19,6 +19,7 @@ window.spoolBookingProgress=(phase,details={})=>{
  if(details.total){progress.max=details.total;progress.value=details.completed||0;copy.textContent=(phase==='prepareFiles'?'添付を準備中':'添付をアップロード中')+'：'+(details.completed||0)+' / '+details.total+'件'+(details.name?'\n'+details.name:'');}
  else copy.textContent=({prepare:'入力内容を確認しています。',wait:'先の保存処理の完了を待っています。',save:'予約情報をオンラインに保存しています。',refresh:'保存結果を確認しています。',done:'保存が完了しました。'})[phase]||'予約情報を保存しています。';
 };
+let lastEditorDraft=null;
 let bookingDraftStorage;try{bookingDraftStorage=localStorage}catch{}
 const bookingDraftStore=createBookingDraftStore(bookingDraftStorage);
 const bookingDraftFields=['title','creator','desiredColor','registeredDate','weekday','className','quality','printStatus','printDuration','filamentGrams','filamentMeters','deadline','tags','files'];
@@ -55,8 +56,17 @@ function bookingDraftForm(){return {filamentUsage:bookingFilamentUsageSnapshot()
 function bookingDraftSignature(booking){if(!booking)return null;const {attachments,...data}=booking;delete data._sharedBookingSource;return JSON.stringify({...data,attachments:(attachments||[]).map(x=>({id:x.id,name:x.name,size:x.size}))})}
 function persistBookingDraft(){
  clearTimeout(bookingDraftTimer);if(!bookingDraftScope||bookingDraftSlot===null||bookingSaving)return;
- const data=bookingDraftForm();if(JSON.stringify(data)===bookingDraftBaseline)return;
- try{const savedDraft=bookingDraftStore.save(bookingDraftScope,bookingDraftSlot,{...data,bookingId:bookingEditId||bookingDraftRecoveredId,wasNew:bookingDraftWasNew,baseSignature:bookingDraftBaseSignature});bookingDraftExpiresAt=savedDraft.expiresAt;$('#bookingDraftStatus').textContent='下書き保存済み（この端末・24時間で削除）';updateBookingDraftBanner()}
+ const data=bookingDraftForm();
+ if(JSON.stringify(data)===bookingDraftBaseline){
+  if(lastEditorDraft && bookingDraftStore.remove(bookingDraftScope,bookingDraftSlot,lastEditorDraft)){
+   lastEditorDraft=null;
+   bookingDraftExpiresAt=null;
+   $('#bookingDraftStatus').textContent='変更はありません。';
+   updateBookingDraftBanner();
+  }
+  return;
+ }
+ try{const savedDraft=bookingDraftStore.save(bookingDraftScope,bookingDraftSlot,{...data,bookingId:bookingEditId||bookingDraftRecoveredId,wasNew:bookingDraftWasNew,baseSignature:bookingDraftBaseSignature});lastEditorDraft=savedDraft;bookingDraftExpiresAt=savedDraft.expiresAt;$('#bookingDraftStatus').textContent='下書き保存済み（この端末・24時間で削除）';updateBookingDraftBanner()}
  catch(error){$('#bookingDraftStatus').textContent=error.name==='QuotaExceededError'?'この端末の保存容量が不足しています。画面を閉じる前に入力内容を控えてください。':'下書きを保存できません。画面を閉じる前に入力内容を控えてください。'}
 }
 function scheduleBookingDraft(){if($('#bookingDialog').open&&!bookingSaving){clearTimeout(bookingDraftTimer);bookingDraftTimer=setTimeout(persistBookingDraft,400)}}
@@ -67,7 +77,7 @@ function updateBookingDraftBanner(){
  select.innerHTML=drafts.map(d=>'<option value="'+esc(d.slot)+'">'+esc(d.data.fields?.title||'作品名未入力')+' · '+esc(new Date(d.updatedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}))+'</option>').join('');if(drafts.some(d=>d.slot===previous))select.value=previous;
 }
 function beginBookingDraft(){
- if(!$('#bookingDialog').open)return;const c=bookingExperienceContext();bookingDraftScope=c?{account:c.account,library:c.library}:null;bookingDraftSlot=bookingEditId||'new-'+crypto.randomUUID();bookingDraftWasNew=!bookingEditId;bookingDraftRecoveredId=null;bookingDraftExpiresAt=null;bookingDraftBaseSignature=bookingDraftSignature(reservations.find(x=>x.id===bookingEditId));bookingDraftBaseline=JSON.stringify(bookingDraftForm());$('#bookingDraftStatus').textContent=bookingDraftScope?'下書きはこの端末に保存し、24時間で自動削除します。':'';
+ if(!$('#bookingDialog').open)return;lastEditorDraft=null;const c=bookingExperienceContext();bookingDraftScope=c?{account:c.account,library:c.library}:null;bookingDraftSlot=bookingEditId||'new-'+crypto.randomUUID();bookingDraftWasNew=!bookingEditId;bookingDraftRecoveredId=null;bookingDraftExpiresAt=null;bookingDraftBaseSignature=bookingDraftSignature(reservations.find(x=>x.id===bookingEditId));bookingDraftBaseline=JSON.stringify(bookingDraftForm());$('#bookingDraftStatus').textContent=bookingDraftScope?'下書きはこの端末に保存し、24時間で自動削除します。':'';
 }
 const openBookingBeforeExperience=openBooking;
 openBooking=function(id){if(bookingSaving)return;bookingDraftPendingInfo=[];openBookingBeforeExperience(id);beginBookingDraft()};
@@ -94,7 +104,7 @@ $('#bookingDraftRestore').onclick=()=>{
  bookingDraftPendingInfo=[...(legacyPending?normalizeBookingDraftFiles(data.pendingNames.map(name=>({name}))):pending),...orphaned].filter((f,i,a)=>a.findIndex(x=>x.id===f.id)===i);
  if(legacyPending)bookingModelColors=bookingModelColors.filter(c=>c.kind!=='attachment'||bookingAttachments.some(f=>f.id===c.id));
  bookingDraftSlot=draft.slot;bookingDraftExpiresAt=draft.expiresAt;bookingDraftWasNew=!!data.wasNew;bookingDraftRecoveredId=!original&&data.wasNew?data.bookingId:null;bookingDraftBaseSignature=bookingDraftSignature(original);renderBookingColors(original);renderBookingPendingFiles();
- $('#bookingDraftStatus').textContent='下書きを復元しました。'+(invalidColor?'色指定を読み取れないため、希望色を選び直してください。':'')+(legacyPending?'旧形式の未保存添付は、再追加後に色を選び直してください。':'')+(data.pendingNames?.length?'未保存の添付（'+data.pendingNames.join('、')+'）は再度追加してください。':'内容を確認して保存してください。');bookingDraftBaseline='';
+ $('#bookingDraftStatus').textContent='下書きを復元しました。'+(invalidColor?'色指定を読み取れないため、希望色を選び直してください。':'')+(legacyPending?'旧形式の未保存添付は、再追加後に色を選び直してください。':'')+(data.pendingNames?.length?'未保存の添付（'+data.pendingNames.join('、')+'）は再度追加してください。':'内容を確認して保存してください。');lastEditorDraft=draft;
 };
 $('#bookingDraftDiscard').onclick=()=>{const c=bookingExperienceContext(),slot=$('#bookingDraftPicker').value;if(c&&confirm('この下書きを削除しますか？ 保存済みの予約は削除されません。')){bookingDraftStore.remove(c,slot);updateBookingDraftBanner()}};
 window.spoolBookingContextChanged=()=>{

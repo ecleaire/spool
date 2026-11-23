@@ -59,7 +59,8 @@ function refreshSearchPanel(){
  if(!$('#searchDialog').open)return;
  const bookings=foregroundSearchState.mode==='bookings',records=bookings?searchBookingResults:searchItemResults;
  const filters=bookings?['#bookingTagFilter']:['#brand','#material','#variantFilter','#locationFilter','#tagFilter'];
- const count=filters.filter(id=>$(id).value).length;
+ const quick=bookings?window.spoolBookingQuickState?.():null;
+ const count=filters.filter(id=>$(id).value).length + Number(!!quick && quick.range!=='all') + Number(!!quick?.mine);
  $('#foregroundResultCount').textContent=String(records.length);$('#foregroundFilterCount').textContent=count?String(count):'';
  $('#clearSearchFilters').hidden=!count;$('#clearSearchQuery').hidden=!activeSearchInput().value;
  const scope=bookings?($('[data-booking-status][aria-pressed=true] .booking-status-label')?.textContent||'すべての予約'):({all:'すべてのフィラメント',low:'残量が少ない',empty:'使い切り',planned:'購入予定'}[tab]||'フィラメント');
@@ -88,7 +89,16 @@ function openSearchPanel(mode){
 function applyForegroundQuery(){activeSearchInput().value=$('#foregroundSearch').value;foregroundSearchState.mode==='bookings'?renderBookings():render()}
 $('#foregroundSearch').oninput=applyForegroundQuery;
 $('#clearSearchQuery').onclick=()=>{$('#foregroundSearch').value='';applyForegroundQuery();$('#foregroundSearch').focus()};
-$('#clearSearchFilters').onclick=()=>{for(const id of foregroundSearchState.mode==='bookings'?['#bookingTagFilter']:['#brand','#material','#variantFilter','#locationFilter','#tagFilter'])$(id).value='';foregroundSearchState.mode==='bookings'?renderBookings():render()};
+$('#clearSearchFilters').onclick=()=>{
+ if(foregroundSearchState.mode==='bookings'){
+  $('#bookingTagFilter').value='';
+  window.spoolBookingResetQuick?.();
+  renderBookings();
+ }else{
+  for(const id of ['#brand','#material','#variantFilter','#locationFilter','#tagFilter'])$(id).value='';
+  render();
+ }
+};
 $('#searchQueryTab').onclick=()=>setSearchPanelTab('results');$('#searchFiltersTab').onclick=()=>setSearchPanelTab('filters');
 for(const [id,other,value]of [['#searchQueryTab','#searchFiltersTab','filters'],['#searchFiltersTab','#searchQueryTab','results']])$(id).addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();setSearchPanelTab(value);$(other).focus()}});
 $('#closeSearchPanel').onclick=closeSearchPanel;$('#searchDialog').addEventListener('close',()=>{if(!$('#searchDialog').open)restoreSearchFields()});

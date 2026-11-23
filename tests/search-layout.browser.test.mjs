@@ -43,6 +43,15 @@ try{
   await page.locator('#resetInventoryFilters').click();await page.locator('#inventorySearchTrigger').click();await page.locator('#foregroundSearch').fill('');await page.locator('#applySearchPanel').click();await page.keyboard.press('Control+k');await page.locator('#searchDialog').waitFor();await page.locator('#applySearchPanel').click();assert.equal(await page.locator('#items .filament-row').count(),4);
   await page.locator(await page.locator('#navBookings').isVisible()?'#navBookings':'#showBookings').click();await page.locator('#bookingFilters>summary').click();await page.locator('#bookingTagFilter').selectOption('v:マット');assert.equal(await page.locator('#bookingRows tr.booking-row').count(),1);assert.equal(await page.locator('#bookingFilterCount').textContent(),'1');await page.locator('#resetBookingFilters').click();
   await page.locator('#bookingSearchTrigger').click();await page.locator('#foregroundSearch').fill('#マット');assert.equal(await page.locator('#foregroundResultCount').textContent(),'1');await page.locator('#searchFiltersTab').click();await page.locator('#foregroundFilters #bookingTagFilter').selectOption('v:マット');await page.locator('#searchQueryTab').click();await page.locator('[data-search-result="0"]').click();assert.equal(await page.locator('#bookingDialog').isVisible(),false);assert.equal(await page.locator('#bookingView .search-result-highlight').count(),1);assert.equal(await page.locator('#bookingFilters #bookingTagFilter').count(),1);
+  await page.locator('#bookingSearchTrigger').click();
+  await page.locator('#searchFiltersTab').click();
+  await page.locator('#foregroundFilters [data-booking-range=today]').click();
+  assert.equal(await page.locator('#foregroundFilterCount').textContent(),'2');
+  await page.locator('#clearSearchFilters').click();
+  assert.equal(await page.locator('#foregroundFilters [data-booking-range=all]').getAttribute('aria-pressed'),'true');
+  assert.equal(await page.locator('#clearSearchFilters').isVisible(),false);
+  assert.equal(await page.locator('#foregroundSearch').inputValue(),'#マット');
+  await page.keyboard.press('Escape');
   // Calendar entries use different DOM identifiers, and may be outside the visible week.
   await page.locator('#bookingWeekMode').click();await page.locator('#bookingSearchTrigger').click();await page.locator('[data-search-result="0"]').click();await page.locator('#bookingReviewDialog').waitFor({timeout:3000});assert.match(await page.locator('#bookingReviewBody').innerText(),/予約マット/);await page.locator('#bookingReviewClose').click();assert.equal(await page.locator('#bookingView').getAttribute('data-booking-view'),'week');
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('spool-inventory-v1'))),stock);assert.deepEqual(errors,[]);await page.close();

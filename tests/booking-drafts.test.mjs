@@ -8,3 +8,9 @@ records.set('spool-booking-draft-v1:broken','{broken');store.cleanup();assert.eq
 console.log('PASS: device drafts expire at exactly 24 hours since last save, support multiple bookings, isolate accounts/libraries, handle corrupt/disabled storage and preserve inventory.');
 
 const inaccessible=make({get length(){throw Error('blocked')},removeItem(){throw Error('blocked')}});assert.equal(inaccessible.list(a).length,0);assert.equal(inaccessible.remove(a,'new'),false);
+
+const olderDraft=store.save(a,'concurrent',{fields:{title:'older'}});
+const newerDraft=store.save(a,'concurrent',{fields:{title:'newer'}});
+assert.equal(store.remove(a,'concurrent',olderDraft),false);
+assert.equal(store.list(a).find(draft=>draft.slot==='concurrent').data.fields.title,'newer');
+assert.equal(store.remove(a,'concurrent',newerDraft),true);
