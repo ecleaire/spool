@@ -19,12 +19,15 @@ const bucket={
     documents.set(key,record);return record;
   }
 };
+let resumeReactions;
+const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,'http://localhost');
     if(url.pathname.startsWith('/functions/v1/spool-events/api/')){
       assert.equal(req.headers.authorization,'Bearer '+token);
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
+      if(req.method==='POST' && route.endsWith('/reactions'))await slowReaction;
       const chunks=[];for await(const chunk of req)chunks.push(chunk);
       const result=await release.fetch(new Request('https://example.invalid'+route,{method:req.method,
         headers:{Authorization:'Bearer '+token,...(req.headers['content-type']?{'Content-Type':req.headers['content-type']}:{})},
@@ -82,6 +85,21 @@ try{
   assert.equal((await response.json()).work.model.root,'star.glb');
   assert.equal(prompts.length,5);
   assert.match(prompts[0],/glTF.*GLB/);
+  const workId=(await response.json()).work.id;
+  await page.locator('.work-card').filter({hasText:'STL test'}).click();
+  const group=page.locator('#detail-reactions');
+  await group.locator('button').first().waitFor();
+  const burst=await group.evaluate(node=>{
+    const [like,idea]=node.querySelectorAll('button');
+    for(const button of [like,idea,like,like,idea,like])button.click();
+    return [like.querySelector('.reaction-count').textContent,idea.querySelector('.reaction-count').textContent,like.disabled];
+  });
+  assert.deepEqual(burst,['3','2',true]);
+  resumeReactions();
+  await page.waitForFunction(()=>!document.querySelector('#detail-reactions button').disabled);
+  const record=await documents.get('reactions/'+workId+'.json').json();
+  assert.deepEqual(record.counts,{like:3,idea:2});
+  assert.equal(seen.filter(route=>route==='/api/works/'+workId+'/reactions').length,5);
   const uploaded=await page.evaluate(async()=>{
     const form=new FormData(), filename='star.gltf';
     form.set('metadata',JSON.stringify({title:'星',author:'',comment:'飾り',root:filename,files:[filename]}));
