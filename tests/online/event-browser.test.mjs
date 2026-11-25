@@ -54,7 +54,8 @@ try{
   const page=await browser.newPage();
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
   await page.goto(origin+'/spool/event/index.html');
-  await page.getByRole('button',{name:'ログインして作品を投稿'}).first().waitFor();
+  await page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
+  assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
   assert.equal(await page.getByRole('button',{name:'管理画面',exact:true}).count(),0);
   assert.equal(await page.locator('.prototype-footer span').innerText(),'v'+version);
   assert.equal(await page.locator('#submission[open]').count(),0);
@@ -87,8 +88,26 @@ try{
   await page.locator('#work-comment').fill('triangle');
   const modelInput=page.locator('#model-files');
   const preview=page.locator('#submission-viewer canvas');
-  await modelInput.setInputFiles({name:'first.stl',mimeType:'application/octet-stream',buffer:Buffer.from(triangle)});
+  const upright=triangle.replace('vertex 0 0 0','vertex 260 380 10').replace('vertex 1 0 0','vertex 262 380 10').replace('vertex 0 1 0','vertex 260 380 20');
+  await modelInput.setInputFiles({name:'first.stl',mimeType:'application/octet-stream',buffer:Buffer.from(upright)});
   await preview.waitFor({state:'visible'});
+  await preview.scrollIntoViewIfNeeded();
+  const bounds=await preview.evaluate(image=>new Promise(resolve=>requestAnimationFrame(()=>{
+    const canvas=document.createElement('canvas');
+    canvas.width=image.width;canvas.height=image.height;
+    const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);
+    const {data}=ctx.getImageData(0,0,canvas.width,canvas.height);
+    let left=image.width,right=0,top=image.height,bottom=0;
+    const background=4*(Math.floor(image.height/2)*image.width+12);
+    for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++){
+      const i=4*(y*image.width+x);
+      if(Math.max(...[0,1,2].map(c=>Math.abs(data[i+c]-data[background+c])))<22)continue;
+      left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);
+    }
+    resolve({left,right,top,bottom,width:image.width,height:image.height});
+  })));
+  assert.ok(bounds.bottom-bounds.top>bounds.height*0.5 && bounds.bottom-bounds.top>bounds.right-bounds.left,JSON.stringify(bounds));
+  assert.ok(bounds.left>0 && bounds.right<bounds.width-1 && bounds.top>0 && bounds.bottom<bounds.height-1,JSON.stringify(bounds));
   await page.locator('[data-clear="model-files"]').click();
   await preview.waitFor({state:'hidden'});
   await modelInput.setInputFiles(['star.STL','second.stl'].map(name=>({name,mimeType:'application/octet-stream',buffer:Buffer.from(triangle)})));
@@ -140,6 +159,27 @@ try{
   await page.locator('.work-card').filter({hasText:'星'}).waitFor();
   await page.locator('.work-card').filter({hasText:'STL test'}).click();
   await page.locator('#viewer canvas').waitFor({state:'visible'});
+  assert.equal(await page.locator('#work-detail .local-only').isVisible(),false);
+  for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:320,height:568}]){
+    await page.setViewportSize(viewport);
+    const layout=await page.locator('#work-detail .dialog-body').evaluate(body=>({
+      width:body.clientWidth,contentWidth:body.scrollWidth,height:body.clientHeight,contentHeight:body.scrollHeight,
+      viewer:document.querySelector('#viewer').clientHeight
+    }));
+    if(process.env.SPOOL_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.SPOOL_SCREENSHOT_DIR,'work-detail-'+viewport.width+'.png')});
+    console.log('Work detail',viewport,layout);
+    assert.ok(layout.contentWidth<=layout.width+1 && layout.viewer>=150);
+    if(viewport.width>=390)assert.ok(layout.contentHeight<=layout.height+1);
+  }
+  const title=page.locator('#detail-title'),comment=page.locator('#detail-comment');
+  const originalTitle=await title.textContent(),originalComment=await comment.textContent();
+  await title.evaluate(el=>el.textContent='冬のオーナメント'.repeat(10));
+  await comment.evaluate(el=>el.textContent='雪の結晶の重なりを表現しました。'.repeat(25));
+  assert.ok(await title.evaluate(el=>el.scrollHeight<=el.clientHeight+1));
+  assert.ok(await page.locator('#work-detail .dialog-body').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+  await title.evaluate((el,text)=>el.textContent=text,originalTitle);
+  await comment.evaluate((el,text)=>el.textContent=text,originalComment);
+  await page.setViewportSize(desktopSize);
   const reads=()=>seen.filter(route=>route.startsWith('/api/files/'+workId+'/model')).length;
   assert.equal(reads(),1);
   await page.locator('#detail-model-select').selectOption('second.glb');
@@ -151,6 +191,7 @@ try{
   for(const media of ['real','image','real']){
     await page.locator('[data-media='+media+']').click();
     await page.locator('#detail-photo-img').evaluate(image=>image.decode());
+    assert.equal(await page.locator('#detail-model-select').isVisible(),false);
   }
   assert.equal(seen.filter(route=>route==='/api/files/'+workId+'/real').length,1);
   const group=page.locator('#detail-reactions');

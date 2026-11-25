@@ -12,6 +12,42 @@ export function createWebApp({canReload=()=>true}={}){
  function applyUpdate(){if(!canReload()){notice='編集中の内容を保存し、入力画面を閉じてから更新してください。';draw();return;}if(!registration?.waiting){location.reload();return;}reloading=true;registration.waiting.postMessage({type:'SPOOL_ACTIVATE_UPDATE'});}
  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();prompt=event;mount()});window.addEventListener('appinstalled',()=>{prompt=null;notice='アプリの追加を受け付けました。';mount()});
  matchMedia('(display-mode: standalone)').addEventListener?.('change',mount);
- async function start(){if(window.top!==window.self||!('serviceWorker' in navigator)||!isSecureContext)return;try{const base=new URL('./',import.meta.url);registration=await navigator.serviceWorker.register(new URL('sw.js',base),{scope:base.pathname,updateViaCache:'none'});let controlled=!!navigator.serviceWorker.controller;waiting=!!registration.waiting;mount();registration.addEventListener('updatefound',()=>{const worker=registration.installing;worker?.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller){waiting=true;mount();}})});navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!controlled){controlled=true;return;}if(reloading&&canReload())location.reload();else{reloading=false;waiting=true;notice='新しいバージョンを利用できます。入力内容を保存してから更新してください。';mount();}});}catch{notice='アプリの追加はブラウザーのメニューからお試しください。';mount();}}
+ const pageBuild=document.querySelector('meta[name="spool-build"]')?.content;
+ let checkId=0;
+ function checkUpdate(worker,activated=false){
+  const id=++checkId;
+  waiting=false;mount();
+  if(!worker||!pageBuild)return;
+  const channel=new MessageChannel();
+  const timer=setTimeout(()=>channel.port1.close(),3000);
+  channel.port1.onmessage=event=>{
+   clearTimeout(timer);channel.port1.close();
+   if(id!==checkId)return;
+   waiting=typeof event.data==='string'&&event.data!==pageBuild;
+   if(waiting&&activated)notice='新しいバージョンを利用できます。入力内容を保存してから更新してください。';
+   mount();
+  };
+  worker.postMessage({type:'SPOOL_BUILD'},[channel.port2]);
+ }
+ async function start(){
+  if(window.top!==window.self||!('serviceWorker' in navigator)||!isSecureContext)return;
+  try{
+   const base=new URL('./',import.meta.url);
+   registration=await navigator.serviceWorker.register(new URL('sw.js',base),{scope:base.pathname,updateViaCache:'none'});
+   function watchInstall(worker){
+    worker?.addEventListener('statechange',()=>{
+     if(worker.state==='installed')checkUpdate(registration.waiting||worker);
+    });
+   }
+   registration.addEventListener('updatefound',()=>watchInstall(registration.installing));
+   watchInstall(registration.installing);
+   checkUpdate(registration.waiting);
+   navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(reloading&&canReload()){location.reload();return;}
+    reloading=false;
+    checkUpdate(registration.waiting||navigator.serviceWorker.controller,true);
+   });
+  }catch{notice='アプリの追加はブラウザーのメニューからお試しください。';mount();}
+ }
  void start();return {mount};
 }

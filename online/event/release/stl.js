@@ -67,8 +67,9 @@ export async function stlToGlb(file, name) {
     min[axis] = Math.min(min[axis], v);
     max[axis] = Math.max(max[axis], v);
   }
+  // Printing STL coordinates are Z-up. glTF defines Y as the up axis.
   const mesh = {
-    asset:{version:'2.0'}, scene:0, scenes:[{nodes:[0]}], nodes:[{mesh:0}],
+    asset:{version:'2.0'}, scene:0, scenes:[{nodes:[0]}], nodes:[{mesh:0, rotation:[-Math.SQRT1_2,0,0,Math.SQRT1_2]}],
     meshes:[{primitives:[{attributes:{POSITION:0}}]}],
     buffers:[{byteLength:positions.byteLength}],
     bufferViews:[{buffer:0,byteLength:positions.byteLength,target:34962}],
