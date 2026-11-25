@@ -114,7 +114,11 @@ try{
       assert.ok(Math.abs(center(ribbon)-center(cover))<=1);
       if(width<=640){
         const title=await device.locator('.ornament-lettering').boundingBox();
-        assert.ok(ribbon.y>=title.y+title.height && ribbon.y+ribbon.height<=cover.y+cover.height+1);
+        const gap=ribbon.y-(title.y+title.height);
+        const topSpace=title.y-cover.y;
+        const bottomSpace=cover.y+cover.height-(ribbon.y+ribbon.height);
+        assert.ok(gap>=12 && gap<=19);
+        assert.ok(Math.abs(topSpace-bottomSpace)<=1);
       }
       assert.ok(await device.locator('#works .guest-gallery-note').isVisible());
       assert.ok(await device.locator('.ornament-poster').evaluate(el=>el.scrollWidth<=el.clientWidth));
@@ -140,6 +144,12 @@ try{
     await page.setViewportSize({width,height:900});
     assert.equal(await page.locator('.ornament-entry').isVisible(),width<=640);
     assert.equal(await page.locator('[data-event-banner]').isVisible(),width>640);
+    if(width<=640){
+      const ribbon=await page.locator('.ornament-entry .ornament-message').boundingBox();
+      const cover=await page.locator('.ornament-poster').boundingBox();
+      assert.ok(ribbon.width>=cover.width*.6 && ribbon.width>ribbon.height*5);
+      assert.ok(Math.abs(ribbon.x+ribbon.width/2-cover.x-cover.width/2)<=1);
+    }
     assert.equal(await page.locator('.guest-gallery-note').isVisible(),false);
     assert.deepEqual(await navigation.getByRole('button').allTextContents(),['詳細','各賞','審査','作品一覧']);
   }
