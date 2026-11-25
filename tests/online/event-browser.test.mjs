@@ -25,14 +25,15 @@ const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,'http://localhost');
     if(url.pathname.startsWith('/functions/v1/spool-events/api/')){
-      assert.equal(req.headers.authorization,'Bearer '+token);
+      const guest=req.headers.authorization?.startsWith('Bearer guest:');
+      if(!guest)assert.equal(req.headers.authorization,'Bearer '+token);
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
       if(req.method==='POST' && route.endsWith('/reactions'))await slowReaction;
       const chunks=[];for await(const chunk of req)chunks.push(chunk);
       const result=await release.fetch(new Request('https://example.invalid'+route,{method:req.method,
         headers:{Authorization:'Bearer '+token,...(req.headers['content-type']?{'Content-Type':req.headers['content-type']}:{})},
         body:chunks.length?Buffer.concat(chunks):undefined}),
-        {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:'mock-user',allowed:true,canManageEvents:administrator})}});
+        {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:guest?'guest:browser':'mock-user',guest,allowed:true,canManageEvents:!guest&&administrator})}});
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
@@ -50,8 +51,9 @@ try{
   const page=await browser.newPage();
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
   await page.goto(origin+'/spool/event/index.html');
-  await page.getByText('SPOOLにログインしてからイベントを開いてください。').waitFor();
-  assert.equal(seen.length,0);
+  await page.getByRole('button',{name:'ログインして作品を投稿'}).first().waitFor();
+  assert.equal(await page.getByRole('button',{name:'管理画面',exact:true}).count(),0);
+  assert.equal(await page.locator('#submission[open]').count(),0);
   await page.evaluate(token=>sessionStorage.setItem('spool-auth-127',JSON.stringify({access_token:token,refresh_token:'mock',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'mock-user'}})),token);
   const works=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/works');
   await page.reload();

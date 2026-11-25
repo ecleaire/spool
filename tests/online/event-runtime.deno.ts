@@ -27,9 +27,9 @@ Object.defineProperty(Deno,'serve',{value:(handler:typeof handle)=>{handle=handl
 globalThis.fetch=async(input,init)=>{
   const r=new Request(input,init);
   assert.equal(new URL(r.url).origin,project);
-  if(r.url.endsWith('/auth/v1/user'))return r.headers.get('Authorization')==='Bearer member'
+  if(r.url.endsWith('/auth/v1/user'))return ['Bearer member','Bearer unregistered'].includes(r.headers.get('Authorization')||'')
     ? Response.json({id:'fixture-member'}) : new Response(null,{status:401});
-  if(r.url.includes('/rpc/'))return Response.json(r.url.endsWith('/spool_allowed'));
+  if(r.url.includes('/rpc/'))return Response.json(r.url.endsWith('/spool_allowed') && r.headers.get('Authorization')==='Bearer member');
   assert.equal(new URL(r.url).pathname,'/rest/v1/spool_event_records');
   return Response.json([]);
 };
@@ -43,3 +43,36 @@ Deno.env.set('EVENT_S3_REGION','mock-region');
 const ready=await session('member');assert.equal(ready.status,200);
 assert.equal((await ready.json()).user.id,'fixture-member');
 console.log('PASS deployed session handler rejects invalid login, names missing configuration and opens for authorized members.');
+
+assert.equal((await (await session('unregistered')).json()).user.role,'guest');
+const guestHeaders={Origin:'https://ecleaire.github.io',Authorization:'Bearer guest:'+crypto.randomUUID()};
+function guestCall(path:string,method='GET'){
+  return handle(new Request(project+'/functions/v1/spool-events/api/'+path,{method,headers:guestHeaders}));
+}
+assert.equal((await (await guestCall('session')).json()).user.role,'guest');
+assert.equal((await guestCall('works')).status,200);
+assert.equal((await guestCall('works','POST')).status,401);
+assert.equal((await guestCall('uploads','POST')).status,401);
+assert.equal((await guestCall('admin/audit')).status,401);
+assert.equal((await guestCall('settings/reactions','PUT')).status,401);
+const mockWork={id:'sample-work',title:'star',assets:[],root:'star.glb',visibility:'public',ownerId:'registered'};
+let storedCounts:any=null;
+globalThis.fetch=async(input,init)=>{
+  const r=new Request(input,init),url=new URL(r.url);
+  assert.equal(url.pathname,'/rest/v1/spool_event_records');
+  const key=url.searchParams.get('key');
+  if(r.method==='POST'){
+    const row=await r.json();
+    assert.equal(row.key,'reactions/sample-work.json');storedCounts=row.value.counts;
+    return Response.json({revision:row.revision});
+  }
+  return Response.json(key==='eq.works/sample-work.json'?[{value:mockWork,revision:crypto.randomUUID()}]:[]);
+};
+const react=()=>handle(new Request(project+'/functions/v1/spool-events/api/works/sample-work/reactions',{
+  method:'POST',headers:{...guestHeaders,'Content-Type':'application/json'},body:'{"type":"like"}'
+}));
+assert.equal((await react()).status,200);assert.deepEqual(storedCounts,{like:1});
+mockWork.visibility='hidden';
+for(const path of ['works/sample-work/model','files/sample-work/real','files/sample-work/image','files/sample-work/model-0'])assert.equal((await guestCall(path)).status,404);
+assert.equal((await react()).status,404);
+console.log('PASS guest gallery and reaction, authenticated-only submission, administrator-only settings and hidden media.');

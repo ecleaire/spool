@@ -1,6 +1,6 @@
 # SPOOL イベントの本番接続
 
-作品投稿・一覧・3D表示は GitHub Pages の `/spool/event/index.html`、作品と公開状態は Supabase の `spool_event_records`、写真とモデルは非公開バケット `spool-event-files` に保存する。イベントはライブラリをまたぐ企画で、SPOOL の利用を許可されたアカウントが公開作品を閲覧できる。非公開作品とそのファイルはサービス管理者だけが閲覧できる。
+作品投稿・一覧・3D表示は GitHub Pages の `/spool/event/index.html`、作品と公開状態は Supabase の `spool_event_records`、写真とモデルは非公開バケット `spool-event-files` に保存する。イベントはライブラリをまたぐ企画で、公開作品は未登録でも閲覧・リアクションできる。未登録のリアクションはブラウザー単位で数える。投稿はSPOOLの利用許可があるアカウントに限定する。非公開作品とそのファイルはサービス管理者だけが閲覧できる。
 
 ## 初回の有効化
 
@@ -15,7 +15,7 @@
    関数内でリクエストごとに Supabase Auth のユーザーと両方の権限関数を確認する。プリフライトは認証不要。既存SPOOLと同じセッションを利用する。ログイン情報をURLに載せない。
 
 4. 同じコードの Pages 配信後、ログイン済みの許可アカウントで `/spool/event/submissions.html` を開く。小さな作品の投稿、一覧・画像・3D表示、非公開切替後の一般参加者と管理者の見え方を確認する。大きなモデルの分割保存は8 MiBを超えるサンプルでも確認する。実際のファイル上限は Supabase プロジェクトの Storage 設定にも依存する。
-5. GitHub Actions のリポジトリ変数 `SPOOL_EVENT_ENABLED` を `true` にして Publish SPOOL を再実行すると、「イベント」タブから作品の投稿と閲覧ができる。未設定の間も同じタブからイベント案内・作品一覧の公開予定・投稿フォームの見本を表示する。アクセス権限は Edge Function が判定する。
+5. GitHub Actions のリポジトリ変数 `SPOOL_EVENT_ENABLED` を `true` にして Publish SPOOL を再実行すると、「イベント」タブから作品の投稿と閲覧ができる。未設定も受付を有効にする。明示的に false を指定すると同じタブからイベント案内・作品一覧の公開予定・投稿フォームの見本を表示する。アクセス権限は Edge Function が判定する。
 
 ## 配布物とローカル検証
 

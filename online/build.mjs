@@ -28,7 +28,7 @@ html=html.replace(/<body\b([^>]*)>/i,(_,attributes)=>{
 if(!html.includes('id="cloud-panel"')||!/<body\b[^>]*\bcloud-locked/.test(html))throw Error('Online shell and login protection were not inserted');
 // Public catalog photos are fetched on demand; private library photos remain in authenticated state.
 html=html.replace(/data-event-banner src="data:image\/png;base64,[A-Za-z0-9+/]+=*"/,'data-event-banner src="./event-christmas-2026.png"');
-const eventEnabled=process.env.SPOOL_EVENT_ENABLED==='true';
+const eventEnabled=process.env.SPOOL_EVENT_ENABLED!=='false';
 const catalogImages={};html=html.replace(/data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*/g,value=>{const key=createHash('sha256').update(value).digest('hex');catalogImages[key]=value;return 'catalog-image:'+key});
 const catalogText=JSON.stringify(catalogImages),catalogFile='catalog-images-'+createHash('sha256').update(catalogText).digest('hex').slice(0,16)+'.json';
 const lazyCatalog=`

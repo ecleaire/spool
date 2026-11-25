@@ -26,3 +26,13 @@ export function internalRequest(request:Request,url:string,auth:string){
   }
   return new Request(url,{method:request.method,headers,body:withBody?request.body:null});
 }
+
+export function guestOperation(path:string,method:string){
+  if(method==='POST')return /^\/api\/works\/[\w-]+\/reactions$/.test(path);
+  if(method==='HEAD')return /^\/api\/files\/[\w-]+\/(real|image|model-\d+)$/.test(path);
+  return method==='GET' && (
+    ['/api/session','/api/works','/api/reactions','/api/event/poster'].includes(path) ||
+    /^\/api\/works\/[\w-]+\/model$/.test(path) ||
+    /^\/api\/files\/[\w-]+\/(real|image|model-\d+)$/.test(path)
+  );
+}

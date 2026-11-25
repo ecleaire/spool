@@ -10,14 +10,21 @@ const auth=createClient(config.url,config.key,{auth:{storageKey:key,storage:crea
 async function start(){
   if(!('serviceWorker' in navigator)) throw Error('このブラウザーでは作品ページを開けません。');
   const userId=(await auth.getSession()).data.session?.user.id;
-  if(!userId) throw Error('SPOOLにログインしてからイベントを開いてください。');
-  auth.onAuthStateChange((_event,session)=>{if(session?.user.id!==userId)location.replace('../')});
+  let guestId;
+  if(!userId){
+    guestId=crypto.randomUUID();
+    try{
+      guestId=localStorage.getItem('spool-event-guest-v1')||guestId;
+      localStorage.setItem('spool-event-guest-v1',guestId);
+    }catch{/* Use this page's ID if browser storage is unavailable. */}
+  }
+  auth.onAuthStateChange((_event,session)=>{if(session?.user.id!==userId)location.reload()});
   const workerURL=new URL('./event-worker.js',location.href).href;
   navigator.serviceWorker.addEventListener('message',async event=>{
     if(event.source?.scriptURL!==workerURL || event.data!=='event-authorization' || !event.ports[0]) return;
     try{
       const {data,error}=await auth.getSession();
-      event.ports[0].postMessage(error||data.session?.user.id!==userId?null:data.session.access_token);
+      event.ports[0].postMessage(error||data.session?.user.id!==userId?null:data.session?.access_token||'guest:'+guestId);
     }catch{event.ports[0].postMessage(null)}
   });
   await navigator.serviceWorker.register(workerURL,{scope:'./'});
