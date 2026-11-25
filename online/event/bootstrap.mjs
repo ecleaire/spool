@@ -43,4 +43,9 @@ async function start(){
   document.querySelector('#event-content').hidden=false;
   if(location.hash==='#works')document.querySelector('#works').scrollIntoView();
 }
-start().catch(error=>{document.querySelector('#event-loading span').textContent=error.message});
+start().catch(error=>{
+  const unsupported=!('serviceWorker' in navigator);
+  document.querySelector('#event-loading span').textContent=unsupported
+    ? error.message
+    : 'イベントを開けませんでした。通信状態を確認して再読み込みしてください。';
+});

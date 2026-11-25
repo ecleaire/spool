@@ -508,3 +508,11 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
   justify-items: center; gap: 8px; padding: 12px; text-align: center;
 }
 .prototype #detail-photo-error p { margin: 0; }
+
+#event-loading {
+  max-width: 32rem; margin: 8vh auto; padding: 1.25rem;
+}
+#event-loading [role="status"] { display: block; font-weight: 600; }
+#event-loading a {
+  display: inline-flex; align-items: center; min-height: 44px; margin-inline-end: 1rem;
+}

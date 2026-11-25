@@ -20,6 +20,7 @@ const bucket={
   }
 };
 let resumeReactions, administrator=false, resumeSubmission, failPhoto=false;
+let unavailableRoute;
 const heldSubmission=new Promise(resolve=>{resumeSubmission=resolve});
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
@@ -29,6 +30,7 @@ const server=http.createServer(async(req,res)=>{
       const guest=req.headers.authorization?.startsWith('Bearer guest:');
       if(!guest)assert.equal(req.headers.authorization,'Bearer '+token);
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
+      if(route===unavailableRoute){res.writeHead(503,{'Content-Type':'application/json'}).end(JSON.stringify({error:'一時的な接続エラー'}));return;}
       if(failPhoto && route.endsWith('/real')){res.writeHead(503).end();return;}
       if(req.method==='POST' && route.endsWith('/reactions'))await slowReaction;
       if(req.method==='POST' && route==='/api/works')await heldSubmission;
@@ -54,7 +56,20 @@ try{
   browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
   const page=await browser.newPage();
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
+  await page.addInitScript(()=>{
+    if(sessionStorage.getItem('worker-retry-tested'))return;
+    sessionStorage.setItem('worker-retry-tested','1');
+    navigator.serviceWorker.register=async()=>{throw Error('Registration failed')};
+  });
+  unavailableRoute='/api/session';
   await page.goto(origin+'/spool/event/index.html');
+  await page.getByText('イベントを開けませんでした。',{exact:false}).waitFor();
+  await page.getByRole('link',{name:'再読み込み'}).click();
+  await page.locator('#gallery-error').waitFor();
+  assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
+  assert.equal(await page.locator('#empty-gallery').isVisible(),false);
+  unavailableRoute=undefined;
+  await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
   assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
   for(const [width,dpr,file] of [[360,2,'event-christmas-2026-720.webp'],[390,3,'event-christmas-2026-1200.webp'],[1440,1,'event-christmas-2026.webp']]){
@@ -77,7 +92,12 @@ try{
   assert.equal(await page.locator('#submission[open]').count(),0);
   await page.evaluate(token=>sessionStorage.setItem('spool-auth-127',JSON.stringify({access_token:token,refresh_token:'mock',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'mock-user'}})),token);
   const works=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/works');
+  unavailableRoute='/api/reactions';
   await page.reload();
+  await page.locator('#gallery-error').waitFor();
+  assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
+  unavailableRoute=undefined;
+  await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.waitForFunction(()=>document.querySelector('.prototype-footer #storage-state')?.textContent.includes('サーバーに保存'));
   await works;
   assert.ok(seen.includes('/api/session'));assert.ok(seen.includes('/api/works'));
@@ -174,6 +194,17 @@ try{
   assert.ok(uploaded.imageWidth>0);assert.equal(uploaded.modelVersion,'2.0');
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.locator('.work-card').filter({hasText:'星'}).waitFor();
+  const search=page.getByRole('searchbox',{name:'作品検索'});
+  await search.fill('no-matching-work');
+  await page.locator('#search-empty').waitFor();
+  assert.equal(await page.locator('.work-card:visible').count(),0);
+  await search.fill('STL test');
+  assert.equal(await page.locator('.work-card:visible').count(),1);
+  await search.fill('');
+  await page.locator('#sort-by').selectOption('reactions');
+  await page.locator('#sort-direction').click();
+  assert.match(await page.locator('#sort-direction').innerText(),/昇順/);
+
   await page.locator('.work-card').filter({hasText:'STL test'}).click();
   await page.locator('#viewer canvas').waitFor({state:'visible'});
   assert.equal(await page.locator('#work-detail .local-only').isVisible(),false);
@@ -258,6 +289,10 @@ try{
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await manage.click();
   await page.locator('#admin-panel[open]').waitFor();
+  for(const tab of ['content','reactions','trash','backups','history','works']){
+    await page.locator('[data-admin-tab="'+tab+'"]').click();
+    await page.locator('#admin-'+tab).waitFor();
+  }
   await page.locator('#admin-close').click();
   administrator=false;
   await page.getByRole('button',{name:'一覧を更新'}).click();

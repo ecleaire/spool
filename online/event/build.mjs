@@ -25,9 +25,9 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     .replace(/class="(test-badge|test-notice|local-data)"/g,'hidden class="$1"')
     .replace(/<footer class="prototype-footer">.*?<\/span>/,'<footer class="prototype-footer">SPOOL EVENT <span>v'+version+'</span>')
     .replace('src="app.js"','src="bootstrap.js"')
-    .replace('<a class="skip"','<div id="event-loading" role="status"><span>イベントを読み込んでいます…</span> <a href="../">SPOOLに戻る</a></div><div id="event-content" hidden><a class="skip"')
+    .replace('<a class="skip"','<div id="event-loading"><span role="status">イベントを読み込んでいます…</span><noscript>イベントを表示するにはJavaScriptを有効にしてください。</noscript><div><a id="event-retry" href="">再読み込み</a> <a href="../">SPOOLに戻る</a></div></div><div id="event-content" hidden><a class="skip"')
     .replace('</body>','</div></body>');
-  const liveHtml=html.replace('<script type="module" src="bootstrap.js"','<link rel="modulepreload" href="app.js"><script type="module" src="bootstrap.js"');
+  const liveHtml=html.replaceAll(' data-open-submission>', ' data-open-submission hidden disabled>').replace('<script type="module" src="bootstrap.js"','<link rel="modulepreload" href="app.js"><script type="module" src="bootstrap.js"');
   // Publish the release layout immediately; keep the authenticated form available for commissioning.
   const preview=html.slice(0,html.indexOf('<dialog id="work-detail"'))
     .replace('src="bootstrap.js"','src="announcement.js"')
