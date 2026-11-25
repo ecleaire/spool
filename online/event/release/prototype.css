@@ -375,3 +375,11 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
   transform: rotate(45deg);
 }
 .prototype #eventView #eventOverview[open] > summary::after { transform: rotate(225deg); }
+
+.prototype-footer #storage-state {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.prototype-footer #storage-state:empty { display: none; }

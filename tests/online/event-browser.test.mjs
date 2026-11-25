@@ -59,7 +59,7 @@ try{
   await page.evaluate(token=>sessionStorage.setItem('spool-auth-127',JSON.stringify({access_token:token,refresh_token:'mock',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'mock-user'}})),token);
   const works=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/works');
   await page.reload();
-  await page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
+  await page.waitForFunction(()=>document.querySelector('.prototype-footer #storage-state')?.textContent.includes('サーバーに保存'));
   await works;
   assert.ok(seen.includes('/api/session'));assert.ok(seen.includes('/api/works'));
   await page.locator('[data-open-submission]:visible').first().click();

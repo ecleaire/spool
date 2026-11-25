@@ -23,7 +23,7 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     .replace('<meta charset="utf-8">','<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'+policy+'">')
     .replace('href="#" class="prototype-brand" aria-label="イベントトップ"','href="../" class="prototype-brand" aria-label="SPOOLに戻る"')
     .replace(/class="(test-badge|test-notice|local-data)"/g,'hidden class="$1"')
-    .replace(/<footer class="prototype-footer">.*?<\/footer>/,'<footer class="prototype-footer">SPOOL EVENT <span>v'+version+'</span></footer>')
+    .replace(/<footer class="prototype-footer">.*?<\/span>/,'<footer class="prototype-footer">SPOOL EVENT <span>v'+version+'</span>')
     .replace('src="app.js"','src="bootstrap.js"')
     .replace('<a class="skip"','<div id="event-loading" role="status"><span>イベントを読み込んでいます…</span> <a href="../">SPOOLに戻る</a></div><div id="event-content" hidden><a class="skip"')
     .replace('</body>','</div></body>');
