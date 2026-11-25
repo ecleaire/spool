@@ -41,5 +41,6 @@ async function start(){
   await import('./app.js');
   document.querySelector('#event-loading').hidden=true;
   document.querySelector('#event-content').hidden=false;
+  if(location.hash==='#works')document.querySelector('#works').scrollIntoView();
 }
 start().catch(error=>{document.querySelector('#event-loading span').textContent=error.message});
