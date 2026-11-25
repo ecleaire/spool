@@ -30,6 +30,7 @@ try{
   await page.setViewportSize({width,height:1000});
   await page.locator('[data-cloud-nav="events"]').click();
   await page.waitForURL('**/spool/event/index.html');
+  assert.equal(await page.locator('#addBooking, #add, #openLibrary').count(),0);
   if(await page.locator('script[src="announcement.js"]').count()){
     await page.locator('#eventView [data-event-banner]').waitFor();
     await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
