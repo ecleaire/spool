@@ -90,6 +90,19 @@ try{
     try{
       await device.goto(origin+'/spool/event/index.html');
       await device.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
+      const navigation=device.getByRole('navigation',{name:'イベントページ内の移動'});
+      await navigation.waitFor();
+      assert.deepEqual(await navigation.getByRole('button').allTextContents(),['作品一覧']);
+      const galleryButton=navigation.getByRole('button',{name:'作品一覧'});
+      const bounds=await galleryButton.boundingBox(),navBounds=await navigation.boundingBox();
+      assert.ok(bounds.height>=56);
+      assert.ok(width<=640?Math.abs(bounds.width-navBounds.width)<=1:bounds.width>=300 && bounds.width<navBounds.width);
+      assert.ok(await galleryButton.evaluate(button=>getComputedStyle(button).backgroundColor==='rgb(25, 75, 59)' && getComputedStyle(button).color==='rgb(255, 255, 255)'));
+      await galleryButton.click();
+      assert.ok(await device.locator('#works').evaluate(section=>section===document.activeElement));
+      assert.ok(await device.locator('#eventAwardsHeading').isVisible());
+      await device.locator('#eventOverview summary').click();
+      assert.ok(await device.locator('#eventCriteriaHeading').isVisible());
       const poster=await device.locator('[data-event-banner]').evaluate(async image=>{
         await image.decode();
         return {url:image.currentSrc,bytes:performance.getEntriesByName(image.currentSrc)[0].encodedBodySize};
@@ -113,6 +126,13 @@ try{
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.waitForFunction(()=>document.querySelector('.prototype-footer #storage-state')?.textContent.includes('サーバーに保存'));
   await works;
+  const navigation=page.getByRole('navigation',{name:'イベントページ内の移動'});
+  for(const width of [390,1440]){
+    await page.setViewportSize({width,height:900});
+    assert.deepEqual(await navigation.getByRole('button').allTextContents(),['詳細','各賞','審査','作品一覧']);
+  }
+  await navigation.getByRole('button',{name:'審査基準へ移動'}).click();
+  assert.ok(await page.locator('#eventCriteria').evaluate(section=>section===document.activeElement));
   await page.getByRole('heading',{name:'最初の作品を飾ろう。'}).waitFor();
   assert.ok(seen.includes('/api/session'));assert.ok(seen.includes('/api/works'));
   await page.locator('[data-open-submission]:visible').first().click();

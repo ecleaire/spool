@@ -10,6 +10,7 @@ const auth=createClient(config.url,config.key,{auth:{storageKey:key,storage:crea
 async function start(){
   if(!('serviceWorker' in navigator)) throw Error('このブラウザーでは作品ページを開けません。');
   const userId=(await auth.getSession()).data.session?.user.id;
+  document.body.toggleAttribute('data-guest-navigation',!userId);
   let guestId;
   if(!userId){
     guestId=crypto.randomUUID();

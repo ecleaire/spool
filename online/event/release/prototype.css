@@ -510,6 +510,28 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
 .prototype #detail-photo-error p { margin: 0; }
 
 #event-info-status { margin: 0 0 .5rem; font-size: .875rem; }
+body[data-guest-navigation] .event-section-nav { justify-content: center; }
+body[data-guest-navigation] .event-section-nav [data-event-jump="works"] {
+  flex: 0 1 20rem;
+  min-height: 56px;
+  padding: 12px 24px;
+  background: #194b3b;
+  border-color: #194b3b;
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+body[data-guest-navigation] .event-section-nav [data-event-jump="works"]:hover {
+  background: #123c2e;
+}
+body[data-guest-navigation] .event-section-nav [data-event-jump="works"]:focus-visible {
+  outline: 3px solid #194b3b;
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  body[data-guest-navigation] .event-section-nav [data-event-jump="works"] { flex-basis: 100%; }
+}
+body[data-guest-navigation] .event-section-nav button:not([data-event-jump="works"]),
 #gallery-error:not([hidden]) ~ #empty-gallery,
 body[data-gallery-loading] :is(.event-section-nav, #work-count, .gallery-controls, #empty-gallery, #search-empty) {
   display: none !important;
