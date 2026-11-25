@@ -32,8 +32,8 @@ try{
   await page.waitForURL('**/spool/event/index.html');
   assert.equal(await page.locator('#addBooking, #add, #openLibrary').count(),0);
   if(await page.locator('script[src="announcement.js"]').count()){
-    await page.locator('#eventView [data-event-banner]').waitFor();
-    await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
+    if(width<=640)await page.locator('.ornament-poster').waitFor();
+    else await page.waitForFunction(()=>document.querySelector('[data-event-banner]').naturalWidth>0);
     await page.getByRole('button',{name:'審査基準へ移動'}).click();
     assert.equal(await page.locator('#eventCriteria').isVisible(),true);
     assert.equal(await page.locator('#works').isVisible(),true);

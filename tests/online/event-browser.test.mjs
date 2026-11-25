@@ -73,7 +73,8 @@ try{
   await page.getByText('最新の案内と応募作品を読み込めませんでした。',{exact:false}).waitFor();
   await page.locator('#eventOverview summary').focus();
   await page.keyboard.press('Enter');
-  await page.locator('#event-deadline').waitFor();
+  await page.locator('#eventCriteriaHeading').waitFor();
+  assert.equal(await page.locator('#event-deadline').isVisible(),false);
   assert.ok(await page.locator('#eventAwardsHeading').isVisible());
   assert.equal(await page.locator('#work-count').isVisible(),false);
   await page.getByRole('link',{name:'再読み込み'}).click();
@@ -85,7 +86,7 @@ try{
   await page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
   assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
   await page.getByRole('heading',{name:'公開中の作品はまだありません'}).waitFor();
-  for(const [width,dpr,file] of [[360,2,'event-christmas-2026-720.webp'],[390,3,'event-christmas-2026-1200.webp'],[1440,1,'event-christmas-2026.webp']]){
+  for(const [width,dpr] of [[320,2],[390,3],[1440,1]]){
     const device=await browser.newPage({viewport:{width,height:844},deviceScaleFactor:dpr});
     try{
       await device.goto(origin+'/spool/event/index.html');
@@ -103,13 +104,13 @@ try{
       assert.ok(await device.locator('#eventAwardsHeading').isVisible());
       await device.locator('#eventOverview summary').click();
       assert.ok(await device.locator('#eventCriteriaHeading').isVisible());
-      const poster=await device.locator('[data-event-banner]').evaluate(async image=>{
-        await image.decode();
-        return {url:image.currentSrc,bytes:performance.getEntriesByName(image.currentSrc)[0].encodedBodySize};
-      });
-      assert.ok(poster.url.endsWith('/'+file));
-      assert.equal(poster.bytes,(await readFile(path.join(output,'event/assets',file))).length);
-      assert.ok(poster.bytes>0 && poster.bytes<350000);
+      assert.equal(await device.locator('#event-deadline').isVisible(),false);
+      assert.equal(await device.locator('.ornament-entry').isVisible(),false);
+      assert.equal(await device.locator('[data-event-banner]').isVisible(),false);
+      assert.ok(await device.locator('.ornament-guest').isVisible());
+      assert.ok(await device.locator('#works .guest-gallery-note').isVisible());
+      assert.ok(await device.locator('.ornament-poster').evaluate(el=>el.scrollWidth<=el.clientWidth));
+      assert.ok(await device.evaluate(file=>performance.getEntriesByType('resource').some(r=>r.name.endsWith('/assets/'+file) && r.encodedBodySize>0 && r.encodedBodySize<350000),dpr>1?'event-christmas-2026.webp':'event-christmas-2026-1200.webp'));
     }finally{await device.close();}
   }
 
@@ -129,6 +130,9 @@ try{
   const navigation=page.getByRole('navigation',{name:'イベントページ内の移動'});
   for(const width of [390,1440]){
     await page.setViewportSize({width,height:900});
+    assert.equal(await page.locator('.ornament-entry').isVisible(),width<=640);
+    assert.equal(await page.locator('[data-event-banner]').isVisible(),width>640);
+    assert.equal(await page.locator('.guest-gallery-note').isVisible(),false);
     assert.deepEqual(await navigation.getByRole('button').allTextContents(),['詳細','各賞','審査','作品一覧']);
   }
   await navigation.getByRole('button',{name:'審査基準へ移動'}).click();

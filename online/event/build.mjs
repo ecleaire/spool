@@ -28,7 +28,6 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
   const loading='<div id="event-loading"><span role="status">応募作品を読み込んでいます…</span><noscript>応募作品を見るにはJavaScriptを有効にしてください。</noscript><div><a href="">再読み込み</a> <a href="../">SPOOLに戻る</a></div></div>';
   const liveHtml=html
     .replace('<body ', '<body data-gallery-loading data-guest-navigation ')
-    .replace('<article class="event-hero', '<p id="event-info-status">ページ公開時のイベント案内を表示しています。</p><article class="event-hero')
     .replace('id="work-count"', 'id="work-count" hidden')
     .replace('<div id="gallery-error"', loading+'<div id="gallery-error"')
     .replaceAll(' data-open-submission>', ' data-open-submission hidden disabled>')

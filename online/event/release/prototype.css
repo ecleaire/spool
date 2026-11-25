@@ -509,7 +509,82 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
 }
 .prototype #detail-photo-error p { margin: 0; }
 
-#event-info-status { margin: 0 0 .5rem; font-size: .875rem; }
+/* Reuse the original poster lettering and ornaments at separate responsive scales. */
+.ornament-poster, .ornament-guest, .guest-gallery-note { display: none; }
+[data-guest-navigation] :is(.event-deadline-row, .ornament-member, #works > .section-description) { display: none; }
+[data-guest-navigation] :is(.ornament-guest, .guest-gallery-note) { display: block; }
+.guest-gallery-note { margin: .75rem 0 1rem; color: #40584e; }
+.ornament-poster {
+  --poster-art: url("assets/event-christmas-2026-1200.webp");
+  position: relative; isolation: isolate; overflow: hidden;
+  align-items: center; min-height: clamp(230px,27vw,385px);
+  background: radial-gradient(ellipse at 20% 70%, #35300e, #181a09 65%);
+}
+.ornament-poster::before {
+  content: ""; position: absolute; inset: 0 0 0 auto; width: 51%; z-index: -1;
+  background: var(--poster-art) right center / 280% auto no-repeat;
+  background-color: #1d200b;
+  mask-image: linear-gradient(to right,transparent,#000 18%);
+}
+.ornament-copy { width: 58%; text-align: center; padding: clamp(12px,2vw,30px) 0; }
+.ornament-lettering {
+  width: 96%; aspect-ratio: 402 / 124; margin: 0 auto;
+  background: var(--poster-art) 8.18% top / 179.1% auto no-repeat;
+  mask-image: linear-gradient(to right,transparent,#000 3%,#000 97%,transparent),
+              linear-gradient(to bottom,transparent,#000 5%,#000 93%,transparent);
+  mask-composite: intersect;
+}
+.ornament-lettering span {
+  position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.prototype .ornament-copy .ornament-message {
+  width: fit-content; max-width: 95%; box-sizing: border-box;
+  margin: .7rem auto 0; padding: .24em 1.15em;
+  font: 750 clamp(16px,2.1vw,30px)/1.45 system-ui,sans-serif;
+  color: #fff9e9; letter-spacing: .025em;
+  background: linear-gradient(105deg,#8d2419,#b83d25 48%,#92221b);
+  border-block: 2px solid #f2cc70;
+  clip-path: polygon(0 0,100% 0,97% 50%,100% 100%,0 100%,3% 50%);
+}
+.ornament-entry { display: grid; gap: .35rem; justify-items: center; }
+.ornament-entry > span {
+  color: #372207; background: #f5d88c; border: 1px solid #a87821;
+  border-radius: .4rem; padding: .15em .7em; font-size: 1rem; font-weight: 750;
+}
+[data-guest-navigation] .event-poster-hero:not([data-custom-poster]) .ornament-poster { display: flex; }
+[data-guest-navigation] .event-poster-hero:not([data-custom-poster]) > img { display: none; }
+@media (max-width: 640px) {
+  .event-poster-hero:not([data-custom-poster]) > img { display: none; }
+  .event-poster-hero:not([data-custom-poster]) .ornament-poster {
+    display: flex; min-height: clamp(220px,60vw,340px); align-items: stretch;
+  }
+  .ornament-poster::before { width: 52%; background-position: right bottom; }
+  .ornament-copy { box-sizing: border-box; width: 100%; padding: .55rem 0 1rem; }
+  .ornament-lettering { width: 97%; margin: 0 auto; }
+  .prototype .ornament-copy .ornament-message {
+    max-width: 94%; margin: 1rem auto 0 .75rem; padding: .24em .85em;
+    font-size: clamp(14px,3.65vw,20px);
+  }
+  .ornament-entry { justify-items: start; gap: .3rem; padding: 0 .7rem; }
+  .prototype .ornament-entry .ornament-message { margin: .4rem 0 0; }
+  .ornament-entry > span { font-size: clamp(13px,3.4vw,17px); }
+}
+@media (min-width: 641px) {
+  [data-guest-navigation] .ornament-poster {
+    aspect-ratio: 3 / 1; min-height: 0; align-items: end;
+  }
+  [data-guest-navigation] .ornament-poster::before {
+    inset: 0; width: 100%; background-size: 100% 100%;
+    mask-image: linear-gradient(to right,transparent 61.5%,#000 65%),
+                linear-gradient(to bottom,#000 48%,transparent 53%);
+  }
+  [data-guest-navigation] .ornament-copy { width: 61%; padding: 0 0 5%; }
+  [data-guest-navigation] .ornament-lettering { background: none; aspect-ratio: auto; }
+}
+@media (min-resolution: 1.5dppx) {
+  .ornament-poster { --poster-art: url("assets/event-christmas-2026.webp"); }
+}
 body[data-guest-navigation] .event-section-nav { justify-content: center; }
 body[data-guest-navigation] .event-section-nav [data-event-jump="works"] {
   flex: 0 1 20rem;
