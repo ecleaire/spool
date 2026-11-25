@@ -38,7 +38,7 @@ const server=http.createServer(async(req,res)=>{
       const result=await release.fetch(new Request('https://example.invalid'+route,{method:req.method,
         headers:{Authorization:'Bearer '+token,...(req.headers['content-type']?{'Content-Type':req.headers['content-type']}:{})},
         body:chunks.length?Buffer.concat(chunks):undefined}),
-        {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:guest?'guest:browser':'mock-user',guest,allowed:true,canManageEvents:!guest&&administrator})}});
+        {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:guest?req.headers.authorization.slice(7):'mock-user',guest,allowed:true,canManageEvents:!guest&&administrator})}});
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
@@ -72,6 +72,7 @@ try{
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
   assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
+  await page.getByRole('heading',{name:'公開中の作品はまだありません'}).waitFor();
   for(const [width,dpr,file] of [[360,2,'event-christmas-2026-720.webp'],[390,3,'event-christmas-2026-1200.webp'],[1440,1,'event-christmas-2026.webp']]){
     const device=await browser.newPage({viewport:{width,height:844},deviceScaleFactor:dpr});
     try{
@@ -100,6 +101,7 @@ try{
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.waitForFunction(()=>document.querySelector('.prototype-footer #storage-state')?.textContent.includes('サーバーに保存'));
   await works;
+  await page.getByRole('heading',{name:'最初の作品を飾ろう。'}).waitFor();
   assert.ok(seen.includes('/api/session'));assert.ok(seen.includes('/api/works'));
   await page.locator('[data-open-submission]:visible').first().click();
   await page.locator('#work-title').waitFor({state:'visible'});
@@ -325,6 +327,42 @@ try{
   ]);
   assert.equal(new URL(page.url()).hash,'#works');
   await page.locator('#works-heading').waitFor({state:'visible'});
+  const visitor=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  visitor.on('pageerror',err=>errors.push(err.message));
+  await visitor.goto(origin+'/spool/event/index.html#works');
+  const guestCard=visitor.locator('.work-card').filter({hasText:'STL test'});
+  await guestCard.waitFor();
+  assert.equal(await visitor.locator('[data-open-submission]:visible').count(),0);
+  assert.equal(await visitor.getByRole('button',{name:'管理画面',exact:true}).count(),0);
+  assert.ok(await visitor.locator('#admin-panel').evaluate(el=>el.inert));
+  await guestCard.click();
+  await visitor.locator('#viewer canvas').waitFor();
+  await visitor.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
+  for(const selector of ['#edit-work','#work-visibility','#share-local-work']){
+    assert.equal(await visitor.locator(selector).isVisible(),false,selector);
+  }
+  for(const media of ['real','image']){
+    await visitor.locator('[data-media='+media+']').click();
+    await visitor.locator('#detail-photo-img').evaluate(img=>img.decode());
+  }
+  const like=visitor.locator('#detail-reactions button').first();
+  const before=Number(await like.locator('.reaction-count').innerText());
+  const visits=seen.filter(route=>route==='/api/works/'+workId+'/reactions').length;
+  await like.evaluate(b=>{for(let i=0;i<6;i++)b.click()});
+  await visitor.waitForFunction(value=>document.querySelector('#detail-reactions button')?.disabled && Number(document.querySelector('#detail-reactions .reaction-count')?.textContent)===value,before+5);
+  for(let i=0;i<100;i++){
+    if((await documents.get('reactions/'+workId+'.json').json()).counts.like===before+5)break;
+    await new Promise(r=>setTimeout(r,50));
+  }
+  assert.equal(seen.filter(route=>route==='/api/works/'+workId+'/reactions').length-visits,5);
+  assert.equal((await documents.get('reactions/'+workId+'.json').json()).counts.like,before+5);
+  await visitor.locator('#close-detail').click();
+  await visitor.locator('.work-card').filter({hasText:'星'}).click();
+  assert.ok(await like.isEnabled());
+  await visitor.reload();await guestCard.click();
+  await visitor.waitForFunction(value=>Number(document.querySelector('#detail-reactions .reaction-count')?.textContent)===value,before+5);
+  await visitor.close();
+  console.log('PASS fresh mobile guest deep link, published work, 3D model and both photos, hidden editing controls, five saved taps per work and persisted count after reload.');
   assert.deepEqual(errors,[]);
   console.log('PASS: signed-out state, existing tab login, scoped API forwarding, gallery, submission dialog, multipart form, image and model reads under /spool/.');
 }finally{await browser?.close();server.closeAllConnections();await new Promise(r=>server.close(r));await rm(output,{recursive:true,force:true})}
