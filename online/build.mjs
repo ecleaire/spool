@@ -75,5 +75,5 @@ const publicFiles=[...webAppAssets.files,'event-christmas-2026.png','favicon.svg
 if(lstatSync(hosted).isSymbolicLink())throw Error('Public output must be a regular directory');
 if(readdirSync(hosted).some(name=>name!=='event'&&((!publicFiles.includes(name)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(name))||!lstatSync(path.join(hosted,name)).isFile())))throw Error('Unexpected files in public output; review them before publication');
 for(const name of publicFiles)writeFileSync(path.join(hosted,name),readFileSync(path.join(out,name)));
-await buildEvent([out,hosted],config,eventEnabled);
+await buildEvent([out,hosted],config,eventEnabled,version);
 console.log('Built online-dist (separate from offline dist). Public connection config included; no service secrets.');

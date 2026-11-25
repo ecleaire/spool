@@ -46,13 +46,15 @@ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin='http://127.0.0.1:'+server.address().port;
 let browser;
 try{
-  await buildEvent([output],{url:origin,key:'mock-anon-key'},true);
+  const {version}=JSON.parse(await readFile(new URL('../../package.json',import.meta.url),'utf8'));
+  await buildEvent([output],{url:origin,key:'mock-anon-key'},true,version);
   browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
   const page=await browser.newPage();
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
   await page.goto(origin+'/spool/event/index.html');
   await page.getByRole('button',{name:'ログインして作品を投稿'}).first().waitFor();
   assert.equal(await page.getByRole('button',{name:'管理画面',exact:true}).count(),0);
+  assert.equal(await page.locator('.prototype-footer span').innerText(),'v'+version);
   assert.equal(await page.locator('#submission[open]').count(),0);
   await page.evaluate(token=>sessionStorage.setItem('spool-auth-127',JSON.stringify({access_token:token,refresh_token:'mock',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'mock-user'}})),token);
   const works=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/works');
@@ -62,12 +64,33 @@ try{
   assert.ok(seen.includes('/api/session'));assert.ok(seen.includes('/api/works'));
   await page.locator('[data-open-submission]:visible').first().click();
   await page.locator('#work-title').waitFor({state:'visible'});
+  const desktopSize=page.viewportSize();
+  for(const width of [320,390]){
+    await page.setViewportSize({width,height:700});
+    const checklist=page.locator('#submission .dialog-body .entry-checklist');
+    await checklist.waitFor({state:'attached'});
+    await checklist.evaluate(el=>{el.open=true;});
+    const body=await page.locator('#submission .dialog-body').boundingBox();
+    const close=await page.locator('#submission .dialog-heading [data-close-submission]').boundingBox();
+    const submit=await page.locator('#post-button').boundingBox();
+    assert.ok(body.width>=width-2 && body.height>500);
+    assert.ok(submit.y+submit.height<=body.y+1 && close.y+close.height<=body.y+1 && submit.x+submit.width<=close.x && close.x+close.width<=width);
+  }
+  await page.setViewportSize(desktopSize);
+  await page.locator('#submission .dialog-footer .entry-checklist').evaluate(el=>{el.open=false;});
   const triangle='solid star\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid star';
   const png=await page.evaluate(()=>document.createElement('canvas').toDataURL().split(',')[1]);
   for(const id of ['real-photo','model-photo'])await page.locator('#'+id).setInputFiles({name:'photo.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
   await page.locator('#work-title').fill('STL test');
   await page.locator('#work-comment').fill('triangle');
+  const modelInput=page.locator('#model-files');
+  const preview=page.locator('#submission-viewer canvas');
+  await modelInput.setInputFiles({name:'first.stl',mimeType:'application/octet-stream',buffer:Buffer.from(triangle)});
+  await preview.waitFor({state:'visible'});
+  await page.locator('[data-clear="model-files"]').click();
+  await preview.waitFor({state:'hidden'});
   await page.locator('#model-files').setInputFiles({name:'star.STL',mimeType:'application/octet-stream',buffer:Buffer.from(triangle)});
+  await preview.waitFor({state:'visible'});
   const prompts=[], choices=[false,true,false,true,true];
   page.on('dialog',async dialog=>{
     prompts.push(dialog.message());
