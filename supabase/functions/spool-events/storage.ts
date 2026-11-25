@@ -8,7 +8,9 @@ export function eventStorage(url: string, serviceKey: string, region: string, ac
   const db = createClient(url, serviceKey, {auth:{persistSession:false,autoRefreshToken:false}});
   const records = () => db.from('spool_event_records');
   const bucket = 'spool-event-files';
-  const s3 = new S3Client({region, endpoint:url+'/storage/v1/s3', forcePathStyle:true,
+  // Session and gallery metadata are in Postgres; initialize the S3 transport on file access.
+  let client:S3Client;
+  const s3 = () => client ??= new S3Client({region, endpoint:url+'/storage/v1/s3', forcePathStyle:true,
     requestHandler:new FetchHttpHandler(),defaultUserAgentProvider:async()=>[['spool-events','1']],
     requestChecksumCalculation:'WHEN_REQUIRED', responseChecksumValidation:'WHEN_REQUIRED',
     credentials:{accessKeyId, secretAccessKey}});
@@ -21,7 +23,7 @@ export function eventStorage(url: string, serviceKey: string, region: string, ac
       return data && {key,etag:data.revision,json:async()=>data.value};
     }
     try {
-      const object = head ? await s3.send(new HeadObjectCommand(target(key))) : await s3.send(new GetObjectCommand(target(key)));
+      const object = head ? await s3().send(new HeadObjectCommand(target(key))) : await s3().send(new GetObjectCommand(target(key)));
       return {key,size:object.ContentLength,etag:object.ETag,httpMetadata:{contentType:object.ContentType},
         body:'Body' in object ? (object as import('npm:@aws-sdk/client-s3@3.958.0').GetObjectCommandOutput).Body?.transformToWebStream() : undefined};
     } catch (error) {
@@ -33,12 +35,12 @@ export function eventStorage(url: string, serviceKey: string, region: string, ac
     const params = {...target(key),UploadId:uploadId};
     return {
       async uploadPart(partNumber:number, body:Uint8Array) {
-        const {ETag} = await s3.send(new UploadPartCommand({...params,PartNumber:partNumber,Body:body}));
+        const {ETag} = await s3().send(new UploadPartCommand({...params,PartNumber:partNumber,Body:body}));
         return {partNumber,etag:ETag};
       },
-      complete:(parts:{partNumber:number,etag:string}[])=>s3.send(new CompleteMultipartUploadCommand({...params,
+      complete:(parts:{partNumber:number,etag:string}[])=>s3().send(new CompleteMultipartUploadCommand({...params,
         MultipartUpload:{Parts:parts.map(p=>({PartNumber:p.partNumber,ETag:p.etag}))}})),
-      abort:()=>s3.send(new AbortMultipartUploadCommand(params))
+      abort:()=>s3().send(new AbortMultipartUploadCommand(params))
     };
   }
   return {
@@ -54,7 +56,7 @@ export function eventStorage(url: string, serviceKey: string, region: string, ac
     async put(key:string, body:string|Uint8Array|ReadableStream, options:{onlyIf?:{etagMatches?:string,etagDoesNotMatch?:string},httpMetadata?:{contentType:string}}={}) {
       if (!metadata(key)) {
         const bytes=new Uint8Array(await new Response(body as BodyInit).arrayBuffer());
-        return s3.send(new PutObjectCommand({...target(key),Body:bytes,ContentType:options.httpMetadata?.contentType}));
+        return s3().send(new PutObjectCommand({...target(key),Body:bytes,ContentType:options.httpMetadata?.contentType}));
       }
       const row={key,value:JSON.parse(body as string),revision:crypto.randomUUID()};
       const match=options.onlyIf?.etagMatches;
@@ -67,12 +69,12 @@ export function eventStorage(url: string, serviceKey: string, region: string, ac
       return data && {etag:data.revision};
     },
     async delete(key:string) {
-      if(!metadata(key)) return s3.send(new DeleteObjectCommand(target(key)));
+      if(!metadata(key)) return s3().send(new DeleteObjectCommand(target(key)));
       const {error}=await records().delete().eq('key',key);
       if(error) throw error;
     },
     async createMultipartUpload(key:string,options:{httpMetadata:{contentType:string}}) {
-      const result=await s3.send(new CreateMultipartUploadCommand({...target(key),ContentType:options.httpMetadata.contentType}));
+      const result=await s3().send(new CreateMultipartUploadCommand({...target(key),ContentType:options.httpMetadata.contentType}));
       return {uploadId:result.UploadId};
     },
     resumeMultipartUpload:multipart
