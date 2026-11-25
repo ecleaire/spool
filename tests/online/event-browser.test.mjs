@@ -19,7 +19,8 @@ const bucket={
     documents.set(key,record);return record;
   }
 };
-let resumeReactions, administrator=false;
+let resumeReactions, administrator=false, resumeSubmission;
+const heldSubmission=new Promise(resolve=>{resumeSubmission=resolve});
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
   try{
@@ -29,6 +30,7 @@ const server=http.createServer(async(req,res)=>{
       if(!guest)assert.equal(req.headers.authorization,'Bearer '+token);
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
       if(req.method==='POST' && route.endsWith('/reactions'))await slowReaction;
+      if(req.method==='POST' && route==='/api/works')await heldSubmission;
       const chunks=[];for await(const chunk of req)chunks.push(chunk);
       const result=await release.fetch(new Request('https://example.invalid'+route,{method:req.method,
         headers:{Authorization:'Bearer '+token,...(req.headers['content-type']?{'Content-Type':req.headers['content-type']}:{})},
@@ -105,12 +107,37 @@ try{
   }
   const submitted=page.waitForResponse(r=>r.url().endsWith('/api/works')&&r.request().method()==='POST');
   await page.locator('#post-button').click();
+  assert.ok(await page.locator('#work-title').isDisabled());
+  assert.ok(await page.locator('#submission .dialog-heading [data-close-submission]').isDisabled());
+  assert.ok(await page.locator('#entry-fields').evaluate(fields=>fields.inert));
+  await page.keyboard.press('Escape');
+  assert.ok(await page.locator('#submission').isVisible());
+  resumeSubmission();
   const response=await submitted;
   assert.equal(response.status(),201);
   assert.equal((await response.json()).work.model.root,'star.glb');
   assert.equal(prompts.length,5);
   assert.match(prompts[0],/glTF.*GLB/);
   const workId=(await response.json()).work.id;
+  const uploaded=await page.evaluate(async()=>{
+    const form=new FormData(), filename='star.gltf';
+    form.set('metadata',JSON.stringify({title:'星',author:'',comment:'飾り',root:filename,files:[filename]}));
+    const photo=await new Promise(resolve=>document.createElement('canvas').toBlob(resolve));
+    for(const key of ['real','image']) form.set(key,photo,key+'.png');
+    form.set('model-0',new Blob(['{"asset":{"version":"2.0"}}']),filename);
+    const response=await new Promise((resolve,reject)=>{
+      const xhr=new XMLHttpRequest();xhr.open('POST','/api/works');xhr.responseType='json';
+      xhr.onload=()=>xhr.status===201?resolve(xhr.response):reject(Error('Upload '+xhr.status));xhr.onerror=()=>reject(Error('Upload failed'));xhr.send(form);
+    });
+    const image=new Image();image.src='/api/files/'+response.work.id+'/image';
+    await image.decode();
+    const manifest=await (await fetch('/api/works/'+response.work.id+'/model')).json();
+    const model=await (await fetch(manifest.files[0].url)).json();
+    return {imageWidth:image.naturalWidth,modelVersion:model.asset.version};
+  });
+  assert.ok(uploaded.imageWidth>0);assert.equal(uploaded.modelVersion,'2.0');
+  await page.getByRole('button',{name:'一覧を更新'}).click();
+  await page.locator('.work-card').filter({hasText:'星'}).waitFor();
   await page.locator('.work-card').filter({hasText:'STL test'}).click();
   await page.locator('#viewer canvas').waitFor({state:'visible'});
   const reads=()=>seen.filter(route=>route.startsWith('/api/files/'+workId+'/model')).length;
@@ -134,28 +161,22 @@ try{
     return [like.querySelector('.reaction-count').textContent,idea.querySelector('.reaction-count').textContent,like.disabled];
   });
   assert.deepEqual(burst,['3','2',true]);
+  await page.locator('#close-detail').click();
+  await page.locator('.work-card').filter({hasText:'星'}).click();
+  const otherReaction=group.locator('button').first();
+  assert.ok(await otherReaction.isEnabled());
+  await otherReaction.click();
+  assert.equal(await otherReaction.locator('.reaction-count').textContent(),'1');
   resumeReactions();
   await page.waitForFunction(()=>!document.querySelector('#detail-reactions button').disabled);
+  for(let attempt=0;attempt<100;attempt++){
+    const saved=await documents.get('reactions/'+workId+'.json')?.json();
+    if(saved?.counts?.idea===2 && saved.counts.like===3)break;
+    await new Promise(resolve=>setTimeout(resolve,50));
+  }
   const record=await documents.get('reactions/'+workId+'.json').json();
   assert.deepEqual(record.counts,{like:3,idea:2});
   assert.equal(seen.filter(route=>route==='/api/works/'+workId+'/reactions').length,5);
-  const uploaded=await page.evaluate(async()=>{
-    const form=new FormData(), filename='star.gltf';
-    form.set('metadata',JSON.stringify({title:'星',author:'',comment:'飾り',root:filename,files:[filename]}));
-    const photo=await new Promise(resolve=>document.createElement('canvas').toBlob(resolve));
-    for(const key of ['real','image']) form.set(key,photo,key+'.png');
-    form.set('model-0',new Blob(['{"asset":{"version":"2.0"}}']),filename);
-    const response=await new Promise((resolve,reject)=>{
-      const xhr=new XMLHttpRequest();xhr.open('POST','/api/works');xhr.responseType='json';
-      xhr.onload=()=>xhr.status===201?resolve(xhr.response):reject(Error('Upload '+xhr.status));xhr.onerror=()=>reject(Error('Upload failed'));xhr.send(form);
-    });
-    const image=new Image();image.src='/api/files/'+response.work.id+'/image';
-    await image.decode();
-    const manifest=await (await fetch('/api/works/'+response.work.id+'/model')).json();
-    const model=await (await fetch(manifest.files[0].url)).json();
-    return {imageWidth:image.naturalWidth,modelVersion:model.asset.version};
-  });
-  assert.ok(uploaded.imageWidth>0);assert.equal(uploaded.modelVersion,'2.0');
   await page.locator('#close-detail').click();
   const manage=page.getByRole('button',{name:'管理画面',exact:true});
   assert.equal(await manage.count(),0);
