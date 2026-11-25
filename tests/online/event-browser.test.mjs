@@ -42,7 +42,7 @@ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin='http://127.0.0.1:'+server.address().port;
 let browser;
 try{
-  await buildEvent([output],{url:origin,key:'mock-anon-key'});
+  await buildEvent([output],{url:origin,key:'mock-anon-key'},true);
   browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
   const page=await browser.newPage();
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
