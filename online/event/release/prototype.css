@@ -329,7 +329,7 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
 .prototype input::placeholder,.prototype textarea::placeholder{color:#526b55}.prototype #admin-panel .admin-work-date,.prototype #admin-panel .admin-tabs button small{color:#4d654f}.prototype #admin-panel .admin-tabs button[aria-pressed=true] small{color:#dce9d5}
 .prototype #event-content-form[inert][data-edit-phase=saving]{opacity:.72;cursor:progress}.prototype .draft-tools button:disabled{opacity:.5;cursor:default}
 
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-width: 960px) and (max-height: 500px) {
   .prototype #submission {
     width: 100%;
     height: 100dvh;
@@ -470,3 +470,41 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
   }
   .prototype #work-detail .reaction-button .reaction-count { grid-column: 2; grid-row: 1; }
 }
+
+/* In landscape keep the model and its description side by side, using the
+   available height for the viewer instead of a portrait-sized header. */
+@media (min-width: 550px) and (max-width: 960px) and (max-height: 500px) {
+  .prototype #work-detail { width: 100%; max-height: 100dvh; border-radius: 0; }
+  .prototype #work-detail .dialog-heading { padding-block: 4px; }
+  .prototype #work-detail .dialog-body { padding: 6px 10px; }
+  .prototype #work-detail .detail-layout {
+    grid-template-columns: minmax(0,3fr) minmax(175px,2fr); gap: 10px;
+  }
+  .prototype #work-detail .detail-media .media-stage,
+  .prototype #work-detail .detail-media:has(.model-selector:not([hidden])):has(#viewer-panel:not([hidden])) .media-stage {
+    height: clamp(160px,calc(100dvh - 216px),300px);
+  }
+}
+
+/* Keep form text readable when a phone keyboard is open. */
+@media (max-width: 640px), (max-width: 960px) and (max-height: 500px) {
+  .prototype #submission :is(input:not([type="checkbox"],[type="file"],[type="color"]),select,textarea),
+  .prototype #work-detail #detail-model-select { font-size: max(16px,1em); }
+  .prototype #submission .dialog-body { scroll-padding-block: 12px; }
+}
+
+@media (min-width: 550px) and (max-width: 960px) and (max-height: 500px) {
+  .prototype #work-detail #detail-reactions .work-reactions {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .prototype #work-detail #detail-reactions .reaction-button {
+    display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 4px;
+    padding-inline: 8px; min-height: 44px;
+  }
+}
+
+.prototype #detail-photo-error {
+  position: absolute; inset: 0; display: grid; place-content: center;
+  justify-items: center; gap: 8px; padding: 12px; text-align: center;
+}
+.prototype #detail-photo-error p { margin: 0; }

@@ -19,7 +19,7 @@ const bucket={
     documents.set(key,record);return record;
   }
 };
-let resumeReactions, administrator=false, resumeSubmission;
+let resumeReactions, administrator=false, resumeSubmission, failPhoto=false;
 const heldSubmission=new Promise(resolve=>{resumeSubmission=resolve});
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
@@ -29,6 +29,7 @@ const server=http.createServer(async(req,res)=>{
       const guest=req.headers.authorization?.startsWith('Bearer guest:');
       if(!guest)assert.equal(req.headers.authorization,'Bearer '+token);
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
+      if(failPhoto && route.endsWith('/real')){res.writeHead(503).end();return;}
       if(req.method==='POST' && route.endsWith('/reactions'))await slowReaction;
       if(req.method==='POST' && route==='/api/works')await heldSubmission;
       const chunks=[];for await(const chunk of req)chunks.push(chunk);
@@ -40,7 +41,7 @@ const server=http.createServer(async(req,res)=>{
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
     const file=path.join(output,url.pathname.slice('/spool/'.length));
-    res.setHeader('Content-Type',({'html':'text/html; charset=utf-8',js:'application/javascript',css:'text/css',png:'image/png'})[file.split('.').pop()]||'application/octet-stream');
+    res.setHeader('Content-Type',({'html':'text/html; charset=utf-8',js:'application/javascript',css:'text/css',png:'image/png',webp:'image/webp'})[file.split('.').pop()]||'application/octet-stream');
     res.end(await readFile(file));
   }catch(error){res.writeHead(500).end(String(error))}
 });
@@ -56,6 +57,21 @@ try{
   await page.goto(origin+'/spool/event/index.html');
   await page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
   assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
+  for(const [width,dpr,file] of [[360,2,'event-christmas-2026-720.webp'],[390,3,'event-christmas-2026-1200.webp'],[1440,1,'event-christmas-2026.webp']]){
+    const device=await browser.newPage({viewport:{width,height:844},deviceScaleFactor:dpr});
+    try{
+      await device.goto(origin+'/spool/event/index.html');
+      await device.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
+      const poster=await device.locator('[data-event-banner]').evaluate(async image=>{
+        await image.decode();
+        return {url:image.currentSrc,bytes:performance.getEntriesByName(image.currentSrc)[0].encodedBodySize};
+      });
+      assert.ok(poster.url.endsWith('/'+file));
+      assert.equal(poster.bytes,(await readFile(path.join(output,'event/assets',file))).length);
+      assert.ok(poster.bytes>0 && poster.bytes<350000);
+    }finally{await device.close();}
+  }
+
   assert.equal(await page.getByRole('button',{name:'管理画面',exact:true}).count(),0);
   assert.equal(await page.locator('.prototype-footer span').innerText(),'v'+version);
   assert.equal(await page.locator('#submission[open]').count(),0);
@@ -68,15 +84,16 @@ try{
   await page.locator('[data-open-submission]:visible').first().click();
   await page.locator('#work-title').waitFor({state:'visible'});
   const desktopSize=page.viewportSize();
-  for(const width of [320,390]){
-    await page.setViewportSize({width,height:700});
+  const phones=[[320,568],[360,640],[375,667],[390,844],[412,915],[430,932],[480,854],[568,320],[667,375],[844,390],[932,430]];
+  for(const [width,height] of phones){
+    await page.setViewportSize({width,height});
     const checklist=page.locator('#submission .dialog-body .entry-checklist');
     await checklist.waitFor({state:'attached'});
     await checklist.evaluate(el=>{el.open=true;});
     const body=await page.locator('#submission .dialog-body').boundingBox();
     const close=await page.locator('#submission .dialog-heading [data-close-submission]').boundingBox();
     const submit=await page.locator('#post-button').boundingBox();
-    assert.ok(body.width>=width-2 && body.height>500);
+    assert.ok(body.width>=width-2 && body.height>height*0.65);
     assert.ok(submit.y+submit.height<=body.y+1 && close.y+close.height<=body.y+1 && submit.x+submit.width<=close.x && close.x+close.width<=width);
   }
   await page.setViewportSize(desktopSize);
@@ -160,7 +177,8 @@ try{
   await page.locator('.work-card').filter({hasText:'STL test'}).click();
   await page.locator('#viewer canvas').waitFor({state:'visible'});
   assert.equal(await page.locator('#work-detail .local-only').isVisible(),false);
-  for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:320,height:568}]){
+  for(const [width,height] of [...phones,[768,1024],[820,1180],[1024,1366],[1366,1024],[1440,900],[320,568]]){
+    const viewport={width,height};
     await page.setViewportSize(viewport);
     const layout=await page.locator('#work-detail .dialog-body').evaluate(body=>({
       width:body.clientWidth,contentWidth:body.scrollWidth,height:body.clientHeight,contentHeight:body.scrollHeight,
@@ -169,7 +187,7 @@ try{
     if(process.env.SPOOL_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.SPOOL_SCREENSHOT_DIR,'work-detail-'+viewport.width+'.png')});
     console.log('Work detail',viewport,layout);
     assert.ok(layout.contentWidth<=layout.width+1 && layout.viewer>=150);
-    if(viewport.width>=390)assert.ok(layout.contentHeight<=layout.height+1);
+    if(height>=844 && width>=390)assert.ok(layout.contentHeight<=layout.height+1);
   }
   const title=page.locator('#detail-title'),comment=page.locator('#detail-comment');
   const originalTitle=await title.textContent(),originalComment=await comment.textContent();
@@ -188,12 +206,26 @@ try{
   await page.locator('#detail-model-select').selectOption('star.glb');
   await page.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
   assert.equal(reads(),2);
+  failPhoto=true;
+  await page.locator('[data-media=real]').click();
+  const retryPhoto=page.getByRole('button',{name:'画像を再読み込み'});
+  await retryPhoto.waitFor({timeout:3000});
+  await page.locator('[data-media=image]').click();
+  await page.locator('#detail-photo-img').evaluate(image=>image.decode());
+  assert.equal(await retryPhoto.isVisible(),false);
+  await page.locator('[data-media=real]').click();
+  await retryPhoto.waitFor();
+  failPhoto=false;
+  const attempts=seen.filter(route=>route==='/api/files/'+workId+'/real').length;
+  await retryPhoto.click();
+  await page.locator('#detail-photo-img').evaluate(image=>image.decode());
+  assert.equal(await retryPhoto.isVisible(),false);
   for(const media of ['real','image','real']){
     await page.locator('[data-media='+media+']').click();
     await page.locator('#detail-photo-img').evaluate(image=>image.decode());
     assert.equal(await page.locator('#detail-model-select').isVisible(),false);
   }
-  assert.equal(seen.filter(route=>route==='/api/files/'+workId+'/real').length,1);
+  assert.equal(seen.filter(route=>route==='/api/files/'+workId+'/real').length,attempts+1);
   const group=page.locator('#detail-reactions');
   await group.locator('button').first().waitFor();
   const burst=await group.evaluate(node=>{
