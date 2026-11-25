@@ -559,13 +559,30 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
   .event-poster-hero:not([data-custom-poster]) .ornament-poster {
     display: flex; min-height: clamp(220px,60vw,340px); align-items: stretch;
   }
-  .ornament-poster::before { width: 52%; background-position: right bottom; }
-  .ornament-copy { box-sizing: border-box; width: 100%; padding: .55rem 0 1rem; }
-  .ornament-lettering { width: 97%; margin: 0 auto; }
+  .ornament-poster::before {
+    inset: auto 0 0 auto; width: 49%; aspect-ratio: 1.12;
+    background-position: right bottom;
+    mask-image: linear-gradient(to right,transparent,#000 15%),linear-gradient(to bottom,transparent,#000 20%);
+    mask-composite: intersect;
+  }
+  .ornament-copy { box-sizing: border-box; width: 100%; padding: 0 0 .85rem; }
+  .ornament-lettering {
+    width: 100%; margin: 0;
+    mask-image: linear-gradient(to bottom,#000 92%,transparent);
+  }
+  [data-guest-navigation] .ornament-copy {
+    display: grid; grid-template-rows: auto 1fr; padding: 0;
+  }
   .prototype .ornament-copy .ornament-message {
     max-width: 94%; margin: 1rem auto 0 .75rem; padding: .24em .85em;
     font-size: clamp(14px,3.65vw,20px);
   }
+  .prototype .ornament-copy .ornament-guest {
+    align-self: center; justify-self: start;
+    width: 49%; margin: .45rem 0 .65rem 2%; padding: .35em .3em;
+    font-size: clamp(14px,3.9vw,21px);
+  }
+  .ornament-guest span { display: block; }
   .ornament-entry { justify-items: start; gap: .3rem; padding: 0 .7rem; }
   .prototype .ornament-entry .ornament-message { margin: .4rem 0 0; }
   .ornament-entry > span { font-size: clamp(13px,3.4vw,17px); }
@@ -579,7 +596,7 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
     mask-image: linear-gradient(to right,transparent 61.5%,#000 65%),
                 linear-gradient(to bottom,#000 48%,transparent 53%);
   }
-  [data-guest-navigation] .ornament-copy { width: 61%; padding: 0 0 5%; }
+  [data-guest-navigation] .ornament-copy { position: absolute; top: 59%; width: 61%; padding: 0; }
   [data-guest-navigation] .ornament-lettering { background: none; aspect-ratio: auto; }
 }
 @media (min-resolution: 1.5dppx) {

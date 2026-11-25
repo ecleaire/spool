@@ -108,6 +108,13 @@ try{
       assert.equal(await device.locator('.ornament-entry').isVisible(),false);
       assert.equal(await device.locator('[data-event-banner]').isVisible(),false);
       assert.ok(await device.locator('.ornament-guest').isVisible());
+      if(width<=640){
+        const title=await device.locator('.ornament-lettering').boundingBox();
+        const ribbon=await device.locator('.ornament-guest').boundingBox();
+        const cover=await device.locator('.ornament-poster').boundingBox();
+        assert.ok(ribbon.y>=title.y+title.height && ribbon.y+ribbon.height<=cover.y+cover.height+1);
+        assert.ok(ribbon.x+ribbon.width<=cover.x+cover.width*.52);
+      }
       assert.ok(await device.locator('#works .guest-gallery-note').isVisible());
       assert.ok(await device.locator('.ornament-poster').evaluate(el=>el.scrollWidth<=el.clientWidth));
       assert.ok(await device.evaluate(file=>performance.getEntriesByType('resource').some(r=>r.name.endsWith('/assets/'+file) && r.encodedBodySize>0 && r.encodedBodySize<350000),dpr>1?'event-christmas-2026.webp':'event-christmas-2026-1200.webp'));
