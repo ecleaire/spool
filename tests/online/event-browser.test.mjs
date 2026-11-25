@@ -11,8 +11,13 @@ import release from '../../supabase/functions/spool-events/release.mjs';
 const output=await mkdtemp(path.join(os.tmpdir(),'spool-event-browser-'));
 const token='mock.access.token', seen=[], documents=new Map();
 const bucket={
-  get:async key=>documents.get(key),list:async()=>({objects:[],truncated:false}),
-  put:async(key,value)=>{const record={etag:crypto.randomUUID(),json:async()=>JSON.parse(value)};documents.set(key,record);return record}
+  get:async key=>documents.get(key),
+  list:async({prefix})=>({objects:[...documents.keys()].filter(key=>key.startsWith(prefix)).map(key=>({key})),truncated:false}),
+  async put(key,value,options){
+    const record=key.endsWith('.json')?{etag:crypto.randomUUID(),json:async()=>JSON.parse(value)}:
+      {body:await new Response(value).blob(),httpMetadata:options.httpMetadata};
+    documents.set(key,record);return record;
+  }
 };
 const server=http.createServer(async(req,res)=>{
   try{
@@ -20,7 +25,10 @@ const server=http.createServer(async(req,res)=>{
     if(url.pathname.startsWith('/functions/v1/spool-events/api/')){
       assert.equal(req.headers.authorization,'Bearer '+token);
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
-      const result=await release.fetch(new Request('https://example.invalid'+route,{headers:{Authorization:'Bearer '+token}}),
+      const chunks=[];for await(const chunk of req)chunks.push(chunk);
+      const result=await release.fetch(new Request('https://example.invalid'+route,{method:req.method,
+        headers:{Authorization:'Bearer '+token,...(req.headers['content-type']?{'Content-Type':req.headers['content-type']}:{})},
+        body:chunks.length?Buffer.concat(chunks):undefined}),
         {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:'mock-user',allowed:true,canManageEvents:false})}});
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
@@ -49,6 +57,23 @@ try{
   assert.ok(seen.includes('/api/session'));assert.ok(seen.includes('/api/works'));
   await page.locator('[data-open-submission]:visible').first().click();
   await page.locator('#work-title').waitFor({state:'visible'});
+  const uploaded=await page.evaluate(async()=>{
+    const form=new FormData(), filename='star.gltf';
+    form.set('metadata',JSON.stringify({title:'星',author:'',comment:'飾り',root:filename,files:[filename]}));
+    const photo=await new Promise(resolve=>document.createElement('canvas').toBlob(resolve));
+    for(const key of ['real','image']) form.set(key,photo,key+'.png');
+    form.set('model-0',new Blob(['{"asset":{"version":"2.0"}}']),filename);
+    const response=await new Promise((resolve,reject)=>{
+      const xhr=new XMLHttpRequest();xhr.open('POST','/api/works');xhr.responseType='json';
+      xhr.onload=()=>xhr.status===201?resolve(xhr.response):reject(Error('Upload '+xhr.status));xhr.onerror=()=>reject(Error('Upload failed'));xhr.send(form);
+    });
+    const image=new Image();image.src='/api/files/'+response.work.id+'/image';
+    await image.decode();
+    const manifest=await (await fetch('/api/works/'+response.work.id+'/model')).json();
+    const model=await (await fetch(manifest.files[0].url)).json();
+    return {imageWidth:image.naturalWidth,modelVersion:model.asset.version};
+  });
+  assert.ok(uploaded.imageWidth>0);assert.equal(uploaded.modelVersion,'2.0');
   assert.deepEqual(errors,[]);
-  console.log('PASS: signed-out state, existing tab login, scoped API forwarding, gallery and submission dialog under /spool/.');
+  console.log('PASS: signed-out state, existing tab login, scoped API forwarding, gallery, submission dialog, multipart form, image and model reads under /spool/.');
 }finally{await browser?.close();server.closeAllConnections();await new Promise(r=>server.close(r));await rm(output,{recursive:true,force:true})}

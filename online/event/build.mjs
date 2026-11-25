@@ -21,6 +21,8 @@ export async function buildEvent(outputs,config){
   const policy="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' "+config.url+" blob: data:; worker-src 'self' blob:; form-action 'none'; base-uri 'none'; object-src 'none'";
   const html=readFileSync(new URL('index.html',source),'utf8')
     .replace('<meta charset="utf-8">','<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'+policy+'">')
+    .replace('href="#" class="prototype-brand" aria-label="イベントトップ"','href="../" class="prototype-brand" aria-label="SPOOLに戻る"')
+    .replace(/class="(test-badge|test-notice|local-data)"/g,'hidden class="$1"')
     .replace('src="app.js"','src="bootstrap.js"')
     .replace('<a class="skip"','<div id="event-loading" role="status"><span>イベントを読み込んでいます…</span> <a href="../">SPOOLに戻る</a></div><div id="event-content" hidden><a class="skip"')
     .replace('</body>','</div></body>');
