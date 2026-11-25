@@ -516,6 +516,8 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
 .guest-gallery-note { margin: .75rem 0 1rem; color: #40584e; }
 .ornament-poster {
   --poster-art: url("assets/event-christmas-2026-1200.webp");
+  --title-art: url("assets/ornament-title.webp");
+  --guest-tree: url("assets/ornament-tree.webp");
   position: relative; isolation: isolate; overflow: hidden;
   align-items: center; min-height: clamp(230px,27vw,385px);
   background: radial-gradient(ellipse at 20% 70%, #35300e, #181a09 65%);
@@ -529,7 +531,7 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
 .ornament-copy { width: 58%; text-align: center; padding: clamp(12px,2vw,30px) 0; }
 .ornament-lettering {
   width: 96%; aspect-ratio: 402 / 124; margin: 0 auto;
-  background: var(--poster-art) 8.18% top / 179.1% auto no-repeat;
+  background: var(--title-art) 86.8% top / 107.45% auto no-repeat;
   mask-image: linear-gradient(to right,transparent,#000 3%,#000 97%,transparent),
               linear-gradient(to bottom,transparent,#000 5%,#000 93%,transparent);
   mask-composite: intersect;
@@ -555,7 +557,7 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
 [data-guest-navigation] .event-poster-hero:not([data-custom-poster]) .ornament-poster { display: flex; }
 [data-guest-navigation] .event-poster-hero:not([data-custom-poster]) > img { display: none; }
 [data-guest-navigation] .ornament-poster::before {
-  background: url("assets/ornament-tree.webp") right center / cover no-repeat;
+  background: var(--guest-tree) right center / cover no-repeat;
 }
 @media (max-width: 640px) {
   .event-poster-hero:not([data-custom-poster]) > img { display: none; }
@@ -577,27 +579,27 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
     width: 100%; aspect-ratio: auto; margin: 0;
     background: none; mask-image: none;
   }
-  /* Four bands from the original 720 × 240 artwork, each centered on its lettering. */
+  /* Center each line within the title crop from the original poster. */
   .ornament-lettering span {
     position: static; width: 100%; height: auto; aspect-ratio: 402 / var(--band-height); clip-path: none;
-    font-size: 0; background: var(--poster-art) no-repeat;
-    background-size: 179.1% auto;
+    font-size: 0; background: var(--title-art) no-repeat;
+    background-size: 107.45% auto;
     mix-blend-mode: screen; filter: contrast(1.45);
   }
   .ornament-lettering span:nth-child(1) {
-    --band-height: 42; width: 92%; margin-bottom: .4rem; background-position: 2.83% top;
+    --band-height: 42; width: 92%; margin-bottom: .4rem; background-position: 30% top;
     mix-blend-mode: normal; filter: none;
     clip-path: polygon(20% 15%, 83% 6%, 81% 48%, 84% 100%, 20% 100%, 22% 52%);
   }
   .ornament-lettering span:nth-child(2) {
-    --band-height: 23; margin-bottom: .12rem; background-position: 5.66% 19.35%;
+    --band-height: 23; margin-bottom: .12rem; background-position: 60% 40.79%;
     clip-path: inset(0 24%);
   }
   .ornament-lettering span:nth-child(3) {
-    --band-height: 34; background-position: 8.02% 31.55%; clip-path: inset(0 10%);
+    --band-height: 34; background-position: 85.2% 70.68%; clip-path: inset(0 10%);
   }
   .ornament-lettering span:nth-child(4) {
-    --band-height: 25; width: 96%; margin-top: .3rem; background-position: 6.60% 46.05%;
+    --band-height: 25; width: 96%; margin-top: .3rem; background-position: 70.1% 98.05%;
     clip-path: inset(0 12% 17%);
   }
   [data-guest-navigation] .ornament-poster::before {
@@ -641,7 +643,13 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
   }
 }
 @media (min-resolution: 1.5dppx) {
-  .ornament-poster { --poster-art: url("assets/event-christmas-2026.webp"); }
+  .ornament-poster {
+    --poster-art: url("assets/event-christmas-2026.webp");
+    --guest-tree: url("assets/ornament-tree-hd.webp");
+  }
+}
+@media (min-resolution: 1.5dppx), (min-width: 1240px) {
+  .ornament-poster { --title-art: url("assets/ornament-title-hd.webp"); }
 }
 body[data-guest-navigation] .event-section-nav { justify-content: center; }
 body[data-guest-navigation] .event-section-nav [data-event-jump="works"] {

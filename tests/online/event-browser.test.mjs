@@ -86,7 +86,7 @@ try{
   await page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
   assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
   await page.getByRole('heading',{name:'公開中の作品はまだありません'}).waitFor();
-  for(const [width,dpr] of [[320,2],[390,3],[1440,1]]){
+  for(const [width,dpr] of [[320,2],[390,3],[640,1],[1440,1]]){
     const device=await browser.newPage({viewport:{width,height:844},deviceScaleFactor:dpr});
     try{
       await device.goto(origin+'/spool/event/index.html');
@@ -122,7 +122,13 @@ try{
       }
       assert.ok(await device.locator('#works .guest-gallery-note').isVisible());
       assert.ok(await device.locator('.ornament-poster').evaluate(el=>el.scrollWidth<=el.clientWidth));
-      assert.ok(await device.evaluate(file=>performance.getEntriesByType('resource').some(r=>r.name.endsWith('/assets/'+file) && r.encodedBodySize>0 && r.encodedBodySize<350000),dpr>1?'event-christmas-2026.webp':'event-christmas-2026-1200.webp'));
+      const artwork=await device.evaluate(()=>performance.getEntriesByType('resource')
+        .filter(entry=>entry.encodedBodySize>0 && entry.name.includes('/assets/ornament-'))
+        .map(entry=>entry.name.split('/').pop()).sort());
+      assert.deepEqual(artwork,[
+        dpr>=1.5 || width>=1240?'ornament-title-hd.webp':'ornament-title.webp',
+        dpr>=1.5?'ornament-tree-hd.webp':'ornament-tree.webp'
+      ]);
     }finally{await device.close();}
   }
 
