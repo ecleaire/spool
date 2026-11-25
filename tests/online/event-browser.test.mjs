@@ -89,7 +89,7 @@ try{
   await preview.waitFor({state:'visible'});
   await page.locator('[data-clear="model-files"]').click();
   await preview.waitFor({state:'hidden'});
-  await page.locator('#model-files').setInputFiles({name:'star.STL',mimeType:'application/octet-stream',buffer:Buffer.from(triangle)});
+  await modelInput.setInputFiles(['star.STL','second.stl'].map(name=>({name,mimeType:'application/octet-stream',buffer:Buffer.from(triangle)})));
   await preview.waitFor({state:'visible'});
   const prompts=[], choices=[false,true,false,true,true];
   page.on('dialog',async dialog=>{
@@ -112,6 +112,15 @@ try{
   assert.match(prompts[0],/glTF.*GLB/);
   const workId=(await response.json()).work.id;
   await page.locator('.work-card').filter({hasText:'STL test'}).click();
+  await page.locator('#viewer canvas').waitFor({state:'visible'});
+  const reads=()=>seen.filter(route=>route.startsWith('/api/files/'+workId+'/model')).length;
+  assert.equal(reads(),1);
+  await page.locator('#detail-model-select').selectOption('second.glb');
+  await page.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
+  assert.equal(reads(),2);
+  await page.locator('#detail-model-select').selectOption('star.glb');
+  await page.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
+  assert.equal(reads(),2);
   const group=page.locator('#detail-reactions');
   await group.locator('button').first().waitFor();
   const burst=await group.evaluate(node=>{

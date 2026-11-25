@@ -27,6 +27,7 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     .replace('src="app.js"','src="bootstrap.js"')
     .replace('<a class="skip"','<div id="event-loading" role="status"><span>イベントを読み込んでいます…</span> <a href="../">SPOOLに戻る</a></div><div id="event-content" hidden><a class="skip"')
     .replace('</body>','</div></body>');
+  const liveHtml=html.replace('<script type="module" src="bootstrap.js"','<link rel="modulepreload" href="app.js"><script type="module" src="bootstrap.js"');
   // Publish the release layout immediately; keep the authenticated form available for commissioning.
   const preview=html.slice(0,html.indexOf('<dialog id="work-detail"'))
     .replace('src="bootstrap.js"','src="announcement.js"')
@@ -43,9 +44,9 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     checkDirectory(dir,[...assets,'index.html','bootstrap.js','event-worker.js','submissions.html','announcement.js']);
     mkdirSync(path.join(dir,'assets'),{recursive:true});
     for(const asset of assets)writeFileSync(path.join(dir,asset),readFileSync(new URL(asset,source)));
-    writeFileSync(path.join(dir,'submissions.html'),html);
+    writeFileSync(path.join(dir,'submissions.html'),liveHtml);
     writeFileSync(path.join(dir,'announcement.js'),readFileSync(new URL('./announcement.js',import.meta.url)));
-    writeFileSync(path.join(dir,'index.html'),submissionsOpen?html:preview);
+    writeFileSync(path.join(dir,'index.html'),submissionsOpen?liveHtml:preview);
     writeFileSync(path.join(dir,'event-worker.js'),worker);
     writeFileSync(path.join(dir,'bootstrap.js'),boot.outputFiles[0].contents);
   }

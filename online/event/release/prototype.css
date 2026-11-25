@@ -355,3 +355,23 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
   }
   .prototype .gallery-controls #sort-by { width: 100%; font-size: 16px; }
 }
+
+.prototype #eventView #eventOverview > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+}
+.prototype #eventView #eventOverview > summary::-webkit-details-marker { display: none; }
+.prototype #eventView #eventOverview > summary::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  flex: none;
+  margin-inline-end: 5px;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.prototype #eventView #eventOverview[open] > summary::after { transform: rotate(225deg); }
