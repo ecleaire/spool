@@ -43,13 +43,18 @@ const catalogOriginalGallery=$('#openLibrary').onclick;$('#openLibrary').onclick
 html=html.replace('</body>',()=>'<script>'+lazyCatalog+'</script></body>');
 const bridge=`window.spoolBridge={displayAccount:restoreDisplayPreferences,snapshot:()=>structuredClone(currentOfflineState()),apply:(state,{preserveSelection=false}={})=>{if(!validOfflineState(state))throw Error('ライブラリのデータ形式が不正です');items=enrichAmazonLinks(state.items);const linked=items!==state.items;deleted=state.deleted;customColorPresets=state.customColorPresets;reservations=state.reservations;if(!preserveSelection)selected.clear();reorderMode=false;render();renderBookings();return linked},valid:validOfflineState,navigate:showBookingView,events:showEventView,selected:()=>[...selected],repaint:()=>{render();renderBookings()},editContext:()=>({filament:editId,booking:bookingEditId}),notify:toast,esc};`;
 html=html.replace('</body>',()=>'<script>'+bridge+'</script><script type="module" src="./online.js"></script></body>');
-const styleVersion=createHash('sha256').update(readFileSync(path.join(root,'online/style.css'))).digest('hex').slice(0,16);
+// Keep static styles in the versioned public cache across page navigations.
+const styles=[];
+html=html.replace(/<style>([\s\S]*?)<\/style>/gi,(_,css)=>{styles.push(css);return ''});
+styles.push(readFileSync(path.join(root,'online/style.css'),'utf8'));
+const {code:onlineStyles}=await transform(styles.join('\n'),{loader:'css',minify:true,charset:'utf8'});
+const styleVersion=createHash('sha256').update(onlineStyles).digest('hex').slice(0,16);
 html=html.replace('</head>','<link rel="stylesheet" href="./online.css?v='+styleVersion+'"></head>');
 html=html.replace('<p id="appBuild">オフライン版</p>','<p id="appBuild">オンライン版'+(sourceSha?' · '+sourceSha.slice(0,7)+'<br><a href="https://github.com/ecleaire/spool/commit/'+sourceSha+'" target="_blank" rel="noopener noreferrer">ソースを確認 ↗</a>':'')+'</p>');
 const out=path.join(root,'online-dist');mkdirSync(out,{recursive:true});
 writeFileSync(path.join(out,catalogFile),catalogText);
 writeFileSync(path.join(out,'config.json'),JSON.stringify(config));
-writeFileSync(path.join(out,'online.css'),readFileSync(path.join(root,'online/style.css')));
+writeFileSync(path.join(out,'online.css'),onlineStyles);
 writeFileSync(path.join(out,'offline.html'),readFileSync(path.join(root,'dist/index.html')));
 await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true,define:{__SPOOL_VERSION__:JSON.stringify(version),__SPOOL_BUILD__:JSON.stringify(sourceSha)}});
 const digest=code=>'sha256-'+createHash('sha256').update(code).digest('base64');
@@ -58,7 +63,6 @@ html=html.replace('src="./online.js"','src="./online.js?v='+createHash('sha256')
 // Smaller executable text while retaining global bindings shared by inline modules.
 const scriptMatches=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('application/json'));
 for(const match of scriptMatches){const result=await transform(match[2],{loader:'js',target:'es2022',minifyWhitespace:true,minifySyntax:true,minifyIdentifiers:false,charset:'utf8'});html=html.replace(match[0],()=>'<script'+match[1]+'>'+result.code.replace(/<\/script/gi,'<\\/script')+'</script>');}
-const styleMatches=[...html.matchAll(/<style>([\s\S]*?)<\/style>/gi)];for(const match of styleMatches){const result=await transform(match[1],{loader:'css',minify:true,charset:'utf8'});html=html.replace(match[0],()=>'<style>'+result.code+'</style>');}
 const inlineHashes=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('application/json')).map(x=>digest(x[2].replace(/\r\n?/g,'\n')));
 const policy=["default-src 'none'",'script-src '+[...inlineHashes,bundleHash].map(x=>"'"+x+"'").join(' '),"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data: blob:","font-src 'self'","connect-src 'self' "+config.url+' '+config.url.replace('https:','wss:'),"object-src 'none'","base-uri 'none'","form-action 'self'","frame-src 'none'","worker-src 'self'","manifest-src 'self'"].join('; ');
 const webAppAssets=writeWebAppAssets({root,out,version,html,bundleHash,styleVersion,catalogFile});
