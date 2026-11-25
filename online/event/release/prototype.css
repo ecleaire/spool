@@ -570,9 +570,21 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
   }
   .ornament-copy { box-sizing: border-box; width: 100%; padding: 0 0 .85rem; }
   .ornament-lettering {
+    display: grid; grid-template-rows: 42fr 23fr 34fr 25fr;
     width: 100%; margin: 0;
     mask-image: linear-gradient(to bottom,#000 92%,transparent);
   }
+  /* Four bands from the original 720 × 240 artwork, each centered on its lettering. */
+  .ornament-lettering span {
+    position: static; width: auto; height: auto; clip-path: none;
+    font-size: 0; background: var(--poster-art) no-repeat;
+    background-size: 179.1% auto;
+    mask-image: linear-gradient(to right,transparent 6%,#000 10% 90%,transparent 94%);
+  }
+  .ornament-lettering span:nth-child(1) { background-position: 2.83% top; }
+  .ornament-lettering span:nth-child(2) { background-position: 5.66% 19.35%; }
+  .ornament-lettering span:nth-child(3) { background-position: 8.02% 31.55%; }
+  .ornament-lettering span:nth-child(4) { background-position: 6.60% 46.05%; }
   [data-guest-navigation] .ornament-poster::before {
     inset: 0; width: 100%; aspect-ratio: auto;
     mask-image: linear-gradient(to bottom,transparent 12%,#000 55%);
@@ -591,7 +603,7 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
     font-size: clamp(14px,3.9vw,21px);
   }
   .ornament-guest span { display: inline-block; }
-  .ornament-entry { justify-items: start; gap: .3rem; padding: 0 .7rem; }
+  .ornament-entry { gap: .3rem; padding: 0 .7rem; }
   .prototype .ornament-entry .ornament-message { margin: .4rem 0 0; }
   .ornament-entry > span { font-size: clamp(13px,3.4vw,17px); }
 }
