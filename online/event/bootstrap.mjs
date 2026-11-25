@@ -39,13 +39,10 @@ async function start(){
     });
   }
   await import('./app.js');
-  document.querySelector('#event-loading').hidden=true;
-  document.querySelector('#event-content').hidden=false;
-  if(location.hash==='#works')document.querySelector('#works').scrollIntoView();
 }
 start().catch(error=>{
   const unsupported=!('serviceWorker' in navigator);
   document.querySelector('#event-loading span').textContent=unsupported
     ? error.message
-    : 'イベントを開けませんでした。通信状態を確認して再読み込みしてください。';
+    : '最新の案内と応募作品を読み込めませんでした。通信状態を確認して再読み込みしてください。';
 });

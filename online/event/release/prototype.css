@@ -509,8 +509,13 @@ body[data-environment=production] .test-badge,body[data-environment=production] 
 }
 .prototype #detail-photo-error p { margin: 0; }
 
+#event-info-status { margin: 0 0 .5rem; font-size: .875rem; }
+#gallery-error:not([hidden]) ~ #empty-gallery,
+body[data-gallery-loading] :is(.event-section-nav, #work-count, .gallery-controls, #empty-gallery, #search-empty) {
+  display: none !important;
+}
 #event-loading {
-  max-width: 32rem; margin: 8vh auto; padding: 1.25rem;
+  padding-block: 1rem;
 }
 #event-loading [role="status"] { display: block; font-weight: 600; }
 #event-loading a {

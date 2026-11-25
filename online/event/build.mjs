@@ -24,21 +24,25 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     .replace('href="#" class="prototype-brand" aria-label="イベントトップ"','href="../" class="prototype-brand" aria-label="SPOOLに戻る"')
     .replace(/class="(test-badge|test-notice|local-data)"/g,'hidden class="$1"')
     .replace(/<footer class="prototype-footer">.*?<\/span>/,'<footer class="prototype-footer">SPOOL EVENT <span>v'+version+'</span>')
-    .replace('src="app.js"','src="bootstrap.js"')
-    .replace('<a class="skip"','<div id="event-loading"><span role="status">イベントを読み込んでいます…</span><noscript>イベントを表示するにはJavaScriptを有効にしてください。</noscript><div><a id="event-retry" href="">再読み込み</a> <a href="../">SPOOLに戻る</a></div></div><div id="event-content" hidden><a class="skip"')
-    .replace('</body>','</div></body>');
-  const liveHtml=html.replaceAll(' data-open-submission>', ' data-open-submission hidden disabled>').replace('<script type="module" src="bootstrap.js"','<link rel="modulepreload" href="app.js"><script type="module" src="bootstrap.js"');
+    .replace('src="app.js"','src="bootstrap.js"');
+  const loading='<div id="event-loading"><span role="status">応募作品を読み込んでいます…</span><noscript>応募作品を見るにはJavaScriptを有効にしてください。</noscript><div><a href="">再読み込み</a> <a href="../">SPOOLに戻る</a></div></div>';
+  const liveHtml=html
+    .replace('<body ', '<body data-gallery-loading ')
+    .replace('<article class="event-hero', '<p id="event-info-status">ページ公開時のイベント案内を表示しています。</p><article class="event-hero')
+    .replace('id="work-count"', 'id="work-count" hidden')
+    .replace('<div id="gallery-error"', loading+'<div id="gallery-error"')
+    .replaceAll(' data-open-submission>', ' data-open-submission hidden disabled>')
+    .replace('<script type="module" src="bootstrap.js"','<link rel="modulepreload" href="app.js"><script type="module" src="bootstrap.js"');
   // Publish the release layout immediately; keep the authenticated form available for commissioning.
   const preview=html.slice(0,html.indexOf('<dialog id="work-detail"'))
     .replace('src="bootstrap.js"','src="announcement.js"')
-    .replace(/<div id="event-loading".*?<div id="event-content" hidden>/,'<div id="event-content">')
     .replace('<div class="event-entry-action">','<p style="text-align:center;margin:1em 0 .25em">作品投稿は受付開始前です。</p><div class="event-entry-action">')
     .replace('<div class="gallery-controls">','<div class="gallery-controls" hidden>')
     .replace(/<h3>最初の作品を飾ろう。<\/h3><p>.*?<\/p>/,'<h3>作品の公開をお待ちください</h3><p>受付開始後、投稿された作品をここで紹介します。</p>')
     .replace('<fieldset id="entry-fields">','<fieldset id="entry-fields" disabled>')
     .replace('id="post-button">','id="post-button" disabled>')
     .replace('<p class="form-intro">','<p class="form-intro">受付開始前のため、現在は入力項目を確認できます。')
-    +'</div></body></html>';
+    +'</body></html>';
   for(const parent of outputs){
     const dir=path.join(parent,'event');
     checkDirectory(dir,[...assets,'index.html','bootstrap.js','event-worker.js','submissions.html','announcement.js']);

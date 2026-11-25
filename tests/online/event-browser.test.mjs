@@ -59,11 +59,23 @@ try{
   await page.addInitScript(()=>{
     if(sessionStorage.getItem('worker-retry-tested'))return;
     sessionStorage.setItem('worker-retry-tested','1');
-    navigator.serviceWorker.register=async()=>{throw Error('Registration failed')};
+    navigator.serviceWorker.register=()=>new Promise((resolve,reject)=>{
+      window.failWorkerRegistration=()=>reject(Error('Registration failed'));
+    });
   });
   unavailableRoute='/api/session';
   await page.goto(origin+'/spool/event/index.html');
-  await page.getByText('イベントを開けませんでした。',{exact:false}).waitFor();
+  await page.waitForFunction(()=>typeof window.failWorkerRegistration==='function');
+  assert.ok(await page.locator('#eventAwardsHeading').isVisible());
+  assert.ok(await page.locator('#event-loading').isVisible());
+  assert.equal(await page.locator('#empty-gallery').isVisible(),false);
+  await page.evaluate(()=>window.failWorkerRegistration());
+  await page.getByText('最新の案内と応募作品を読み込めませんでした。',{exact:false}).waitFor();
+  await page.locator('#eventOverview summary').focus();
+  await page.keyboard.press('Enter');
+  await page.locator('#event-deadline').waitFor();
+  assert.ok(await page.locator('#eventAwardsHeading').isVisible());
+  assert.equal(await page.locator('#work-count').isVisible(),false);
   await page.getByRole('link',{name:'再読み込み'}).click();
   await page.locator('#gallery-error').waitFor();
   assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
@@ -335,7 +347,23 @@ try{
   assert.equal(await visitor.locator('[data-open-submission]:visible').count(),0);
   assert.equal(await visitor.getByRole('button',{name:'管理画面',exact:true}).count(),0);
   assert.ok(await visitor.locator('#admin-panel').evaluate(el=>el.inert));
-  await guestCard.click();
+  unavailableRoute='/api/works';
+  await visitor.getByRole('button',{name:'一覧を更新'}).click();
+  await visitor.locator('#gallery-error').waitFor();
+  assert.ok(await guestCard.isVisible());
+  assert.equal(await visitor.locator('#empty-gallery').isVisible(),false);
+  await visitor.locator('.work-card').filter({hasText:'星'}).click();
+  await visitor.locator('#work-detail[open]').waitFor();
+  await visitor.keyboard.press('Escape');
+  unavailableRoute=undefined;
+  await visitor.getByRole('button',{name:'一覧を更新'}).click();
+  await visitor.locator('#gallery-error').waitFor({state:'hidden'});
+  await guestCard.focus();
+  await visitor.keyboard.press('Enter');
+  await visitor.locator('#work-detail[open]').waitFor();
+  await visitor.keyboard.press('Escape');
+  assert.ok(await guestCard.evaluate(card=>document.activeElement===card));
+  await visitor.keyboard.press('Enter');
   await visitor.locator('#viewer canvas').waitFor();
   await visitor.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
   for(const selector of ['#edit-work','#work-visibility','#share-local-work']){
