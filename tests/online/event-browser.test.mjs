@@ -19,7 +19,7 @@ const bucket={
     documents.set(key,record);return record;
   }
 };
-let resumeReactions;
+let resumeReactions, administrator=false;
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
   try{
@@ -32,7 +32,7 @@ const server=http.createServer(async(req,res)=>{
       const result=await release.fetch(new Request('https://example.invalid'+route,{method:req.method,
         headers:{Authorization:'Bearer '+token,...(req.headers['content-type']?{'Content-Type':req.headers['content-type']}:{})},
         body:chunks.length?Buffer.concat(chunks):undefined}),
-        {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:'mock-user',allowed:true,canManageEvents:false})}});
+        {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:'mock-user',allowed:true,canManageEvents:administrator})}});
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
@@ -117,6 +117,19 @@ try{
     return {imageWidth:image.naturalWidth,modelVersion:model.asset.version};
   });
   assert.ok(uploaded.imageWidth>0);assert.equal(uploaded.modelVersion,'2.0');
+  await page.locator('#close-detail').click();
+  const manage=page.getByRole('button',{name:'管理画面',exact:true});
+  assert.equal(await manage.count(),0);
+  assert.ok(await page.locator('#admin-panel').evaluate(panel=>panel.inert && !panel.open));
+  administrator=true;
+  await page.getByRole('button',{name:'一覧を更新'}).click();
+  await manage.click();
+  await page.locator('#admin-panel[open]').waitFor();
+  await page.locator('#admin-close').click();
+  administrator=false;
+  await page.getByRole('button',{name:'一覧を更新'}).click();
+  await page.waitForFunction(()=>document.querySelector('#admin-panel')?.inert&&!document.querySelector('#admin-panel')?.open);
+  assert.equal(await manage.count(),0);
   assert.deepEqual(errors,[]);
   console.log('PASS: signed-out state, existing tab login, scoped API forwarding, gallery, submission dialog, multipart form, image and model reads under /spool/.');
 }finally{await browser?.close();server.closeAllConnections();await new Promise(r=>server.close(r));await rm(output,{recursive:true,force:true})}
