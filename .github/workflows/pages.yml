@@ -41,6 +41,8 @@ jobs:
       - name: Check data permissions and synchronization
         run: npm --prefix online test
       - name: Build public files
+        env:
+          SPOOL_EVENT_ENABLED: ${{ vars.SPOOL_EVENT_ENABLED }}
         run: node online/build.mjs
       - name: Verify browser security policy and bundle integrity
         run: node tests/online/hardening.test.mjs
@@ -48,7 +50,9 @@ jobs:
         env:
           SPOOL_TEST_BASE_PATH: /spool/
           SPOOL_CHROMIUM_PATH: /usr/bin/google-chrome
-        run: node tools/run-browser-tests.mjs
+        run: |
+          node tools/run-browser-tests.mjs
+          node tests/online/event-browser.test.mjs
       - name: Configure Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - name: Upload public files only

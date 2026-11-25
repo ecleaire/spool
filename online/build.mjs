@@ -1,3 +1,4 @@
+import {buildEvent} from './event/build.mjs';
 import {writeWebAppAssets} from './pwa-build.mjs';
 import {readFileSync,writeFileSync,mkdirSync,readdirSync,lstatSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
@@ -27,6 +28,14 @@ html=html.replace(/<body\b([^>]*)>/i,(_,attributes)=>{
 if(!html.includes('id="cloud-panel"')||!/<body\b[^>]*\bcloud-locked/.test(html))throw Error('Online shell and login protection were not inserted');
 // Public catalog photos are fetched on demand; private library photos remain in authenticated state.
 html=html.replace(/data-event-banner src="data:image\/png;base64,[A-Za-z0-9+/]+=*"/,'data-event-banner src="./event-christmas-2026.png"');
+const eventEnabled=process.env.SPOOL_EVENT_ENABLED==='true';
+if(eventEnabled){
+ const heroStart=html.indexOf('<article class="event-hero event-poster-hero">');
+ const heroEnd=html.indexOf('</article>',heroStart);
+ if(heroStart<0||heroEnd<0)throw Error('Missing event hero');
+ const entry='<p><a class="primary" href="./event/index.html">作品を見る・投稿する</a></p>';
+ html=html.slice(0,heroEnd+10)+entry+html.slice(heroEnd+10);
+}
 const catalogImages={};html=html.replace(/data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*/g,value=>{const key=createHash('sha256').update(value).digest('hex');catalogImages[key]=value;return 'catalog-image:'+key});
 const catalogText=JSON.stringify(catalogImages),catalogFile='catalog-images-'+createHash('sha256').update(catalogText).digest('hex').slice(0,16)+'.json';
 const lazyCatalog=`
@@ -71,6 +80,7 @@ writeFileSync(path.join(out,'favicon.svg'),readFileSync(path.join(root,'public/f
 writeFileSync(path.join(out,'event-christmas-2026.png'),readFileSync(path.join(root,'public/event-christmas-2026.png')));
 const publicFiles=[...webAppAssets.files,'event-christmas-2026.png','favicon.svg','index.html','online.js','online.css','config.json','offline.html',catalogFile];
 if(lstatSync(hosted).isSymbolicLink())throw Error('Public output must be a regular directory');
-if(readdirSync(hosted).some(name=>(!publicFiles.includes(name)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(name))||!lstatSync(path.join(hosted,name)).isFile()))throw Error('Unexpected files in public output; review them before publication');
+if(readdirSync(hosted).some(name=>name!=='event'&&((!publicFiles.includes(name)&&!/^catalog-images-[a-f0-9]{16}\.json$/.test(name))||!lstatSync(path.join(hosted,name)).isFile())))throw Error('Unexpected files in public output; review them before publication');
 for(const name of publicFiles)writeFileSync(path.join(hosted,name),readFileSync(path.join(out,name)));
+await buildEvent([out,hosted],config);
 console.log('Built online-dist (separate from offline dist). Public connection config included; no service secrets.');
