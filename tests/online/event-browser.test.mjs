@@ -108,12 +108,13 @@ try{
       assert.equal(await device.locator('.ornament-entry').isVisible(),false);
       assert.equal(await device.locator('[data-event-banner]').isVisible(),false);
       assert.ok(await device.locator('.ornament-guest').isVisible());
+      const ribbon=await device.locator('.ornament-guest').boundingBox();
+      const cover=await device.locator('.ornament-poster').boundingBox();
+      const center=rect=>rect.x+rect.width/2;
+      assert.ok(Math.abs(center(ribbon)-center(cover))<=1);
       if(width<=640){
         const title=await device.locator('.ornament-lettering').boundingBox();
-        const ribbon=await device.locator('.ornament-guest').boundingBox();
-        const cover=await device.locator('.ornament-poster').boundingBox();
         assert.ok(ribbon.y>=title.y+title.height && ribbon.y+ribbon.height<=cover.y+cover.height+1);
-        assert.ok(ribbon.x+ribbon.width<=cover.x+cover.width*.52);
       }
       assert.ok(await device.locator('#works .guest-gallery-note').isVisible());
       assert.ok(await device.locator('.ornament-poster').evaluate(el=>el.scrollWidth<=el.clientWidth));
