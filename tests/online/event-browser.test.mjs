@@ -57,6 +57,31 @@ try{
   assert.ok(seen.includes('/api/session'));assert.ok(seen.includes('/api/works'));
   await page.locator('[data-open-submission]:visible').first().click();
   await page.locator('#work-title').waitFor({state:'visible'});
+  const triangle='solid star\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid star';
+  const png=await page.evaluate(()=>document.createElement('canvas').toDataURL().split(',')[1]);
+  for(const id of ['real-photo','model-photo'])await page.locator('#'+id).setInputFiles({name:'photo.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+  await page.locator('#work-title').fill('STL test');
+  await page.locator('#work-comment').fill('triangle');
+  await page.locator('#model-files').setInputFiles({name:'star.STL',mimeType:'application/octet-stream',buffer:Buffer.from(triangle)});
+  const prompts=[], choices=[false,true,false,true,true];
+  page.on('dialog',async dialog=>{
+    prompts.push(dialog.message());
+    if(choices.shift())await dialog.accept();else await dialog.dismiss();
+  });
+  for(const count of [1,3]){
+    await page.locator('#post-button').click();
+    assert.equal(prompts.length,count);
+    assert.equal(await page.locator('#submission').isVisible(),true);
+    assert.equal(await page.locator('#work-title').inputValue(),'STL test');
+    assert.equal(documents.size,0);
+  }
+  const submitted=page.waitForResponse(r=>r.url().endsWith('/api/works')&&r.request().method()==='POST');
+  await page.locator('#post-button').click();
+  const response=await submitted;
+  assert.equal(response.status(),201);
+  assert.equal((await response.json()).work.model.root,'star.glb');
+  assert.equal(prompts.length,5);
+  assert.match(prompts[0],/glTF.*GLB/);
   const uploaded=await page.evaluate(async()=>{
     const form=new FormData(), filename='star.gltf';
     form.set('metadata',JSON.stringify({title:'星',author:'',comment:'飾り',root:filename,files:[filename]}));

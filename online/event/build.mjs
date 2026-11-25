@@ -3,7 +3,7 @@ import path from 'node:path';
 import {build} from 'esbuild';
 
 const source=new URL('./release/',import.meta.url);
-const assets=['three-LICENSE.txt','app.js','prototype.css','assets/style.css','assets/studio.css','assets/event-christmas-2026.png'];
+const assets=['three-LICENSE.txt','app.js','stl.js','prototype.css','assets/style.css','assets/studio.css','assets/event-christmas-2026.png'];
 function checkDirectory(dir,allowed){
   if(!existsSync(dir))return;
   if(!lstatSync(dir).isDirectory())throw Error('Unexpected event output '+dir);
