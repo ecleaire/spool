@@ -8,6 +8,11 @@ import {publicConfig} from './security.mjs';
 import {execFileSync} from 'node:child_process';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const config=publicConfig(JSON.parse(readFileSync(path.join(root,'online/config.json'),'utf8')));
+const eventOrigin=process.env.SPOOL_EVENT_ORIGIN || '';
+if(eventOrigin){
+ const url=new URL(eventOrigin);
+ if(url.protocol!=='https:'||url.origin!==eventOrigin)throw Error('SPOOL_EVENT_ORIGIN must be an HTTPS origin');
+}
 const version=JSON.parse(readFileSync(path.join(root,'package.json'),'utf8')).version;
 let sourceSha=process.env.GITHUB_SHA||'';
 if(!sourceSha)try{sourceSha=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim()}catch{}
@@ -49,7 +54,7 @@ writeFileSync(path.join(out,catalogFile),catalogText);
 writeFileSync(path.join(out,'config.json'),JSON.stringify(config));
 writeFileSync(path.join(out,'online.css'),readFileSync(path.join(root,'online/style.css')));
 writeFileSync(path.join(out,'offline.html'),readFileSync(path.join(root,'dist/index.html')));
-await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true,define:{__SPOOL_VERSION__:JSON.stringify(version),__SPOOL_BUILD__:JSON.stringify(sourceSha)}});
+await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true,define:{__SPOOL_EVENT_ORIGIN__:JSON.stringify(eventOrigin),__SPOOL_VERSION__:JSON.stringify(version),__SPOOL_BUILD__:JSON.stringify(sourceSha)}});
 const digest=code=>'sha256-'+createHash('sha256').update(code).digest('base64');
 const bundleHash=digest(readFileSync(path.join(out,'online.js')));
 html=html.replace('src="./online.js"','src="./online.js?v='+createHash('sha256').update(bundleHash).digest('hex').slice(0,16)+'" integrity="'+bundleHash+'" crossorigin="anonymous"');
@@ -58,7 +63,7 @@ const scriptMatches=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].
 for(const match of scriptMatches){const result=await transform(match[2],{loader:'js',target:'es2022',minifyWhitespace:true,minifySyntax:true,minifyIdentifiers:false,charset:'utf8'});html=html.replace(match[0],()=>'<script'+match[1]+'>'+result.code.replace(/<\/script/gi,'<\\/script')+'</script>');}
 const styleMatches=[...html.matchAll(/<style>([\s\S]*?)<\/style>/gi)];for(const match of styleMatches){const result=await transform(match[1],{loader:'css',minify:true,charset:'utf8'});html=html.replace(match[0],()=>'<style>'+result.code+'</style>');}
 const inlineHashes=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)].filter(x=>!x[1].includes('src=')&&!x[1].includes('application/json')).map(x=>digest(x[2].replace(/\r\n?/g,'\n')));
-const policy=["default-src 'none'",'script-src '+[...inlineHashes,bundleHash].map(x=>"'"+x+"'").join(' '),"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data: blob:","font-src 'self'","connect-src 'self' "+config.url+' '+config.url.replace('https:','wss:'),"object-src 'none'","base-uri 'none'","form-action 'self'","frame-src 'none'","worker-src 'self'","manifest-src 'self'"].join('; ');
+const policy=["default-src 'none'",'script-src '+[...inlineHashes,bundleHash].map(x=>"'"+x+"'").join(' '),"script-src-attr 'none'","style-src 'self' 'unsafe-inline'","img-src 'self' data: blob:","font-src 'self'","connect-src 'self' "+config.url+' '+config.url.replace('https:','wss:'),"object-src 'none'","base-uri 'none'","form-action 'self'"+(eventOrigin?" "+eventOrigin:""),"frame-src 'none'","worker-src 'self'","manifest-src 'self'"].join('; ');
 const webAppAssets=writeWebAppAssets({root,out,version,html,bundleHash,styleVersion,catalogFile});
 html=html.replace('</head>',webAppAssets.head+'</head>').replace('width=device-width,initial-scale=1','width=device-width,initial-scale=1,viewport-fit=cover');
 const charset='<meta charset="UTF-8">';

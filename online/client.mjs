@@ -277,7 +277,51 @@ function showAccountAdded(result,email,data){const mode=data.get('mode'),shared=
 function bindAccountAddition(){const form=document.querySelector('#cloud-add-account');if(!form)return;const mode=form.elements.namedItem('mode'),share=document.querySelector('#account-share-options'),result=document.querySelector('#account-add-result');const syncFields=()=>{share.hidden=mode.value!=='share';share.querySelectorAll('select').forEach(x=>x.disabled=share.hidden);document.querySelector('#cloud-users-dialog')?.updateScope()};let adding=false;const update=()=>{syncFields();document.querySelector('#account-add-explanation').textContent=mode.value==='admin'?'サービス管理者はSPOOL全体の利用アカウントと機能制限を管理できます。この権限だけで他者のライブラリは共有されません。共有ライブラリの管理者への昇格は、参加メンバーの権限設定から行います。':mode.value==='allow'?'SPOOLの利用を許可します。相手は自分の個人ライブラリを使えます。既存ライブラリは共有されません。':'利用許可とライブラリ全体への招待を登録します。在庫・予約・添付ファイルが対象です。フィラメントだけの共有は「共有を管理」から設定します。招待メールは自動送信しません。';result.textContent='';delete result.dataset.state;};mode.onchange=update;update();form.onsubmit=async event=>{event.preventDefault();if(adding)return;const epoch=authEpoch,data=new FormData(form),email=String(data.get('email')).trim().toLowerCase(),button=form.querySelector('button[type=submit]');const promote=data.get('mode')==='admin';if(promote&&!confirm('入力したアカウントを管理者に追加します。利用者の追加と、別の管理者の追加ができるようになります。続けますか？'))return;adding=true;const users=document.querySelector('#cloud-users-dialog');users.dataset.busy='true';for(const control of users.querySelectorAll('button,input,select'))control.disabled=true;result.dataset.state='busy';result.textContent='登録しています…';try{const shared=data.get('mode')==='share';const {error}=shared?await client.rpc('invite_library_member',{lib:data.get('library'),target_email:email,member_role:data.get('role')}):await client.rpc(promote?'grant_spool_admin':'allow_spool_account',{target_email:email});if(error)throw error;if(epoch!==authEpoch)return;showAccountAdded(result,email,data);form.elements.namedItem('email').value='';if(shared&&data.get('library')===library)await loadMembers();}catch(error){if(epoch===authEpoch){const info=classifyError(error);result.dataset.state='error';result.textContent=info.title+'。'+info.action;}}finally{adding=false;users.dataset.busy='false';for(const control of users.querySelectorAll('button,input,select'))control.disabled=false;syncFields();}};}
 function bindProfile(){const form=document.querySelector('#profile-form');if(!form)return;form.dataset.pwaDirty='false';form.addEventListener('input',()=>form.dataset.pwaDirty='true');const epoch=authEpoch,userId=session.user.id,result=document.querySelector('#profile-result'),saveButton=document.querySelector('#profile-save'),input=document.querySelector('#profile-photo'),clear=document.querySelector('#profile-photo-clear');let avatar=profileOf(session.user).avatar,job=0,busy=false,writing=false;const preview=()=>{document.querySelector('#profile-photo-preview').innerHTML=avatarMarkup({name:form.elements.namedItem('displayName').value,avatar});};form.elements.namedItem('displayName').addEventListener('input',preview);clear.onclick=()=>{form.dataset.pwaDirty='true';job++;busy=false;avatar='';input.value='';saveButton.disabled=writing;preview();result.textContent='保存するとアイコンを解除します。';};input.onchange=async()=>{const file=input.files[0];if(!file)return;const ticket=++job;busy=true;saveButton.disabled=true;result.textContent='画像を読み込んでいます…';try{if(file.size>5242880||!['image/png','image/jpeg','image/webp'].includes(file.type))throw Error('PNG・JPEG・WebPの5MB以下の画像を選んでください。');const bitmap=await createImageBitmap(file);try{const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,128,128);const size=Math.min(bitmap.width,bitmap.height);ctx.drawImage(bitmap,(bitmap.width-size)/2,(bitmap.height-size)/2,size,size,0,0,128,128);const next=canvas.toDataURL('image/jpeg',.85);if(!validAvatar(next))throw Error('画像を変換できませんでした。');if(ticket!==job||epoch!==authEpoch||!form.isConnected)return;avatar=next;preview();result.textContent='保存するとアイコンを変更します。';}finally{bitmap.close();}}catch(error){if(ticket===job)result.textContent=error.message;}finally{if(ticket===job){busy=false;saveButton.disabled=writing;}}};form.onsubmit=async event=>{event.preventDefault();if(busy||writing)return;writing=true;saveButton.disabled=true;input.disabled=clear.disabled=true;result.textContent='保存しています…';try{const data=profileUpdate(form.elements.namedItem('displayName').value,form.elements.namedItem('handle').value,avatar);await ensureUniqueProfileHandle(client,data.spool_handle,profileOf(session.user).handle);if(epoch!==authEpoch||session?.user.id!==userId)return;const response=await client.auth.updateUser({data});if(response.error)throw response.error;if(epoch!==authEpoch||session?.user.id!==userId)return;session.user=response.data.user;updateAccountIdentity();form.elements.namedItem('handle').value=profileOf(session.user).handle;form.dataset.pwaDirty='false';result.textContent='プロフィールを保存しました。';}catch(error){if(epoch===authEpoch)result.textContent=profileSaveError(error,form.elements.namedItem('handle').value.trim().replace(/^@/,'').toLowerCase()!==profileOf(session.user).handle);}finally{writing=false;saveButton.disabled=busy;input.disabled=clear.disabled=false;}};}
 function bindAccount(logout){bindProfile();bindRememberChoice('#cloud-remember-account','#cloud-remember-account-status');const dialog=document.querySelector('#cloud-account-dialog');if(!dialog)return;document.querySelector('#cloud-account-open').onclick=()=>dialog.showModal();dialog.querySelector('[data-close-account]').onclick=()=>dialog.close();dialog.querySelector('#cloud-logout').onclick=logout;dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close()});}
-function updateCloudNavigation(){const bookings=!document.querySelector('#bookingView').hidden;panel.querySelectorAll('[data-cloud-nav]').forEach(button=>{const current=!document.querySelector('#eventView').hidden?'events':bookings?'bookings':'inventory';const active=button.dataset.cloudNav===current;button.classList.toggle('is-active',active);button.setAttribute('aria-current',active?'page':'false')})}
+const eventOrigin=typeof __SPOOL_EVENT_ORIGIN__==='string'?__SPOOL_EVENT_ORIGIN__:'';
+
+function installEventEntry(){
+ if(!eventOrigin)return;
+ const eventView=document.querySelector('#eventView');
+ if(!eventView||eventView.querySelector('#open-event-submissions'))return;
+ const button=document.createElement('button');
+ button.id='open-event-submissions';
+ button.type='button';
+ button.className='primary';
+ button.textContent='作品を見る・投稿する';
+ const status=document.createElement('p');
+ status.setAttribute('role','status');
+ button.onclick=async()=>{
+  if(!session){status.textContent='SPOOLにログインしてから開いてください。';return;}
+  const epoch=authEpoch;
+  button.disabled=true;
+  status.textContent='';
+  try{
+   const {data,error}=await client.auth.getSession();
+   if(error||!data.session?.access_token||epoch!==authEpoch)throw Error();
+   const handoff=document.createElement('form');
+   handoff.method='POST';
+   handoff.action=eventOrigin+'/api/session/spool';
+   handoff.hidden=true;
+   const token=document.createElement('input');
+   token.type='hidden';
+   token.name='access_token';
+   token.value=data.session.access_token;
+   handoff.append(token);
+   document.body.append(handoff);
+   handoff.submit();
+   handoff.remove();
+  }catch{
+   status.textContent='イベントを開けませんでした。ログイン状態を確認してください。';
+  }finally{button.disabled=false;}
+ };
+ const entry=document.createElement('div');
+ entry.className='event-entry-action';
+ entry.append(button,status);
+ const poster=eventView.querySelector('.event-poster-hero');
+ if(poster)poster.after(entry);
+ else eventView.prepend(entry);
+}
+function updateCloudNavigation(){installEventEntry();const bookings=!document.querySelector('#bookingView').hidden;panel.querySelectorAll('[data-cloud-nav]').forEach(button=>{const current=!document.querySelector('#eventView').hidden?'events':bookings?'bookings':'inventory';const active=button.dataset.cloudNav===current;button.classList.toggle('is-active',active);button.setAttribute('aria-current',active?'page':'false')})}
 function bindRememberChoice(selector,statusSelector){const input=document.querySelector(selector);if(!input)return;input.onchange=()=>{try{const enabled=authPersistence.setRemember(input.checked);if(statusSelector)document.querySelector(statusSelector).textContent=enabled?'次回からログイン状態を自動で復元します。':'このタブを閉じるまでのログインに変更しました。';}catch(error){input.checked=authPersistence.remembered();if(statusSelector)document.querySelector(statusSelector).textContent=error.message;else fail(error);}};}
 function clearSignedOutState(){
  session=null;capabilities=rolePermissions('viewer');isAdmin=false;mobileLibraryExpanded=false;authEpoch++;sharing.clear();accountLoading=false;loading=false;loadFailureTarget=null;loadTarget=null;

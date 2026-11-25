@@ -41,6 +41,8 @@ jobs:
       - name: Check data permissions and synchronization
         run: npm --prefix online test
       - name: Build public files
+        env:
+          SPOOL_EVENT_ORIGIN: ${{ vars.SPOOL_EVENT_ORIGIN }}
         run: node online/build.mjs
       - name: Verify browser security policy and bundle integrity
         run: node tests/online/hardening.test.mjs
