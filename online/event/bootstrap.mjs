@@ -1,37 +1,54 @@
-import {AuthClient} from '@supabase/supabase-js';
 import {createRememberedAuthStorage} from '../auth-storage.mjs';
 import {authStorageKey} from '../security.mjs';
 
 const config=__EVENT_CONFIG__;
 const key=authStorageKey(config.url);
-const auth=new AuthClient({
-  url:new URL('/auth/v1',config.url).href,
-  headers:{apikey:config.key,Authorization:'Bearer '+config.key},
-  storageKey:key,storage:createRememberedAuthStorage({key}).storage,
-  persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:'pkce'
-});
+const {storage}=createRememberedAuthStorage({key});
 
-async function start(){
-  if(!('serviceWorker' in navigator)) throw Error('このブラウザーでは作品ページを開けません。');
+function hasStoredSession(){
+  try{return Boolean(storage.getItem(key))}catch{return false}
+}
+
+function guestToken(){
+  let id=crypto.randomUUID();
+  try{
+    id=localStorage.getItem('spool-event-guest-v1')||id;
+    localStorage.setItem('spool-event-guest-v1',id);
+  }catch{/* Storage can be unavailable in private browsing. */}
+  return 'guest:'+id;
+}
+
+async function prepareAuthorization(){
+  if(!hasStoredSession()){
+    const token=guestToken();
+    let reloading=false;
+    function checkForLogin(){
+      if(!reloading && hasStoredSession()){
+        reloading=true;
+        location.reload();
+      }
+      return reloading;
+    }
+    window.addEventListener('storage',event=>{
+      if(event.key===key || event.key===key+':remember' || event.key===null)checkForLogin();
+    });
+    window.addEventListener('pageshow',checkForLogin);
+    return ()=>checkForLogin()?null:token;
+  }
+
+  const {createEventAuth}=await import('./auth-client.js');
+  const auth=createEventAuth(config,key,storage);
   const userId=(await auth.getSession()).data.session?.user.id;
   document.body.toggleAttribute('data-guest-navigation',!userId);
-  let guestId;
-  if(!userId){
-    guestId=crypto.randomUUID();
-    try{
-      guestId=localStorage.getItem('spool-event-guest-v1')||guestId;
-      localStorage.setItem('spool-event-guest-v1',guestId);
-    }catch{/* Use this page's ID if browser storage is unavailable. */}
-  }
+  const fallback=userId?null:guestToken();
   auth.onAuthStateChange((_event,session)=>{if(session?.user.id!==userId)location.reload()});
-  const workerURL=new URL('./event-worker.js',location.href).href;
-  navigator.serviceWorker.addEventListener('message',async event=>{
-    if(event.source?.scriptURL!==workerURL || event.data!=='event-authorization' || !event.ports[0]) return;
-    try{
-      const {data,error}=await auth.getSession();
-      event.ports[0].postMessage(error||data.session?.user.id!==userId?null:data.session?.access_token||'guest:'+guestId);
-    }catch{event.ports[0].postMessage(null)}
-  });
+  return async()=>{
+    const {data,error}=await auth.getSession();
+    return error||data.session?.user.id!==userId?null:data.session?.access_token||fallback;
+  };
+}
+
+async function controlWorker(workerURL){
   if(navigator.serviceWorker.controller?.scriptURL!==workerURL){
     await navigator.serviceWorker.register(workerURL,{scope:'./'});
     await new Promise((resolve,reject)=>{
@@ -43,6 +60,20 @@ async function start(){
       navigator.serviceWorker.addEventListener('controllerchange',finish);finish();
     });
   }
+}
+
+async function start(){
+  if(!('serviceWorker' in navigator))throw Error('このブラウザーでは作品ページを開けません。');
+  const workerURL=new URL('./event-worker.js',location.href).href;
+  const authorization=prepareAuthorization();
+  navigator.serviceWorker.addEventListener('message',async event=>{
+    if(event.source?.scriptURL!==workerURL || event.data!=='event-authorization' || !event.ports[0])return;
+    try{
+      const authorize=await authorization;
+      event.ports[0].postMessage(await authorize());
+    }catch{event.ports[0].postMessage(null)}
+  });
+  await Promise.all([authorization,controlWorker(workerURL)]);
   await import('./app.js');
 }
 start().catch(error=>{

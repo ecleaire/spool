@@ -50,6 +50,8 @@ const server=http.createServer(async(req,res)=>{
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin='http://127.0.0.1:'+server.address().port;
+const authLoads=page=>page.evaluate(()=>performance.getEntriesByName(new URL('auth-client.js',location.href).href).length);
+const galleryReady=page=>page.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
 let browser;
 try{
   const {version}=JSON.parse(await readFile(new URL('../../package.json',import.meta.url),'utf8'));
@@ -92,6 +94,7 @@ try{
     try{
       await device.goto(origin+'/spool/event/index.html');
       await device.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
+      assert.equal(await authLoads(device),0);
       const initialReads=await device.evaluate(()=>performance.getEntriesByType('resource')
         .filter(entry=>['/api/session','/api/reactions','/api/works'].includes(new URL(entry.name).pathname))
         .map(({startTime,responseEnd})=>({startTime,responseEnd})));
@@ -147,6 +150,48 @@ try{
     }finally{await device.close();}
   }
 
+  const guestContext=await browser.newContext();
+  try{
+    const guest=await guestContext.newPage();
+    const sibling=await guestContext.newPage();
+    await guest.goto(origin+'/spool/event/index.html');
+    await galleryReady(guest);
+    await sibling.goto(origin+'/spool/event/prototype.css');
+    const session=JSON.stringify({access_token:token,refresh_token:'mock',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'mock-user'}});
+    await sibling.evaluate(session=>sessionStorage.setItem('spool-auth-127',session),session);
+    await guest.getByRole('button',{name:'一覧を更新'}).click();
+    await galleryReady(guest);
+    assert.equal(await authLoads(guest),0);
+    assert.equal(await guest.locator('[data-open-submission]:visible').count(),0);
+    await Promise.all([guest.waitForEvent('load'),sibling.evaluate(session=>{
+      localStorage.setItem('spool-auth-127:remember','1');
+      localStorage.setItem('spool-auth-127',session);
+    },session)]);
+    await galleryReady(guest);
+    assert.equal(await authLoads(guest),1);
+    assert.ok(await guest.locator('[data-open-submission]:visible').count()>0);
+    await Promise.all([guest.waitForEvent('load'),sibling.evaluate(()=>{
+      localStorage.removeItem('spool-auth-127');
+      const channel=new BroadcastChannel('spool-auth-127');
+      channel.postMessage({event:'SIGNED_OUT',session:null});
+      channel.close();
+    })]);
+    await galleryReady(guest);
+    assert.equal(await authLoads(guest),0);
+    assert.equal(await guest.locator('[data-open-submission]:visible').count(),0);
+  }finally{await guestContext.close();}
+  const privateGuest=await browser.newPage();
+  try{
+    await privateGuest.addInitScript(()=>{
+      for(const name of ['localStorage','sessionStorage'])
+        Object.defineProperty(window,name,{get(){throw new DOMException('Storage unavailable','SecurityError')}});
+    });
+    await privateGuest.goto(origin+'/spool/event/index.html');
+    await galleryReady(privateGuest);
+    assert.equal(await authLoads(privateGuest),0);
+    assert.equal(await privateGuest.locator('[data-open-submission]:visible').count(),0);
+  }finally{await privateGuest.close();}
+
   assert.equal(await page.getByRole('button',{name:'管理画面',exact:true}).count(),0);
   assert.equal(await page.locator('.prototype-footer span').innerText(),'v'+version);
   assert.equal(await page.locator('#submission[open]').count(),0);
@@ -160,6 +205,7 @@ try{
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.waitForFunction(()=>document.querySelector('.prototype-footer #storage-state')?.textContent.includes('サーバーに保存'));
   await works;
+  assert.equal(await authLoads(page),1);
   const navigation=page.getByRole('navigation',{name:'イベントページ内の移動'});
   for(const width of [390,1440]){
     await page.setViewportSize({width,height:900});
