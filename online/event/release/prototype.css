@@ -684,3 +684,17 @@ body[data-gallery-loading] :is(.event-section-nav, #work-count, .gallery-control
 #event-loading a {
   display: inline-flex; align-items: center; min-height: 44px; margin-inline-end: 1rem;
 }
+
+/* Keep WebP on browsers without typed image-set support. */
+@supports (background-image: image-set(url("a.avif") type("image/avif"))) {
+  @media (min-resolution: 1.5dppx), (min-width: 1240px) {
+    .ornament-poster {
+      --title-art: image-set(url("assets/ornament-title-hd.avif") type("image/avif"), url("assets/ornament-title-hd.webp") type("image/webp"));
+    }
+  }
+  @media (min-resolution: 1.5dppx) {
+    .ornament-poster {
+      --guest-tree: image-set(url("assets/ornament-tree-hd.avif") type("image/avif"), url("assets/ornament-tree-hd.webp") type("image/webp"));
+    }
+  }
+}

@@ -43,7 +43,7 @@ const server=http.createServer(async(req,res)=>{
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
     const file=path.join(output,url.pathname.slice('/spool/'.length));
-    res.setHeader('Content-Type',({'html':'text/html; charset=utf-8',js:'application/javascript',css:'text/css',png:'image/png',webp:'image/webp'})[file.split('.').pop()]||'application/octet-stream');
+    res.setHeader('Content-Type',({'html':'text/html; charset=utf-8',js:'application/javascript',css:'text/css',png:'image/png',webp:'image/webp',avif:'image/avif'})[file.split('.').pop()]||'application/octet-stream');
     res.end(await readFile(file));
   }catch(error){res.writeHead(500).end(String(error))}
 });
@@ -91,6 +91,11 @@ try{
     try{
       await device.goto(origin+'/spool/event/index.html');
       await device.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
+      const initialReads=await device.evaluate(()=>performance.getEntriesByType('resource')
+        .filter(entry=>['/api/session','/api/reactions','/api/works'].includes(new URL(entry.name).pathname))
+        .map(({startTime,responseEnd})=>({startTime,responseEnd})));
+      assert.equal(initialReads.length,3);
+      assert.ok(Math.max(...initialReads.map(r=>r.startTime))<=Math.min(...initialReads.map(r=>r.responseEnd)));
       const navigation=device.getByRole('navigation',{name:'イベントページ内の移動'});
       await navigation.waitFor();
       assert.deepEqual(await navigation.getByRole('button').allTextContents(),['作品一覧']);
@@ -126,9 +131,18 @@ try{
         .filter(entry=>entry.encodedBodySize>0 && entry.name.includes('/assets/ornament-'))
         .map(entry=>entry.name.split('/').pop()).sort());
       assert.deepEqual(artwork,[
-        dpr>=1.5 || width>=1240?'ornament-title-hd.webp':'ornament-title.webp',
-        dpr>=1.5?'ornament-tree-hd.webp':'ornament-tree.webp'
+        dpr>=1.5 || width>=1240?'ornament-title-hd.avif':'ornament-title.webp',
+        dpr>=1.5?'ornament-tree-hd.avif':'ornament-tree.webp'
       ]);
+      if(width===390){
+        const dimensions=await device.evaluate(async files=>Promise.all(files.map(async file=>{
+          const image=new Image();
+          image.src='assets/'+file;
+          await image.decode();
+          return [image.naturalWidth,image.naturalHeight];
+        })),artwork);
+        assert.deepEqual(dimensions,[[1303,380],[1536,1024]]);
+      }
     }finally{await device.close();}
   }
 

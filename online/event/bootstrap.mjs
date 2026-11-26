@@ -1,11 +1,15 @@
-import {createClient} from '@supabase/supabase-js';
+import {AuthClient} from '@supabase/supabase-js';
 import {createRememberedAuthStorage} from '../auth-storage.mjs';
 import {authStorageKey} from '../security.mjs';
 
 const config=__EVENT_CONFIG__;
 const key=authStorageKey(config.url);
-const auth=createClient(config.url,config.key,{auth:{storageKey:key,storage:createRememberedAuthStorage({key}).storage,
-  persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:'pkce'}}).auth;
+const auth=new AuthClient({
+  url:new URL('/auth/v1',config.url).href,
+  headers:{apikey:config.key,Authorization:'Bearer '+config.key},
+  storageKey:key,storage:createRememberedAuthStorage({key}).storage,
+  persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:'pkce'
+});
 
 async function start(){
   if(!('serviceWorker' in navigator)) throw Error('このブラウザーでは作品ページを開けません。');
@@ -28,8 +32,8 @@ async function start(){
       event.ports[0].postMessage(error||data.session?.user.id!==userId?null:data.session?.access_token||'guest:'+guestId);
     }catch{event.ports[0].postMessage(null)}
   });
-  await navigator.serviceWorker.register(workerURL,{scope:'./'});
   if(navigator.serviceWorker.controller?.scriptURL!==workerURL){
+    await navigator.serviceWorker.register(workerURL,{scope:'./'});
     await new Promise((resolve,reject)=>{
       const finish=()=>{
         if(navigator.serviceWorker.controller?.scriptURL!==workerURL)return;
