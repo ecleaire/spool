@@ -18,7 +18,7 @@ import {
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { inspectModel, loadGalleryFile, normalizeBackground, resolveModelFile } from "./model-package.js";
+import { readModelBytes, normalizeBackground, resolveModelFile } from "./model-package.js";
 function disposeScene(i) {
   if (!i) return;
   let e = /* @__PURE__ */ new Set(), t = /* @__PURE__ */ new Set(), n = /* @__PURE__ */ new Set();
@@ -33,17 +33,9 @@ function disposeScene(i) {
   for (let s of t) s.dispose();
   for (let s of n) s.dispose();
 }
-async function parseModel(i) {
-  if (i.remoteFiles) {
-    const rootFile = i.files.find((file) => file.name === i.root);
-    if (rootFile) await loadGalleryFile(rootFile);
-  }
-  const metadata = await inspectModel(i);
-  if (i.remoteFiles) {
-    const resources = [...metadata.buffers || [], ...metadata.images || []];
-    await Promise.all(resources.filter((resource) => resource.uri && !resource.uri.startsWith("data:")).map((resource) => loadGalleryFile(resolveModelFile(i, resource.uri))));
-  }
-  let e = await i.files.find((a) => a.name === i.root).blob.arrayBuffer(), t = [], n = new LoadingManager();
+async function parseModel(i, preparedBytes) {
+  const bytes = preparedBytes ?? await readModelBytes(i);
+  const t = [], n = new LoadingManager();
   n.setURLModifier((a) => {
     if (a.startsWith("blob:")) return a;
     if (a.startsWith("data:")) {
@@ -55,7 +47,7 @@ async function parseModel(i) {
   });
   let s = new GLTFLoader(n), r;
   try {
-    r = await s.parseAsync(e, "");
+    r = await s.parseAsync(bytes, "");
     let a = 0, o = /* @__PURE__ */ new Set();
     if (r.scene.traverse((l) => {
       let h = l.geometry?.attributes?.position;

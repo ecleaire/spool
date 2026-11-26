@@ -20,7 +20,7 @@ const bucket={
   }
 };
 let resumeReactions, administrator=false, resumeSubmission, failPhoto=false;
-let unavailableRoute, demosEnabled=false;
+let unavailableRoute, heldViewer, demosEnabled=false;
 const heldSubmission=new Promise(resolve=>{resumeSubmission=resolve});
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
@@ -42,6 +42,7 @@ const server=http.createServer(async(req,res)=>{
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
+    if(url.pathname==='/spool/event/viewer.js' && heldViewer)await heldViewer;
     const file=path.join(output,url.pathname.slice('/spool/'.length));
     res.setHeader('Content-Type',({'html':'text/html; charset=utf-8',js:'application/javascript',css:'text/css',png:'image/png',webp:'image/webp',avif:'image/avif'})[file.split('.').pop()]||'application/octet-stream');
     res.end(await readFile(file));
@@ -417,8 +418,15 @@ try{
   await visitor.locator('#gallery-error').waitFor();
   assert.ok(await guestCard.isVisible());
   assert.equal(await visitor.locator('#empty-gallery').isVisible(),false);
-  await visitor.locator('.work-card').filter({hasText:'星'}).click();
-  await visitor.locator('#work-detail[open]').waitFor();
+  let resumeViewer;
+  heldViewer=new Promise(resolve=>{resumeViewer=resolve});
+  try{
+    const modelData=visitor.waitForResponse(response=>
+      /\/api\/files\/[^/]+\/model-0$/.test(new URL(response.url()).pathname) && response.ok());
+    await visitor.locator('.work-card').filter({hasText:'星'}).click();
+    await visitor.locator('#work-detail[open]').waitFor();
+    await modelData;
+  }finally{resumeViewer();heldViewer=null}
   await visitor.keyboard.press('Escape');
   unavailableRoute=undefined;
   await visitor.getByRole('button',{name:'一覧を更新'}).click();

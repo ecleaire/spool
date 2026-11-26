@@ -9,6 +9,19 @@ async function loadGalleryFile(file) {
   });
   await file.pending;
 }
+async function readModelBytes(model) {
+  const root = model.files.find(file => file.name === model.root);
+  if (!root) throw Error("3Dモデル本体が見つかりません。");
+  if (model.remoteFiles) await loadGalleryFile(root);
+  const metadata = await inspectModel(model);
+  if (model.remoteFiles) {
+    const resources = [...(metadata.buffers || []), ...(metadata.images || [])];
+    await Promise.all(resources
+      .filter(resource => resource.uri && !resource.uri.startsWith("data:"))
+      .map(resource => loadGalleryFile(resolveModelFile(model, resource.uri))));
+  }
+  return root.blob.arrayBuffer();
+}
 var mb = /\.(gltf|glb|bin|png|jpe?g|webp)$/i;
 function safeModelPath(i, e = false) {
   let t = i;
@@ -86,8 +99,7 @@ function normalizeBackground(i) {
 }
 export {
   defaultBackground,
-  inspectModel,
-  loadGalleryFile,
+  readModelBytes,
   normalizeBackground,
   packageModelFiles,
   resolveModelFile
