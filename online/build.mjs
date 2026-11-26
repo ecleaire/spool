@@ -56,7 +56,7 @@ writeFileSync(path.join(out,catalogFile),catalogText);
 writeFileSync(path.join(out,'config.json'),JSON.stringify(config));
 writeFileSync(path.join(out,'online.css'),onlineStyles);
 writeFileSync(path.join(out,'offline.html'),readFileSync(path.join(root,'dist/index.html')));
-await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true,define:{__SPOOL_VERSION__:JSON.stringify(version),__SPOOL_BUILD__:JSON.stringify(sourceSha)}});
+await build({entryPoints:[path.join(root,'online/client.mjs')],outfile:path.join(out,'online.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true,define:{__SPOOL_EVENT_ENABLED__:JSON.stringify(eventEnabled),__SPOOL_VERSION__:JSON.stringify(version),__SPOOL_BUILD__:JSON.stringify(sourceSha)}});
 const digest=code=>'sha256-'+createHash('sha256').update(code).digest('base64');
 const bundleHash=digest(readFileSync(path.join(out,'online.js')));
 html=html.replace('src="./online.js"','src="./online.js?v='+createHash('sha256').update(bundleHash).digest('hex').slice(0,16)+'" integrity="'+bundleHash+'" crossorigin="anonymous"');

@@ -9,6 +9,28 @@ const server=http.createServer((req,res)=>{if(serveEvent(req,res))return;const f
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)mkdirSync(shots,{recursive:true});
 try{
+ const home='http://127.0.0.1:'+server.address().port+'/spool/';
+ const eventReleased=!readFileSync(new URL('../../online-dist/event/index.html',import.meta.url),'utf8').includes('src="announcement.js"');
+ const guest=await browser.newPage();
+ await guest.context().route(project+'/**',route=>route.abort());
+ try{
+  for(const [width,height] of [[320,568],[390,844],[768,1024],[1440,900]]){
+   await guest.setViewportSize({width,height});
+   await guest.goto(home);
+   const invitation=guest.getByRole('link',{name:eventReleased?/応募作品を見る/:/イベント案内を見る/});
+   await invitation.waitFor();
+   const bounds=await invitation.boundingBox(),login=await guest.locator('#cloud-login').boundingBox();
+   assert.ok(bounds.y>=0 && bounds.y+bounds.height<=height);
+   assert.ok(bounds.x>=0 && bounds.x+bounds.width<=width);
+   assert.ok(login && bounds.y+bounds.height<=login.y);
+   assert.equal(await guest.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   if(shots)await guest.screenshot({path:shots+'/guest-home-'+width+'.png'});
+   await invitation.focus();
+   await guest.keyboard.press('Enter');
+   await guest.waitForURL(home+'event/index.html'+(eventReleased?'#works':''));
+   await guest.locator(eventReleased?'#works-heading':'#eventView').waitFor();
+  }
+ }finally{await guest.close();}
  const page=await browser.newPage({viewport:{width:390,height:900}}),errors=[],invites=[];let narrow='',admin=true,removeFailure=true,removes=0,includeMember=true,holdInvite=true,releaseInvite;
  const inviteGate=new Promise(resolve=>{releaseInvite=resolve});page.on('pageerror',error=>errors.push(error.message));
  await page.route(project+'/**',async route=>{const req=route.request(),url=new URL(req.url()),path=url.pathname,body=req.method()==='POST'?req.postDataJSON():{};let data=[];
@@ -26,6 +48,7 @@ try{
  await page.addInitScript(({user,token,project})=>sessionStorage.setItem('spool-auth-'+new URL(project).hostname.split('.')[0],JSON.stringify({access_token:token,refresh_token:'test',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,user:{id:user,email:'test@example.com'}})),{user,token,project});
  await page.goto('http://127.0.0.1:'+server.address().port+'/spool/');await page.locator('body:not(.cloud-locked)').waitFor();await page.locator('#cloud-library').selectOption(team);assert.equal(await page.locator('#cloud-shared-settings').count(),0);await page.locator('#cloud-library-more').waitFor({state:'visible'});
 
+ assert.equal(await page.locator('.welcome-event').count(),0);
  for(const width of [320,390,1440]){
   await page.setViewportSize({width,height:1000});
   await page.locator('[data-cloud-nav="events"]').click();
