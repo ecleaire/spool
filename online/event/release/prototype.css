@@ -698,3 +698,5 @@ body[data-gallery-loading] :is(.event-section-nav, #work-count, .gallery-control
     }
   }
 }
+
+body[data-reactions-loading] .work-reactions { visibility: hidden; }

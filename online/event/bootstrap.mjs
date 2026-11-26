@@ -1,6 +1,10 @@
+import {startGalleryReads} from './release/gallery-requests.js';
 import {createRememberedAuthStorage} from '../auth-storage.mjs';
 import {authStorageKey} from '../security.mjs';
 
+const parsed=document.readyState==='loading'
+  ? new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}))
+  : Promise.resolve();
 const config=__EVENT_CONFIG__;
 const key=authStorageKey(config.url);
 const {storage}=createRememberedAuthStorage({key});
@@ -39,6 +43,7 @@ async function prepareAuthorization(){
   const {createEventAuth}=await import('./auth-client.js');
   const auth=createEventAuth(config,key,storage);
   const userId=(await auth.getSession()).data.session?.user.id;
+  await parsed;
   document.body.toggleAttribute('data-guest-navigation',!userId);
   const fallback=userId?null:guestToken();
   auth.onAuthStateChange((_event,session)=>{if(session?.user.id!==userId)location.reload()});
@@ -74,9 +79,13 @@ async function start(){
     }catch{event.ports[0].postMessage(null)}
   });
   await Promise.all([authorization,controlWorker(workerURL)]);
-  await import('./app.js');
+  const reads=startGalleryReads();
+  await parsed;
+  const {startGallery}=await import('./gallery.js');
+  await startGallery(reads);
 }
-start().catch(error=>{
+start().catch(async error=>{
+  await parsed;
   const unsupported=!('serviceWorker' in navigator);
   document.querySelector('#event-loading span').textContent=unsupported
     ? error.message

@@ -3,7 +3,7 @@ import path from 'node:path';
 import {build} from 'esbuild';
 
 const source=new URL('./release/',import.meta.url);
-const assets=['three-LICENSE.txt','model-package.js','stl.js','reaction-queue.js','prototype.css','assets/style.css','assets/studio.css','assets/event-christmas-2026.png','assets/event-christmas-2026.webp','assets/event-christmas-2026-720.webp','assets/event-christmas-2026-1200.webp','assets/ornament-tree.webp','assets/ornament-tree-hd.webp','assets/ornament-title.webp','assets/ornament-title-hd.webp','assets/ornament-title-hd.avif','assets/ornament-tree-hd.avif'];
+const assets=['three-LICENSE.txt','app.js','model-package.js','stl.js','reaction-queue.js','prototype.css','assets/style.css','assets/studio.css','assets/event-christmas-2026.png','assets/event-christmas-2026.webp','assets/event-christmas-2026-720.webp','assets/event-christmas-2026-1200.webp','assets/ornament-tree.webp','assets/ornament-tree-hd.webp','assets/ornament-title.webp','assets/ornament-title-hd.webp','assets/ornament-title-hd.avif','assets/ornament-tree-hd.avif'];
 function checkDirectory(dir,allowed){
   if(!existsSync(dir))return;
   if(!lstatSync(dir).isDirectory())throw Error('Unexpected event output '+dir);
@@ -18,10 +18,10 @@ function checkDirectory(dir,allowed){
 export async function buildEvent(outputs,config,submissionsOpen,version){
   const viewer=await build({entryPoints:[new URL('model-viewer.mjs',source).pathname],bundle:true,format:'esm',
     external:['./model-package.js'],minify:true,write:false});
-  const gallery=await build({entryPoints:[new URL('app.js',source).pathname],bundle:true,format:'esm',
+  const gallery=await build({entryPoints:[new URL('gallery.js',source).pathname],bundle:true,format:'esm',
     external:['./viewer.js'],minify:true,write:false});
   const auth=await build({entryPoints:[new URL('./auth-client.mjs',import.meta.url).pathname],bundle:true,format:'esm',minify:true,write:false});
-  const boot=await build({entryPoints:[new URL('./bootstrap.mjs',import.meta.url).pathname],external:['./app.js','./auth-client.js'],bundle:true,format:'esm',minify:true,write:false,define:{__EVENT_CONFIG__:JSON.stringify(config)}});
+  const boot=await build({entryPoints:[new URL('./bootstrap.mjs',import.meta.url).pathname],external:['./gallery.js','./auth-client.js'],bundle:true,format:'esm',minify:true,write:false,define:{__EVENT_CONFIG__:JSON.stringify(config)}});
   const worker=readFileSync(new URL('./event-worker.js',import.meta.url),'utf8').replace('__EVENT_CONFIG__',JSON.stringify(config));
   const policy="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' "+config.url+" blob: data:; worker-src 'self' blob:; form-action 'none'; base-uri 'none'; object-src 'none'";
   const html=readFileSync(new URL('index.html',source),'utf8')
@@ -36,7 +36,8 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     .replace('id="work-count"', 'id="work-count" hidden')
     .replace('<div id="gallery-error"', loading+'<div id="gallery-error"')
     .replaceAll(' data-open-submission>', ' data-open-submission hidden disabled>')
-    .replace('<script type="module" src="bootstrap.js"','<link rel="modulepreload" href="app.js"><script type="module" src="bootstrap.js"');
+    .replace('<script type="module" src="bootstrap.js"></script>','')
+    .replace('<link rel="stylesheet"', '<link rel="preconnect" href="'+new URL(config.url).origin+'" crossorigin><script type="module" async src="bootstrap.js"></script><link rel="modulepreload" href="gallery.js"><link rel="stylesheet"');
   // Publish the release layout immediately; keep the authenticated form available for commissioning.
   const preview=html.slice(0,html.indexOf('<dialog id="work-detail"'))
     .replace('src="bootstrap.js"','src="announcement.js"')
@@ -49,13 +50,13 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     +'</body></html>';
   for(const parent of outputs){
     const dir=path.join(parent,'event');
-    checkDirectory(dir,[...assets,'app.js','auth-client.js','viewer.js','index.html','bootstrap.js','event-worker.js','submissions.html','announcement.js']);
+    checkDirectory(dir,[...assets,'gallery.js','auth-client.js','viewer.js','index.html','bootstrap.js','event-worker.js','submissions.html','announcement.js']);
     mkdirSync(path.join(dir,'assets'),{recursive:true});
     for(const asset of assets)writeFileSync(path.join(dir,asset),readFileSync(new URL(asset,source)));
     writeFileSync(path.join(dir,'submissions.html'),liveHtml);
     writeFileSync(path.join(dir,'announcement.js'),readFileSync(new URL('./announcement.js',import.meta.url)));
     writeFileSync(path.join(dir,'index.html'),submissionsOpen?liveHtml:preview);
-    writeFileSync(path.join(dir,'app.js'),gallery.outputFiles[0].contents);
+    writeFileSync(path.join(dir,'gallery.js'),gallery.outputFiles[0].contents);
     writeFileSync(path.join(dir,'auth-client.js'),auth.outputFiles[0].contents);
     writeFileSync(path.join(dir,'viewer.js'),viewer.outputFiles[0].contents);
     writeFileSync(path.join(dir,'event-worker.js'),worker);

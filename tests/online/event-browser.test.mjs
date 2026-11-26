@@ -20,7 +20,7 @@ const bucket={
   }
 };
 let resumeReactions, administrator=false, resumeSubmission, failPhoto=false;
-let unavailableRoute, heldViewer, demosEnabled=false;
+let unavailableRoute, heldViewer, heldGallery, heldReactionRead, demosEnabled=false;
 const heldSubmission=new Promise(resolve=>{resumeSubmission=resolve});
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
@@ -30,6 +30,7 @@ const server=http.createServer(async(req,res)=>{
       const guest=req.headers.authorization?.startsWith('Bearer guest:');
       if(!guest)assert.equal(req.headers.authorization,'Bearer '+token);
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
+      if(req.method==='GET' && route==='/api/reactions' && heldReactionRead)await heldReactionRead;
       if(route===unavailableRoute){res.writeHead(503,{'Content-Type':'application/json'}).end(JSON.stringify({error:'一時的な接続エラー'}));return;}
       if(failPhoto && route.endsWith('/real')){res.writeHead(503).end();return;}
       if(req.method==='POST' && route.endsWith('/reactions'))await slowReaction;
@@ -43,6 +44,7 @@ const server=http.createServer(async(req,res)=>{
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
     if(url.pathname==='/spool/event/viewer.js' && heldViewer)await heldViewer;
+    if(url.pathname==='/spool/event/gallery.js' && heldGallery)await heldGallery;
     const file=path.join(output,url.pathname.slice('/spool/'.length));
     res.setHeader('Content-Type',({'html':'text/html; charset=utf-8',js:'application/javascript',css:'text/css',png:'image/png',webp:'image/webp',avif:'image/avif'})[file.split('.').pop()]||'application/octet-stream');
     res.end(await readFile(file));
@@ -450,8 +452,27 @@ try{
   await page.locator('#works-heading').waitFor({state:'visible'});
   const visitor=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
   visitor.on('pageerror',err=>errors.push(err.message));
-  await visitor.goto(origin+'/spool/event/index.html#works');
+  let releaseGallery,releaseReactionRead;
+  heldGallery=new Promise(resolve=>{releaseGallery=resolve});
+  heldReactionRead=new Promise(resolve=>{releaseReactionRead=resolve});
   const guestCard=visitor.locator('.work-card').filter({hasText:'STL test'});
+  try{
+    const worksRead=visitor.waitForResponse(r=>new URL(r.url()).pathname==='/api/works' && r.ok());
+    await visitor.goto(origin+'/spool/event/index.html#works',{waitUntil:'commit'});
+    await worksRead;
+    releaseGallery();
+    heldGallery=null;
+    await guestCard.waitFor();
+    await visitor.waitForFunction(()=>document.querySelector('.work-card img')?.naturalWidth>0);
+    assert.ok(await visitor.locator('#event-loading').isHidden());
+    assert.ok(await visitor.locator('.work-reactions').first().isHidden());
+    await guestCard.click();
+    await visitor.locator('#work-detail[open]').waitFor();
+    assert.ok(await visitor.locator('#detail-reactions button').first().isHidden());
+    await visitor.keyboard.press('Escape');
+  }finally{releaseGallery();heldGallery=null;releaseReactionRead();heldReactionRead=null;}
+  await visitor.locator('.work-reactions').first().waitFor();
+  await visitor.reload();
   await guestCard.waitFor();
   const viewerLoads=()=>visitor.evaluate(()=>performance.getEntriesByType('resource')
     .filter(entry=>new URL(entry.name).pathname==='/spool/event/viewer.js').length);
