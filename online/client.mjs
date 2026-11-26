@@ -373,10 +373,15 @@ async function loadMembers(){
 }
 
 function updateBookings(){const select=document.querySelector('#cloud-booking');if(!select)return;const previous=select.value;select.innerHTML='<option value="">予約を選択</option>'+bridge.snapshot().reservations.map(x=>`<option value="${esc(x.id)}">${esc(x.title)}</option>`).join('');select.value=previous;}
+function uploadModelObject(path,file){
+ // Storage uses the multipart Blob's MIME type even when contentType is supplied.
+ const binary=file.slice(0,file.size,'application/octet-stream');
+ return client.storage.from('spool-models').upload(path,binary,{upsert:false});
+}
 async function upload(e){const file=e.target.files[0],booking=document.querySelector('#cloud-booking').value,lib=library;if(!file||uploading)return;uploading=true;e.target.disabled=true;try{
  if(!can('files_upload'))throw Error('ファイルを追加する権限がありません。');if(!booking)throw Error('予約を選択してください');if(sync.dirty||sync.busy)throw Error('先に予約をオンライン保存してください');if(file.size<1||file.size>104857600||file.name.length>240||!/\.(stl|obj|3mf|amf|step|stp|gcode)$/i.test(file.name))throw Error('対応形式・100MB以下のファイルを選択してください');
  const place=bookingFileLocation(booking),id=crypto.randomUUID(),object_path=`${place.library}/${id}/model`;const meta=await client.from('library_files').insert({id,library_id:place.library,booking_id:place.booking,name:file.name,size:file.size,object_path});if(meta.error)throw meta.error;
- const result=await client.storage.from('spool-models').upload(object_path,file,{contentType:'application/octet-stream',upsert:false});if(result.error){await client.from('library_files').delete().eq('id',id);throw result.error}await loadFiles();
+ const result=await uploadModelObject(object_path,file);if(result.error){await client.from('library_files').delete().eq('id',id);throw Error('「'+file.name+'」のアップロードに失敗しました。'+result.error.message,{cause:result.error})}await loadFiles();
  }catch(error){fail(error)}finally{uploading=false;e.target.value='';e.target.disabled=!can('files_upload')}}
 let fileListRequest=0;
 async function loadFiles(){const request=++fileListRequest,epoch=authEpoch,lib=library,picker=document.querySelector('#cloud-booking'),list=document.querySelector('#cloud-files');if(!picker||!list)return;const booking=picker.value;list.replaceChildren();if(!booking)return;const note=document.createElement('li');note.setAttribute('role','status');note.textContent='添付を読み込んでいます…';list.append(note);const place=bookingFileLocation(booking);const {data,error}=await client.from('library_files').select('*').eq('library_id',place.library).eq('booking_id',place.booking);if(request!==fileListRequest||epoch!==authEpoch||lib!==library||list!==document.querySelector('#cloud-files')||picker.value!==booking)return;if(error){list.textContent='添付一覧を読み込めませんでした。';const retry=document.createElement('button');retry.type='button';retry.textContent='添付一覧を再読込';retry.onclick=async()=>{const previous=errorInfo;try{await loadFiles();if(errorInfo===previous){errorText='';errorInfo=null;document.querySelector('#cloud-error')?.replaceChildren()}}catch(error){fail(error)}};list.append(retry);throw error;}listedFileLibraries.clear();list.replaceChildren(...data.map(file=>{listedFileLibraries.set(file.id,place.library);const li=document.createElement('li');li.textContent=`${file.name} (${Math.ceil(file.size/1024)} KB) `;const open=document.createElement('button');open.textContent='ダウンロード';open.onclick=()=>modelFiles.download(file.id).catch(fail);const app=document.createElement('button');app.textContent='アプリで開く';app.onclick=()=>modelFiles.open(file.id).catch(fail);li.append(open,app);if(can('files_delete')){const remove=document.createElement('button');remove.textContent='削除';remove.onclick=async()=>{if(!confirm('「'+file.name+'」をオンライン保管先から削除しますか？'))return;if(!confirm('【最終確認】ファイル本体を完全に削除します。このファイルを使う予約から開けなくなります。実行しますか？'))return;const result=await client.storage.from('spool-models').remove([file.object_path]);if(result.error){fail(result.error);return}const meta=await client.from('library_files').delete().eq('id',file.id);if(meta.error)fail(meta.error);else loadFiles().catch(fail)};li.append(remove)}return li}));}
@@ -397,8 +402,8 @@ window.spoolBookingFileUpload=async(bookingId,files,ids=[])=>{
    const insert=()=>client.from('library_files').insert({id,library_id:place.library,booking_id:place.booking,name:file.name,size:file.size,object_path});let meta=await insert();
    if(meta.error?.code==='23505'){id=crypto.randomUUID();object_path=`${place.library}/${id}/model`;meta=await insert();}
    if(meta.error)throw meta.error;
-   const result=await client.storage.from('spool-models').upload(object_path,file,{contentType:'application/octet-stream',upsert:false});
-   if(result.error){await client.from('library_files').delete().eq('id',id);throw result.error}
+   const result=await uploadModelObject(object_path,file);
+   if(result.error){await client.from('library_files').delete().eq('id',id);throw Error('「'+file.name+'」のアップロードに失敗しました。'+result.error.message,{cause:result.error})}
    uploaded.push({id,name:file.name,size:file.size,kind:'online'});window.spoolBookingProgress?.('upload',{total:files.length,completed:uploaded.length});
   }
   return uploaded;
