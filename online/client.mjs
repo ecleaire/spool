@@ -126,7 +126,7 @@ function render(){
  panel.innerHTML=markup; document.querySelector('#cloud-config').onsubmit=event=>{event.preventDefault();const data=new FormData(event.target);try{configure(String(data.get('url')),String(data.get('key')));sessionStorage.setItem('spool-online-config',JSON.stringify({url:String(data.get('url')),key:String(data.get('key'))}));start()}catch(e){fail(e)}};return;}
  if(!session){
  const eventInvitation=`<a class="welcome-event" href="./event/index.html${__SPOOL_EVENT_ENABLED__?'#works':''}">
-   <span>クリスマスツリー<wbr><span class="welcome-event-name">オーナメントコンテスト</span></span>
+   <span class="welcome-event-banner"><img src="./event/assets/ornament-title.webp" width="652" height="190" alt="3Dプリンターでつくる クリスマスツリー オーナメントコンテスト"></span>
    <strong>${__SPOOL_EVENT_ENABLED__?'応募作品を見る':'イベント案内を見る'} <span aria-hidden="true">→</span></strong>
    <span>${__SPOOL_EVENT_ENABLED__?'ログインせずに作品を見て、リアクションできます。':'ログインせずにイベントの詳細を確認できます。'}</span>
  </a>`;

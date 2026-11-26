@@ -19,6 +19,9 @@ try{
    await guest.goto(home);
    const invitation=guest.getByRole('link',{name:eventReleased?/応募作品を見る/:/イベント案内を見る/});
    await invitation.waitFor();
+   await invitation.getByRole('img',{name:/オーナメントコンテスト/}).evaluate(img=>img.decode());
+   await guest.waitForFunction(()=>performance.getEntriesByType('resource').some(entry=>
+    new URL(entry.name).pathname.endsWith('/event/assets/ornament-tree.webp') && entry.encodedBodySize>0));
    const bounds=await invitation.boundingBox(),login=await guest.locator('#cloud-login').boundingBox();
    assert.ok(bounds.y>=0 && bounds.y+bounds.height<=height);
    assert.ok(bounds.x>=0 && bounds.x+bounds.width<=width);
