@@ -13,6 +13,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.3.14",
     "esbuild": "0.25.12",
-    "playwright-core": "1.56.1"
+    "playwright-core": "1.56.1",
+    "three": "0.181.2"
   }
 }

@@ -20,7 +20,7 @@ const bucket={
   }
 };
 let resumeReactions, administrator=false, resumeSubmission, failPhoto=false;
-let unavailableRoute;
+let unavailableRoute, demosEnabled=false;
 const heldSubmission=new Promise(resolve=>{resumeSubmission=resolve});
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
 const server=http.createServer(async(req,res)=>{
@@ -38,7 +38,7 @@ const server=http.createServer(async(req,res)=>{
       const result=await release.fetch(new Request('https://example.invalid'+route,{method:req.method,
         headers:{Authorization:'Bearer '+token,...(req.headers['content-type']?{'Content-Type':req.headers['content-type']}:{})},
         body:chunks.length?Buffer.concat(chunks):undefined}),
-        {BUCKET:bucket,EVENT_IDENTITY:{fetch:async()=>Response.json({id:guest?req.headers.authorization.slice(7):'mock-user',guest,allowed:true,canManageEvents:!guest&&administrator})}});
+        {BUCKET:bucket,SPOOL_EVENT_DEMOS:String(demosEnabled),EVENT_IDENTITY:{fetch:async()=>Response.json({id:guest?req.headers.authorization.slice(7):'mock-user',guest,allowed:true,canManageEvents:!guest&&administrator})}});
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
@@ -406,6 +406,9 @@ try{
   await visitor.goto(origin+'/spool/event/index.html#works');
   const guestCard=visitor.locator('.work-card').filter({hasText:'STL test'});
   await guestCard.waitFor();
+  const viewerLoads=()=>visitor.evaluate(()=>performance.getEntriesByType('resource')
+    .filter(entry=>new URL(entry.name).pathname==='/spool/event/viewer.js').length);
+  assert.equal(await viewerLoads(),0);
   assert.equal(await visitor.locator('[data-open-submission]:visible').count(),0);
   assert.equal(await visitor.getByRole('button',{name:'管理画面',exact:true}).count(),0);
   assert.ok(await visitor.locator('#admin-panel').evaluate(el=>el.inert));
@@ -428,6 +431,7 @@ try{
   await visitor.keyboard.press('Enter');
   await visitor.locator('#viewer canvas').waitFor();
   await visitor.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
+  assert.equal(await viewerLoads(),1);
   for(const selector of ['#edit-work','#work-visibility','#share-local-work']){
     assert.equal(await visitor.locator(selector).isVisible(),false,selector);
   }
@@ -451,6 +455,14 @@ try{
   assert.ok(await like.isEnabled());
   await visitor.reload();await guestCard.click();
   await visitor.waitForFunction(value=>Number(document.querySelector('#detail-reactions .reaction-count')?.textContent)===value,before+5);
+  demosEnabled=true;
+  await visitor.reload();
+  const demo=visitor.locator('.work-card[data-work-id="demo-tree"]');
+  await demo.waitFor();
+  assert.equal(await viewerLoads(),0);
+  await demo.click();
+  await visitor.locator('#viewer canvas').waitFor();
+  assert.equal(await viewerLoads(),1);
   await visitor.close();
   console.log('PASS fresh mobile guest deep link, published work, 3D model and both photos, hidden editing controls, five saved taps per work and persisted count after reload.');
   assert.deepEqual(errors,[]);
