@@ -745,3 +745,20 @@ body[data-reactions-loading] .work-reactions { visibility: hidden; }
   .prototype #work-detail .detail-information { display: flex; flex-direction: column; }
   .prototype #work-detail .work-description { margin-bottom: 6px; padding-bottom: 6px; }
 }
+
+.prototype #work-detail .dialog-heading {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap;
+  min-height: 0; padding: 5px 12px;
+}
+.prototype #work-detail .detail-navigation { order: 0; flex: 0 1 auto; }
+.prototype #work-detail #close-detail { order: 1; position: static; margin-inline-start: auto; }
+.prototype #work-detail .work-description h2 {
+  margin: 0 0 4px; font-size: clamp(20px, 2vw, 28px); line-height: 1.3;
+  color: #183d30; overflow-wrap: anywhere;
+}
+
+.prototype #work-detail .media-toolbar:has(> #detail-photo-caption[hidden]) { display: none; }
+.prototype #work-detail .detail-layout > #viewer-help {
+  grid-column: 1 / -1; align-self: end; border-top: 1px solid #dbe3d6;
+}
+.prototype #work-detail #viewer-help .field-help { margin: 0 0 8px; }

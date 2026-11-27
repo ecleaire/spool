@@ -369,6 +369,8 @@ try{
     if(height>=844 && width>=390)assert.ok(layout.contentHeight<=layout.height+1);
   }
   const title=page.locator('#detail-title'),comment=page.locator('#detail-comment');
+  assert.equal(await page.locator('.work-description > h2 + #detail-author + #detail-comment').count(),1);
+  assert.equal(await page.locator('.detail-layout > #viewer-help:last-child').count(),1);
   const originalTitle=await title.textContent(),originalComment=await comment.textContent();
   await title.evaluate(el=>el.textContent='冬のオーナメント'.repeat(10));
   await comment.evaluate(el=>el.textContent='雪の結晶の重なりを表現しました。'.repeat(25));
