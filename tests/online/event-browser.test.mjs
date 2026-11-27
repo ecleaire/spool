@@ -362,7 +362,7 @@ try{
       const reaction=await page.locator('#detail-reactions button').first().boundingBox();
       const reactions=await page.locator('#detail-reactions').boundingBox();
       const author=await page.locator('#detail-author').boundingBox();
-      assert.ok(reaction.height>=52 && author.y-reactions.y-reactions.height>=19);
+      assert.ok(reaction.height>=52 && reactions.y-author.y-author.height>=19);
     }
     console.log('Work detail',viewport,layout);
     assert.ok(layout.contentWidth<=layout.width+1 && layout.viewer>=150);
@@ -433,6 +433,9 @@ try{
   const manage=page.getByRole('button',{name:'管理画面',exact:true});
   assert.equal(await manage.count(),0);
   assert.ok(await page.locator('#admin-panel').evaluate(panel=>panel.inert && !panel.open));
+  const prior=await documents.get('works/'+workId+'.json').json();
+  const missingImageKey='files/'+workId+'/'+prior.assetRevision+'/image';
+  assert.ok(documents.delete(missingImageKey));
   administrator=true;
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await manage.click();
@@ -441,6 +444,14 @@ try{
     await page.locator('[data-admin-tab="'+tab+'"]').click();
     await page.locator('#admin-'+tab).waitFor();
   }
+  await page.locator('#repair-images-status').filter({hasText:'確認完了'}).waitFor();
+  assert.match(await page.locator('#repair-images-status').innerText(),/補完 1件/);
+  const repaired=await documents.get('works/'+workId+'.json').json();
+  assert.equal(repaired.createdAt,prior.createdAt);
+  assert.equal(repaired.modelView.thumbnailSource,prior.modelView.thumbnailSource);
+  assert.ok(documents.has('files/'+workId+'/'+repaired.assetRevision+'/image'));
+  await page.locator('#repair-model-images').click();
+  await page.locator('#repair-images-status').filter({hasText:'補完 0件'}).waitFor();
   await page.locator('#admin-close').click();
   const card=page.locator('.work-card').filter({hasText:'STL test'});
   await card.click();
@@ -448,13 +459,19 @@ try{
   const createdAt=await page.locator('#detail-date').innerText();
   assert.ok(createdAt.length>0);
   assert.equal(await page.locator('#detail-model-name').innerText(),'star.glb');
+  assert.ok(await page.locator('#edit-work').isHidden());
+  await page.locator('#detail-actions summary').click();
   await page.locator('#edit-work').click();
   await page.locator('#submission[open]').waitFor();
   assert.equal(await page.locator('#entry-created-at').innerText(),createdAt);
   assert.equal(await page.locator('#entry-model-name').innerText(),'star.glb');
   assert.equal(await page.locator('#entry-thumbnail').inputValue(),'real');
   await page.locator('#entry-thumbnail').selectOption('model');
+  await page.locator('#use-model-thumbnail').click();
+  await page.waitForFunction(()=>document.querySelector('#model-photo').files.length===1);
   await modelInput.setInputFiles({name:'updated.stl',mimeType:'application/octet-stream',buffer:Buffer.from(upright)});
+  assert.equal(await page.locator('#model-photo').evaluate(input=>input.files.length),0);
+  await page.locator('#model-feedback').filter({hasText:'新しい3Dモデル'}).waitFor();
   choices.push(true,true);
   const updated=page.waitForResponse(r=>r.url().endsWith('/api/works/'+workId) && r.request().method()==='PUT');
   await page.locator('#post-button').click();
@@ -553,6 +570,7 @@ try{
     await visitor.locator('.work-card').filter({hasText:'星'}).click();
     await visitor.locator('#work-detail[open]').waitFor();
     await modelData;
+    assert.ok(await visitor.locator('#detail-poster').isVisible());
   }finally{resumeViewer();heldViewer=null}
   await visitor.keyboard.press('Escape');
   unavailableRoute=undefined;

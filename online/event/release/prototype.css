@@ -720,3 +720,28 @@ body[data-reactions-loading] .work-reactions { visibility: hidden; }
   .prototype #work-detail #detail-reactions .reaction-button > span:nth-child(2),
   .prototype #work-detail #detail-reactions .reaction-count { font-size: 15px; }
 }
+
+#detail-poster {
+  position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%;
+  object-fit: contain; background: #f7f8f4; pointer-events: none;
+}
+.prototype #work-detail #viewer-status {
+  z-index: 2; left: 8px; right: auto; max-width: calc(100% - 16px);
+  bottom: 8px; padding: 4px 10px; font-size: 14px;
+}
+.prototype #work-detail .work-description { margin-bottom: 20px; border-bottom: 1px solid #dbe3d6; padding-bottom: 8px; }
+.prototype #work-detail #detail-author { color: #476054; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.prototype #work-detail #detail-comment { color: #203b34; font-size: 17px; font-weight: 450; line-height: 1.6; overflow-wrap: anywhere; }
+.prototype #detail-actions summary { cursor: pointer; display: list-item; min-height: 44px; align-content: center; color: #365342; }
+@media(max-width:700px) {
+  .prototype #work-detail #detail-reactions { margin-block: 4px 12px; }
+  .prototype #work-detail #viewer-help summary { font-weight: 500; }
+  .prototype #work-detail .media-tabs { padding: 0; background: transparent; gap: 0; border-bottom: 1px solid #cfdbcc; }
+  .prototype #work-detail .media-tabs button { background: transparent; color: #486052; border: 0; border-bottom: 3px solid transparent; border-radius: 0; }
+  .prototype #work-detail .media-tabs button[aria-pressed=true] { color: #174c37; border-bottom-color: currentColor; font-weight: 700; }
+}
+
+@media(max-width:700px) {
+  .prototype #work-detail .detail-information { display: flex; flex-direction: column; }
+  .prototype #work-detail .work-description { margin-bottom: 6px; padding-bottom: 6px; }
+}
