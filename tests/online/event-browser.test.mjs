@@ -364,12 +364,27 @@ try{
       const author=await page.locator('#detail-author').boundingBox();
       assert.ok(reaction.height>=52 && reactions.y-author.y-author.height>=19);
     }
+    const stableReactions=await page.locator('#detail-comment').evaluate(comment=>{
+      const body=comment.closest('.dialog-body'),scroll=body.scrollTop;
+      const text=comment.textContent,buttons=[...document.querySelectorAll('#detail-reactions button')];
+      const boxes=()=>buttons.map(button=>{const {x,y,width,height}=button.getBoundingClientRect();return [x,y,width,height]});
+      comment.textContent='星です。';
+      const short=boxes();
+      comment.textContent='クリスマスツリーを飾る星のオーナメントです。'.repeat(120);
+      body.scrollTop=body.scrollHeight;
+      const long=boxes();
+      const footer=document.querySelector('#detail-reactions').getBoundingClientRect();
+      const fixed=footer.top>=body.getBoundingClientRect().bottom-1 && Math.abs(footer.bottom-comment.closest('dialog').getBoundingClientRect().bottom)<=2;
+      comment.textContent=text;body.scrollTop=scroll;
+      return fixed && short.every((box,i)=>box.every((value,j)=>Math.abs(value-long[i][j])<1));
+    });
+    assert.ok(stableReactions,'Comment length shifted reactions at '+width+'×'+height);
     console.log('Work detail',viewport,layout);
     assert.ok(layout.contentWidth<=layout.width+1 && layout.viewer>=150);
     if(height>=844 && width>=390)assert.ok(layout.contentHeight<=layout.height+1);
   }
   const title=page.locator('#detail-title'),comment=page.locator('#detail-comment');
-  assert.equal(await page.locator('.work-description > h2 + #detail-author + #detail-comment').count(),1);
+  assert.equal(await page.locator('.work-description > h2 + #detail-author').count(),1);
   assert.equal(await page.locator('.detail-layout > #viewer-help:last-child').count(),1);
   const originalTitle=await title.textContent(),originalComment=await comment.textContent();
   await title.evaluate(el=>el.textContent='冬のオーナメント'.repeat(10));
