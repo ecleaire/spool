@@ -32,7 +32,7 @@ const server=http.createServer(async(req,res)=>{
       const route=url.pathname.replace('/functions/v1/spool-events','');seen.push(route);
       if(req.method==='GET' && route==='/api/reactions' && heldReactionRead)await heldReactionRead;
       if(route===unavailableRoute){res.writeHead(503,{'Content-Type':'application/json'}).end(JSON.stringify({error:'一時的な接続エラー'}));return;}
-      if(failPhoto && route.endsWith('/real')){res.writeHead(503).end();return;}
+      if(failPhoto && route.endsWith('/image')){res.writeHead(503).end();return;}
       if(req.method==='POST' && route.endsWith('/reactions'))await slowReaction;
       if(req.method==='POST' && route==='/api/works')await heldSubmission;
       const chunks=[];for await(const chunk of req)chunks.push(chunk);
@@ -245,7 +245,10 @@ try{
   await page.locator('#submission .dialog-footer .entry-checklist').evaluate(el=>{el.open=false;});
   const triangle='solid star\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid star';
   const png=await page.evaluate(()=>document.createElement('canvas').toDataURL().split(',')[1]);
-  for(const id of ['real-photo','model-photo'])await page.locator('#'+id).setInputFiles({name:'photo.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+  assert.equal(await page.locator('#real-photo').evaluate(input=>input.required),true);
+  assert.equal(await page.locator('#model-photo').evaluate(input=>input.required),false);
+  assert.equal(await page.locator('#entry-thumbnail').inputValue(),'real');
+  await page.locator('#real-photo').setInputFiles({name:'photo.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
   await page.locator('#work-title').fill('STL test');
   await page.locator('#work-comment').fill('triangle');
   const modelInput=page.locator('#model-files');
@@ -299,6 +302,7 @@ try{
   const response=await submitted;
   assert.equal(response.status(),201);
   assert.equal((await response.json()).work.model.root,'star.glb');
+  assert.equal((await response.json()).work.modelView.thumbnailSource,'real');
   assert.equal(prompts.length,5);
   assert.match(prompts[0],/glTF.*GLB/);
   const workId=(await response.json()).work.id;
@@ -321,6 +325,7 @@ try{
   assert.ok(uploaded.imageWidth>0);assert.equal(uploaded.modelVersion,'2.0');
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.locator('.work-card').filter({hasText:'星'}).waitFor();
+  assert.match(await page.locator('.work-card').filter({hasText:'STL test'}).locator('img').getAttribute('src'),/\/real(?:\?|$)/);
   const search=page.getByRole('searchbox',{name:'作品検索'});
   assert.equal(await search.getAttribute('placeholder'),'検索：作品名・作者名・一言');
   await search.fill('no-matching-work');
@@ -346,6 +351,13 @@ try{
       viewer:document.querySelector('#viewer').clientHeight
     }));
     if(process.env.SPOOL_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.SPOOL_SCREENSHOT_DIR,'work-detail-'+viewport.width+'.png')});
+    if(width<=760 || (width<=960 && height<=500)){
+      const fits=await page.locator('#detail-reactions button').evaluateAll(buttons=>buttons.length>0 && buttons.every(button=>{
+        const box=button.getBoundingClientRect();
+        return box.height>=54 && box.left>=0 && box.right<=innerWidth && button.scrollWidth<=button.clientWidth+1;
+      }));
+      assert.ok(fits,'Reaction button size and label fit at '+width+'×'+height);
+    }
     if(viewport.width>=1024){
       const reaction=await page.locator('#detail-reactions button').first().boundingBox();
       const reactions=await page.locator('#detail-reactions').boundingBox();
@@ -374,16 +386,16 @@ try{
   await page.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
   assert.equal(reads(),2);
   failPhoto=true;
-  await page.locator('[data-media=real]').click();
+  await page.locator('[data-media=image]').click();
   const retryPhoto=page.getByRole('button',{name:'画像を再読み込み'});
   await retryPhoto.waitFor({timeout:3000});
-  await page.locator('[data-media=image]').click();
+  await page.locator('[data-media=real]').click();
   await page.locator('#detail-photo-img').evaluate(image=>image.decode());
   assert.equal(await retryPhoto.isVisible(),false);
-  await page.locator('[data-media=real]').click();
+  await page.locator('[data-media=image]').click();
   await retryPhoto.waitFor();
   failPhoto=false;
-  const attempts=seen.filter(route=>route==='/api/files/'+workId+'/real').length;
+  const attempts=seen.filter(route=>route==='/api/files/'+workId+'/image').length;
   await retryPhoto.click();
   await page.locator('#detail-photo-img').evaluate(image=>image.decode());
   assert.equal(await retryPhoto.isVisible(),false);
@@ -392,7 +404,7 @@ try{
     await page.locator('#detail-photo-img').evaluate(image=>image.decode());
     assert.equal(await page.locator('#detail-model-select').isVisible(),false);
   }
-  assert.equal(seen.filter(route=>route==='/api/files/'+workId+'/real').length,attempts+1);
+  assert.equal(seen.filter(route=>route==='/api/files/'+workId+'/image').length,attempts+1);
   const group=page.locator('#detail-reactions');
   await group.locator('button').first().waitFor();
   const burst=await group.evaluate(node=>{
@@ -440,6 +452,8 @@ try{
   await page.locator('#submission[open]').waitFor();
   assert.equal(await page.locator('#entry-created-at').innerText(),createdAt);
   assert.equal(await page.locator('#entry-model-name').innerText(),'star.glb');
+  assert.equal(await page.locator('#entry-thumbnail').inputValue(),'real');
+  await page.locator('#entry-thumbnail').selectOption('model');
   await modelInput.setInputFiles({name:'updated.stl',mimeType:'application/octet-stream',buffer:Buffer.from(upright)});
   choices.push(true,true);
   const updated=page.waitForResponse(r=>r.url().endsWith('/api/works/'+workId) && r.request().method()==='PUT');
@@ -447,6 +461,7 @@ try{
   const edited=await updated;
   assert.equal(edited.status(),200);
   assert.equal((await edited.json()).work.model.root,'updated.glb');
+  assert.equal((await edited.json()).work.modelView.thumbnailSource,'model');
   await page.locator('#submission').waitFor({state:'hidden'});
   const thumbnail=await card.locator('img').evaluate(async img=>{
     await img.decode();

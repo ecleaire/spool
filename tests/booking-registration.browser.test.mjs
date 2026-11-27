@@ -18,6 +18,7 @@ try{for(const width of [1440,390,320]){
  await page.locator('[name=deadline]').fill('2026-11-06');assert.equal(await page.locator('[name=weekday]').inputValue(),'金');
 
  assert.equal(await page.locator('#bookingColorSearch').isVisible(),false);assert.equal(await page.locator('[name=printDuration]').isVisible(),false);
+ const nextColor=page.locator('#bookingGoColor');assert.ok(await nextColor.isHidden());
  const order=await page.evaluate(()=>{const nodes=['[name=title]','[name=creator]','#bookingImportPick','#bookingColorChoices','[name=deadline]'].map(s=>document.querySelector('#bookingForm '+s));return nodes.slice(1).every((node,i)=>!!(nodes[i].compareDocumentPosition(node)&Node.DOCUMENT_POSITION_FOLLOWING))});assert.equal(order,true);
  if(shots)await page.screenshot({path:shots+'/registration-'+width+'.png'});
  await page.locator('#saveBookingButton').click();assert.equal(await page.locator('[name=title]').evaluate(el=>el.validity.valueMissing),true);
@@ -25,11 +26,13 @@ try{for(const width of [1440,390,320]){
  const choose=async(files)=>{const chooser=page.waitForEvent('filechooser');await page.locator('#bookingImportPick').click();await (await chooser).setFiles(files);await page.waitForFunction(()=>!bookingReading)};
  const file=name=>({name,mimeType:'application/octet-stream',buffer:Buffer.from('solid test\nendsolid test')});
  await choose([file('one.stl'),file('two.stl'),file('three.stl')]);assert.match(await page.locator('#bookingFileFeedback').innerText(),/添付 3件/);
+ assert.ok(await nextColor.isVisible());await nextColor.click();assert.equal(await page.evaluate(()=>document.activeElement.id),'bookingPlanHeading');
  await page.locator('[data-remove-booking-file]').first().click();assert.match(await page.locator('#bookingFileFeedback').innerText(),/添付 2件/);
  await page.locator('[data-remove-booking-file]').first().click();await page.locator('[data-remove-booking-file]').first().click();assert.doesNotMatch(await page.locator('#bookingFileFeedback').innerText(),/添付 [123]件/);
+ assert.ok(await nextColor.isHidden());
  // Reopening the native chooser and selecting the same filename must still work.
  await choose([file('one.stl')]);assert.match(await page.locator('#bookingFileFeedback').innerText(),/添付 1件/);await page.locator('#saveBookingButton').click();assert.match(await page.locator('#bookingError').innerText(),/希望色/);
- await page.locator('#bookingColorSearchDetails>summary').click();assert.equal(await page.locator('#bookingColorSearch').isVisible(),true);await page.locator('#bookingColorSearchDetails>summary').click();await page.locator('#bookingNoPreference').click();
+ await page.locator('#bookingColorSearchDetails>summary').click();assert.equal(await page.locator('#bookingColorSearch').isVisible(),true);await page.locator('#bookingColorSearchDetails>summary').click();await page.locator('#bookingNoPreference').click();assert.match(await nextColor.innerText(),/確認・変更/);
  await page.locator('#bookingExtraDetails>summary').click();await page.locator('[name=printDuration]').fill('');await page.locator('#bookingExtraDetails>summary').click();await page.locator('#saveBookingButton').click();assert.equal(await page.locator('#bookingExtraDetails').evaluate(el=>el.open),true);
  await page.locator('[name=printDuration]').fill('1:30');await page.locator('[name=printDuration]').press('Tab');await page.locator('#bookingExtraDetails>summary').click();await page.locator('#saveBookingButton').click();await page.locator('#bookingDialog').waitFor({state:'hidden'});
  const saved=await page.evaluate(()=>reservations[0]);assert.equal(saved.weekday,'金');assert.equal(saved.printMinutes,90);assert.equal(saved.attachments.length,1);assert.equal(saved.colorPreference,'none');assert.equal(saved.files[0],'箱の中に保管');await page.evaluate(()=>{reservations[0].weekday='月';renderBookings();openBooking(reservations[0].id)});assert.equal(await page.locator('[name=weekday]').inputValue(),'金');assert.equal(await page.locator('#bookingRows .booking-weekday').innerText(),'金曜日');assert.equal(await page.locator('#bookingCards .booking-card-weekday').innerText(),'金曜日');assert.deepEqual(errors,[]);

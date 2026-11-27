@@ -710,3 +710,13 @@ body[data-reactions-loading] .work-reactions { visibility: hidden; }
   .prototype #work-detail #detail-reactions .work-reactions { display: flex; flex-wrap: wrap; gap: 8px; }
   .prototype #work-detail #detail-reactions .reaction-button { min-height: 52px; padding: 10px 14px; font-size: 16px; }
 }
+
+@media (max-width: 760px), (max-width: 960px) and (max-height: 500px) {
+  .prototype #work-detail #detail-reactions .reaction-button {
+    min-height: 54px;
+    padding: 7px 5px;
+    font-size: 16px;
+  }
+  .prototype #work-detail #detail-reactions .reaction-button > span:nth-child(2),
+  .prototype #work-detail #detail-reactions .reaction-count { font-size: 15px; }
+}

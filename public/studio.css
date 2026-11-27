@@ -1682,3 +1682,9 @@ body.simple-workspace #bookingView .booking-details-body .model-file-actions :is
 
 body.simple-workspace #bookingView .booking-model-download{min-width:0;max-width:100%}
 body.simple-workspace #bookingView .booking-model-zip>span{max-width:100%;white-space:normal;text-wrap:balance;overflow-wrap:anywhere}
+
+#bookingDialog .booking-step { display:inline-grid; place-items:center; width:1.6em; height:1.6em; border-radius:50%; background:#21583e; color:#fff; font-size:0.85em; vertical-align:middle; }
+#bookingTitle { width:100%; box-sizing:border-box; }
+#bookingDialog #bookingGoColor:not([hidden]) { display:block; width:100%; min-height:46px; margin:8px 0; border:1px solid #37634a; background:#e6f2dc; color:#183e29; font-weight:700; }
+#bookingPlanHeading { scroll-margin-block-start:12px; }
+#bookingPlanHeading:focus-visible { outline:2px solid #37634a; outline-offset:3px; }
