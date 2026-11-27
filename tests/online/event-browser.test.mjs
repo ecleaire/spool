@@ -253,6 +253,8 @@ try{
   const upright=triangle.replace('vertex 0 0 0','vertex 260 380 10').replace('vertex 1 0 0','vertex 262 380 10').replace('vertex 0 1 0','vertex 260 380 20');
   await modelInput.setInputFiles({name:'first.stl',mimeType:'application/octet-stream',buffer:Buffer.from(upright)});
   await preview.waitFor({state:'visible'});
+  assert.equal(await page.locator("#entry-model-name").innerText(),"first.glb");
+  assert.equal(await page.locator("#entry-created-at").innerText(),"投稿時に記録されます");
   await preview.scrollIntoViewIfNeeded();
   const bounds=await preview.evaluate(image=>new Promise(resolve=>requestAnimationFrame(()=>{
     const canvas=document.createElement('canvas');
@@ -320,6 +322,7 @@ try{
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.locator('.work-card').filter({hasText:'星'}).waitFor();
   const search=page.getByRole('searchbox',{name:'作品検索'});
+  assert.equal(await search.getAttribute('placeholder'),'検索：作品名・作者名・一言');
   await search.fill('no-matching-work');
   await page.locator('#search-empty').waitFor();
   assert.equal(await page.locator('.work-card:visible').count(),0);
@@ -332,6 +335,8 @@ try{
 
   await page.locator('.work-card').filter({hasText:'STL test'}).click();
   await page.locator('#viewer canvas').waitFor({state:'visible'});
+  assert.ok(await page.locator('#work-metadata').isHidden());
+  assert.deepEqual(await page.locator('#detail-model-select option').allTextContents(),['モデル 1','モデル 2']);
   assert.equal(await page.locator('#work-detail .local-only').isVisible(),false);
   for(const [width,height] of [...phones,[768,1024],[820,1180],[1024,1366],[1366,1024],[1440,900],[320,568]]){
     const viewport={width,height};
@@ -341,6 +346,12 @@ try{
       viewer:document.querySelector('#viewer').clientHeight
     }));
     if(process.env.SPOOL_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.SPOOL_SCREENSHOT_DIR,'work-detail-'+viewport.width+'.png')});
+    if(viewport.width>=1024){
+      const reaction=await page.locator('#detail-reactions button').first().boundingBox();
+      const reactions=await page.locator('#detail-reactions').boundingBox();
+      const author=await page.locator('#detail-author').boundingBox();
+      assert.ok(reaction.height>=52 && author.y-reactions.y-reactions.height>=19);
+    }
     console.log('Work detail',viewport,layout);
     assert.ok(layout.contentWidth<=layout.width+1 && layout.viewer>=150);
     if(height>=844 && width>=390)assert.ok(layout.contentHeight<=layout.height+1);
@@ -419,6 +430,39 @@ try{
     await page.locator('#admin-'+tab).waitFor();
   }
   await page.locator('#admin-close').click();
+  const card=page.locator('.work-card').filter({hasText:'STL test'});
+  await card.click();
+  await page.locator('#work-metadata summary').click();
+  const createdAt=await page.locator('#detail-date').innerText();
+  assert.ok(createdAt.length>0);
+  assert.equal(await page.locator('#detail-model-name').innerText(),'star.glb');
+  await page.locator('#edit-work').click();
+  await page.locator('#submission[open]').waitFor();
+  assert.equal(await page.locator('#entry-created-at').innerText(),createdAt);
+  assert.equal(await page.locator('#entry-model-name').innerText(),'star.glb');
+  await modelInput.setInputFiles({name:'updated.stl',mimeType:'application/octet-stream',buffer:Buffer.from(upright)});
+  choices.push(true,true);
+  const updated=page.waitForResponse(r=>r.url().endsWith('/api/works/'+workId) && r.request().method()==='PUT');
+  await page.locator('#post-button').click();
+  const edited=await updated;
+  assert.equal(edited.status(),200);
+  assert.equal((await edited.json()).work.model.root,'updated.glb');
+  await page.locator('#submission').waitFor({state:'hidden'});
+  const thumbnail=await card.locator('img').evaluate(async img=>{
+    await img.decode();
+    const canvas=document.createElement('canvas');
+    canvas.width=canvas.height=48;
+    const context=canvas.getContext('2d');
+    context.drawImage(img,0,0,48,48);
+    const pixels=context.getImageData(0,0,48,48).data;
+    const visibleShape=pixels.some((value,index)=>index%4<3 && Math.abs(value-pixels[index%4])>20);
+    return {width:img.naturalWidth,url:img.src,visibleShape};
+  });
+  assert.ok(thumbnail.width>=480 && thumbnail.visibleShape);
+  await card.click();
+  await page.locator('[data-media=image]').click();
+  assert.equal(await page.locator('#detail-photo-img').evaluate(async img=>{await img.decode();return img.src}),thumbnail.url);
+  await page.locator('#close-detail').click();
   administrator=false;
   await page.getByRole('button',{name:'一覧を更新'}).click();
   await page.waitForFunction(()=>document.querySelector('#admin-panel')?.inert&&!document.querySelector('#admin-panel')?.open);
@@ -467,6 +511,7 @@ try{
     assert.ok(await visitor.locator('#event-loading').isHidden());
     assert.ok(await visitor.locator('.work-reactions').first().isHidden());
     await guestCard.click();
+    assert.ok(await visitor.locator('#work-metadata').isHidden());
     await visitor.locator('#work-detail[open]').waitFor();
     assert.ok(await visitor.locator('#detail-reactions button').first().isHidden());
     await visitor.keyboard.press('Escape');
