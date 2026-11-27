@@ -66,4 +66,21 @@ try{const page=await browser.newPage({viewport:{width:390,height:900}}),errors=[
  assert.deepEqual(errors,[]);
  console.log('PASS: binary models and print files survive a partial upload, retry and reload with original names and bytes.');
 
+ await page.locator('#addBooking').click();
+ await page.locator('#bookingTitle').fill('ファイルは後日');
+ await page.locator('#bookingNoPreference').click();
+ const writesBefore=writes, decisions=[true,false,true,true];
+ page.on('dialog',async dialog=>{if(decisions.shift())await dialog.accept();else await dialog.dismiss()});
+ await page.locator('#saveBookingButton').click();
+ assert.equal(writes,writesBefore);
+ assert.equal(await page.locator('#bookingTitle').inputValue(),'ファイルは後日');
+ await page.locator('#saveBookingButton').click();
+ await page.locator('#bookingDialog').waitFor({state:'hidden'});
+ assert.equal(decisions.length,0);
+ assert.equal(writes,writesBefore+1);
+ const withoutModel=state.reservations.find(row=>row.title==='ファイルは後日');
+ assert.deepEqual(withoutModel.attachments,[]);
+ assert.deepEqual(withoutModel.files,[]);
+ console.log('PASS: cancelling the second confirmation sends no write; confirming both saves the online reservation without attachments.');
+
 }finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve))}
