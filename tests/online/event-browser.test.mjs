@@ -633,6 +633,19 @@ try{
   await demo.click();
   await visitor.locator('#viewer canvas').waitFor();
   assert.equal(await viewerLoads(),1);
+  await visitor.setViewportSize({width:390,height:844});
+  await visitor.locator('#detail-comment').evaluate(el=>el.textContent='長いコメントをスクロールして読みます。'.repeat(100));
+  const detailBody=visitor.locator('#work-detail .dialog-body');
+  assert.ok(await detailBody.evaluate(body=>{
+    body.scrollTop=body.scrollHeight;
+    return body.querySelector('.media-stage').getBoundingClientRect().bottom<=body.getBoundingClientRect().top;
+  }));
+  await visitor.locator('[data-media=real]').click();
+  await visitor.locator('#detail-photo-img').evaluate(image=>image.decode());
+  assert.ok(await detailBody.evaluate(body=>{
+    const photo=body.querySelector('#detail-photo').getBoundingClientRect(),area=body.getBoundingClientRect();
+    return photo.top>=area.top-1 && photo.bottom<=area.bottom+1;
+  }));
   await visitor.close();
   console.log('PASS fresh mobile guest deep link, published work, 3D model and both photos, hidden editing controls, five saved taps per work and persisted count after reload.');
   assert.deepEqual(errors,[]);

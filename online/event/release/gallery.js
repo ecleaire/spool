@@ -195,7 +195,13 @@ function showDetailPhoto(media) {
   }
   updateDetailPhotoState(image);
 }
-function im(i){dn("[data-media]").forEach(e=>e.setAttribute("aria-pressed",String(e.dataset.media===i))),C("#viewer-panel").hidden=i!=="model",C("#detail-photo").hidden=i==="model",C("#reset-view").hidden=i!=="model",C("#viewer-help").hidden=i!=="model",C("#detail-photo-caption").hidden=i==="model",C("#viewer-status").hidden=i!=="model"||!C("#viewer-status").textContent,i!=="model"&&wt&&(showDetailPhoto(i),C("#detail-photo-img").alt=wt.title+(i==="real"?"\u306E\u5B9F\u7269\u5199\u771F":"\u306E\u30E2\u30C7\u30EB\u753B\u50CF"),C("#detail-photo-caption").textContent=i==="real"?wt.isDemo?"\u30C7\u30E2\u7528\u30A4\u30E1\u30FC\u30B8\uFF08\u5B9F\u7269\u5199\u771F\u3067\u306F\u3042\u308A\u307E\u305B\u3093\uFF09":"\u5B9F\u7269\u5199\u771F":"\u30E2\u30C7\u30EB\u753B\u50CF")}dn("[data-media]").forEach(i=>i.addEventListener("click",()=>im(i.dataset.media)));async function prepareDetailModel(work, request) {
+function im(i){dn("[data-media]").forEach(e=>e.setAttribute("aria-pressed",String(e.dataset.media===i))),C("#viewer-panel").hidden=i!=="model",C("#detail-photo").hidden=i==="model",C("#reset-view").hidden=i!=="model",C("#viewer-help").hidden=i!=="model",C("#detail-photo-caption").hidden=i==="model",C("#viewer-status").hidden=i!=="model"||!C("#viewer-status").textContent,i!=="model"&&wt&&(showDetailPhoto(i),C("#detail-photo-img").alt=wt.title+(i==="real"?"\u306E\u5B9F\u7269\u5199\u771F":"\u306E\u30E2\u30C7\u30EB\u753B\u50CF"),C("#detail-photo-caption").textContent=i==="real"?wt.isDemo?"\u30C7\u30E2\u7528\u30A4\u30E1\u30FC\u30B8\uFF08\u5B9F\u7269\u5199\u771F\u3067\u306F\u3042\u308A\u307E\u305B\u3093\uFF09":"\u5B9F\u7269\u5199\u771F":"\u30E2\u30C7\u30EB\u753B\u50CF")}dn("[data-media]").forEach(tab=>tab.addEventListener("click",()=>{
+  im(tab.dataset.media);
+  const body=Fn.querySelector(".dialog-body");
+  if(body.querySelector(".media-stage").getBoundingClientRect().top<body.getBoundingClientRect().top){
+    body.scrollTop=0;
+  }
+}));async function prepareDetailModel(work, request) {
   const model = work.shared ? await galleryModel(work) : await localModel(work);
   if (request !== On) return;
   Ua = model;
