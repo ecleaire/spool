@@ -41,7 +41,7 @@ body.prototype{margin:0;display:block;background:#f4f3ef;color:#203b34;font-size
 .prototype #work-detail #viewer-panel,.prototype #work-detail #detail-photo{position:absolute;inset:0;width:100%;height:100%;margin:0}
 .prototype #work-detail #viewer,.prototype #work-detail #detail-photo img{width:100%;height:100%;border:0;border-radius:0;display:block}
 .prototype #work-detail #detail-photo img{object-fit:contain}
-.prototype #work-detail #viewer-status{position:absolute;left:12px;right:12px;bottom:12px;margin:0;padding:10px 14px;background:#fffefbe8;border-radius:8px;pointer-events:none}
+.prototype #work-detail #viewer-status{margin:0;background:#fffefbe8;border-radius:8px;overflow-wrap:anywhere}
 .prototype #work-detail .media-toolbar{height:100px;display:flex;flex-wrap:wrap;align-content:start;align-items:center;gap:8px 16px;padding-top:14px}
 .prototype #work-detail .media-toolbar .field-help{margin:0;flex-basis:100%}
 .prototype #work-detail #detail-photo-caption{margin:0;padding:8px 0}
@@ -725,10 +725,12 @@ body[data-reactions-loading] .work-reactions { visibility: hidden; }
   position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%;
   object-fit: contain; background: #f7f8f4; pointer-events: none;
 }
-.prototype #work-detail #viewer-status {
-  z-index: 2; left: 8px; right: auto; max-width: calc(100% - 16px);
-  bottom: 8px; padding: 4px 10px; font-size: 14px;
+.prototype #work-detail .viewer-feedback {
+  position: absolute; z-index: 2; inset: auto 8px 8px;
+  display: grid; justify-items: start; gap: 4px; pointer-events: none;
 }
+.prototype #work-detail #viewer-status { padding: 4px 10px; font-size: 14px; }
+.prototype #work-detail #retry-detail-model { pointer-events: auto; }
 .prototype #work-detail .work-description { margin-bottom: 20px; border-bottom: 1px solid #dbe3d6; padding-bottom: 8px; }
 .prototype #work-detail #detail-author { color: #476054; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
 .prototype #work-detail #detail-comment { white-space: pre-line; min-width: 0; color: #203b34; font-size: 17px; font-weight: 450; line-height: 1.6; overflow-wrap: anywhere; }
@@ -770,9 +772,9 @@ body[data-reactions-loading] .work-reactions { visibility: hidden; }
 .prototype #work-detail .detail-navigation .work-nav-label { display: inline; }
 .prototype #work-detail .detail-information .detail-navigation button {
   min-height: 44px; padding: 6px 8px; font-size: 15px;
-  background: transparent; border-color: transparent; color: #28523c;
+  background: #f8faf5; border: 1px solid #bbccba; color: #28523c;
 }
-.prototype #work-detail .detail-navigation button:disabled { color: #748176; }
+.prototype #work-detail .detail-information .detail-navigation button:disabled { color: #6d796f; border-color: transparent; background: transparent; }
 .prototype #work-detail .detail-navigation #work-position { color: #54675c; font-size: 14px; }
 @media(max-width:700px) {
   .prototype #work-detail .dialog-heading > .media-tabs { flex: 1; }
@@ -802,3 +804,34 @@ body[data-reactions-loading] .work-reactions { visibility: hidden; }
 }
 .prototype #work-detail > #detail-reactions:not(:has(button)) { display: none; }
 .prototype #work-detail .work-description { margin-bottom: 4px; padding-bottom: 0; border: 0; }
+
+.prototype #work-detail #detail-author:empty { display: none; }
+
+@media (min-width: 701px) {
+  .prototype #work-detail .model-selector { max-width: 27rem; margin: 0 0 8px; font-size: 15px; }
+}
+
+/* On tall tablets give the viewer the full reading width. */
+@media (min-width: 701px) and (max-width: 1100px) and (orientation: portrait) {
+  .prototype #work-detail .detail-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .prototype #work-detail .detail-media .media-stage,
+  .prototype #work-detail .detail-media:has(.model-selector:not([hidden])):has(#viewer-panel:not([hidden])) .media-stage {
+    height: clamp(260px, 54dvh, 720px);
+  }
+}
+@media (min-width: 761px) and (max-width: 1023px) and (min-height: 501px) {
+  .prototype #work-detail #detail-reactions .reaction-button { min-height: 52px; padding-inline: 14px; font-size: 16px; }
+}
+
+@media (max-width: 760px) and (orientation: portrait) {
+  .prototype #work-detail #detail-reactions .work-reactions:not(:has(button:nth-of-type(4))) {
+    display: flex; flex-wrap: nowrap;
+  }
+  .prototype #work-detail #detail-reactions .reaction-button {
+    display: flex; flex: 1 1 auto; flex-wrap: wrap; align-content: center; justify-content: center;
+    gap: 2px 5px;
+  }
+  .prototype #work-detail #detail-reactions .reaction-button > span:nth-child(2) {
+    order: 1; flex: 0 0 100%; line-height: 1.35; text-wrap: balance;
+  }
+}

@@ -20,6 +20,7 @@ const bucket={
   }
 };
 let resumeReactions, administrator=false, resumeSubmission, failPhoto=false;
+let failViewerOnce=false;
 let unavailableRoute, heldViewer, heldGallery, heldReactionRead, demosEnabled=false;
 const heldSubmission=new Promise(resolve=>{resumeSubmission=resolve});
 const slowReaction=new Promise(resolve=>{resumeReactions=resolve});
@@ -43,6 +44,11 @@ const server=http.createServer(async(req,res)=>{
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
+    if(url.pathname==='/spool/event/viewer.js' && failViewerOnce){
+      failViewerOnce=false;
+      res.writeHead(503,{'Cache-Control':'no-store'}).end();
+      return;
+    }
     if(url.pathname==='/spool/event/viewer.js' && heldViewer)await heldViewer;
     if(url.pathname==='/spool/event/gallery.js' && heldGallery)await heldGallery;
     const file=path.join(output,url.pathname.slice('/spool/'.length));
@@ -338,11 +344,21 @@ try{
   await page.locator('#sort-direction').click();
   assert.match(await page.locator('#sort-direction').innerText(),/昇順/);
 
+  const retryModel=page.getByRole('button',{name:'3Dモデルを再読み込み'});
+  unavailableRoute='/api/works/'+workId+'/model';
   await page.locator('.work-card').filter({hasText:'STL test'}).click();
+  await retryModel.waitFor({timeout:5000});
+  await page.locator('[data-media=real]').click();
+  assert.ok(await retryModel.isHidden());
+  await page.locator('[data-media=model]').click();
+  unavailableRoute=undefined;
+  await retryModel.click();
   await page.locator('#viewer canvas').waitFor({state:'visible'});
+  assert.ok(await retryModel.isHidden());
   assert.ok(await page.locator('#work-metadata').isHidden());
   assert.deepEqual(await page.locator('#detail-model-select option').allTextContents(),['モデル 1','モデル 2']);
   assert.equal(await page.locator('#work-detail .local-only').isVisible(),false);
+  assert.ok(await page.locator('#detail-author').isHidden());
   for(const [width,height] of [...phones,[768,1024],[820,1180],[1024,1366],[1366,1024],[1440,900],[320,568]]){
     const viewport={width,height};
     await page.setViewportSize(viewport);
@@ -358,11 +374,21 @@ try{
       }));
       assert.ok(fits,'Reaction button size and label fit at '+width+'×'+height);
     }
+    if(width<=760 && height>width){
+      const labelsFit=await page.locator('#detail-reactions .reaction-button > span:nth-child(2)').evaluateAll(labels=>
+        labels.every(label=>label.offsetHeight<=Math.ceil(parseFloat(getComputedStyle(label).lineHeight))));
+      assert.ok(labelsFit,'Default reaction names should fit on one line at '+width+'px');
+    }
+    if(width>=701 && width<=1100 && height>width){
+      const stage=await page.locator('.media-stage').boundingBox();
+      const title=await page.locator('#detail-title').boundingBox();
+      assert.ok(stage.width>=layout.width*0.9 && title.y>=stage.y+stage.height);
+    }
     if(viewport.width>=1024){
       const reaction=await page.locator('#detail-reactions button').first().boundingBox();
       const reactions=await page.locator('#detail-reactions').boundingBox();
-      const author=await page.locator('#detail-author').boundingBox();
-      assert.ok(reaction.height>=52 && reactions.y-author.y-author.height>=19);
+      const title=await page.locator('#detail-title').boundingBox();
+      assert.ok(reaction.height>=52 && reactions.y-title.y-title.height>=19);
     }
     const stableReactions=await page.locator('#detail-comment').evaluate(comment=>{
       const body=comment.closest('.dialog-body'),scroll=body.scrollTop;
@@ -396,12 +422,18 @@ try{
   await page.setViewportSize(desktopSize);
   const reads=()=>seen.filter(route=>route.startsWith('/api/files/'+workId+'/model')).length;
   assert.equal(reads(),1);
+  unavailableRoute='/api/files/'+workId+'/model-1';
   await page.locator('#detail-model-select').selectOption('second.glb');
+  await retryModel.waitFor();
+  const failedReads=reads();
+  unavailableRoute=undefined;
+  await retryModel.click();
   await page.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
-  assert.equal(reads(),2);
+  assert.equal(await page.locator('#detail-model-select').inputValue(),'second.glb');
+  assert.equal(reads(),failedReads+1);
   await page.locator('#detail-model-select').selectOption('star.glb');
   await page.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
-  assert.equal(reads(),2);
+  assert.equal(reads(),failedReads+1);
   failPhoto=true;
   await page.locator('[data-media=image]').click();
   const retryPhoto=page.getByRole('button',{name:'画像を再読み込み'});
@@ -559,13 +591,19 @@ try{
     await visitor.waitForFunction(()=>document.querySelector('.work-card img')?.naturalWidth>0);
     assert.ok(await visitor.locator('#event-loading').isHidden());
     assert.ok(await visitor.locator('.work-reactions').first().isHidden());
+    await visitor.locator('#sort-by').selectOption('reactions');
+    failViewerOnce=true;
     await guestCard.click();
     assert.ok(await visitor.locator('#work-metadata').isHidden());
     await visitor.locator('#work-detail[open]').waitFor();
     assert.ok(await visitor.locator('#detail-reactions button').first().isHidden());
+    await visitor.getByRole('button',{name:'3Dモデルを再読み込み'}).click();
+    await visitor.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
     await visitor.keyboard.press('Escape');
   }finally{releaseGallery();heldGallery=null;releaseReactionRead();heldReactionRead=null;}
   await visitor.locator('.work-reactions').first().waitFor();
+  assert.ok(await guestCard.evaluate(card=>document.activeElement===card),
+    'The focused work must survive reaction-based reordering');
   await visitor.reload();
   await guestCard.waitFor();
   const viewerLoads=()=>visitor.evaluate(()=>performance.getEntriesByType('resource')
@@ -588,8 +626,18 @@ try{
     await visitor.locator('#work-detail[open]').waitFor();
     await modelData;
     assert.ok(await visitor.locator('#detail-poster').isVisible());
+    const neighbor=visitor.locator('.detail-navigation button:enabled');
+    assert.equal(await neighbor.count(),1);
+    await neighbor.press('Enter');
+    assert.equal(await visitor.locator('#detail-title').innerText(),'STL test');
   }finally{resumeViewer();heldViewer=null}
+  await visitor.waitForFunction(()=>!document.querySelector('#reset-view').disabled);
+  assert.ok(await visitor.locator('#retry-detail-model').isHidden());
+  const modelTab=visitor.getByRole('button',{name:'3Dモデル',exact:true});
+  assert.ok(await modelTab.evaluate(tab=>document.activeElement===tab),
+    'Keyboard navigation must resume at the active media control of the new work');
   await visitor.keyboard.press('Escape');
+  assert.ok(await guestCard.evaluate(card=>document.activeElement===card));
   unavailableRoute=undefined;
   await visitor.getByRole('button',{name:'一覧を更新'}).click();
   await visitor.locator('#gallery-error').waitFor({state:'hidden'});
