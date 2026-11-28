@@ -1,3 +1,4 @@
+import {eventMember,forgetEventMember} from './entry.mjs';
 import {startGalleryReads} from './release/gallery-requests.js';
 import {createRememberedAuthStorage} from '../auth-storage.mjs';
 import {authStorageKey} from '../security.mjs';
@@ -7,12 +8,6 @@ const parsed=document.readyState==='loading'
   : Promise.resolve();
 const config=__EVENT_CONFIG__;
 const key=authStorageKey(config.url);
-const {storage}=createRememberedAuthStorage({key});
-
-function hasStoredSession(){
-  try{return Boolean(storage.getItem(key))}catch{return false}
-}
-
 function guestToken(){
   let id=crypto.randomUUID();
   try{
@@ -23,33 +18,34 @@ function guestToken(){
 }
 
 async function prepareAuthorization(){
-  if(!hasStoredSession()){
-    const token=guestToken();
-    let reloading=false;
-    function checkForLogin(){
-      if(!reloading && hasStoredSession()){
-        reloading=true;
-        location.reload();
-      }
-      return reloading;
-    }
-    window.addEventListener('storage',event=>{
-      if(event.key===key || event.key===key+':remember' || event.key===null)checkForLogin();
-    });
-    window.addEventListener('pageshow',checkForLogin);
-    return ()=>checkForLogin()?null:token;
-  }
+  const member=eventMember();
+  const guest=()=>{const token=guestToken();return ()=>token};
+  if(!member)return guest();
 
+  const {storage}=createRememberedAuthStorage({key});
+  const storedMember=()=>{
+    try{return JSON.parse(storage.getItem(key))?.user?.id}catch{return null}
+  };
+  if(storedMember()!==member){forgetEventMember();return guest()}
   const {createEventAuth}=await import('./auth-client.js');
   const auth=createEventAuth(config,key,storage);
-  const userId=(await auth.getSession()).data.session?.user.id;
+  const {data}=await auth.getSession();
+  if(data.session?.user.id!==member){forgetEventMember();return guest()}
   await parsed;
-  document.body.toggleAttribute('data-guest-navigation',!userId);
-  const fallback=userId?null:guestToken();
-  auth.onAuthStateChange((_event,session)=>{if(session?.user.id!==userId)location.reload()});
+  document.body.removeAttribute('data-guest-navigation');
+  let ended=false;
+  function endVisit(){
+    if(ended)return;
+    ended=true;
+    forgetEventMember();
+    location.reload();
+  }
+  auth.onAuthStateChange((_event,session)=>{if(session?.user.id!==member)endVisit()});
+  window.addEventListener('pageshow',()=>{if(storedMember()!==member)endVisit()});
   return async()=>{
     const {data,error}=await auth.getSession();
-    return error||data.session?.user.id!==userId?null:data.session?.access_token||fallback;
+    if(data.session?.user.id!==member){endVisit();return null}
+    return ended||error?null:data.session.access_token;
   };
 }
 

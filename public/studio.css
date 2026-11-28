@@ -1024,6 +1024,25 @@ body.simple-workspace #bookingView :is(.booking-quality-label,.booking-deadline 
 body.simple-workspace #bookingView .booking-deadline.overdue :is(time,small){color:#9b352b!important}
 body.simple-workspace #bookingView .booking-deadline.soon :is(time,small){color:#825414!important}
 body.simple-workspace #bookingView .deadline-undecided{font-size:max(var(--spool-type-floor,18px),18px);font-weight:500;color:#294a36}
+/* Keep the written weekday visible as well as its color. */
+#bookingView [data-weekday="月"] { --weekday-ink:#604288; --weekday-bg:#f2edf8; }
+#bookingView [data-weekday="火"] { --weekday-ink:#914118; --weekday-bg:#fff1e4; }
+#bookingView [data-weekday="水"] { --weekday-ink:#006371; --weekday-bg:#e6f5f6; }
+#bookingView [data-weekday="木"] { --weekday-ink:#286037; --weekday-bg:#ecf4e8; }
+#bookingView [data-weekday="金"] { --weekday-ink:#735517; --weekday-bg:#faf3d9; }
+#bookingView [data-weekday="土"] { --weekday-ink:#264e8c; --weekday-bg:#eaf0fc; }
+#bookingView [data-weekday="日"] { --weekday-ink:#95324a; --weekday-bg:#fcecf0; }
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) [data-weekday] {
+  display:inline-block; padding:2px 6px; border-radius:5px;
+  background:var(--weekday-bg); color:var(--weekday-ink);
+  font-size:max(var(--spool-type-floor,18px),21px); font-weight:700; line-height:1.4;
+}
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) :is(.booking-deadline time,.deadline-undecided,.booking-compact-deadline) {
+  font-size:max(var(--spool-type-floor,18px),clamp(21px,2vw,24px)); font-weight:750; line-height:1.4;
+}
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) .booking-deadline small {
+  font-size:max(var(--spool-type-floor,16px),18px); font-weight:650;
+}
 body.simple-workspace #bookingView .booking-registered time{display:grid;gap:2px;white-space:nowrap;font-size:max(var(--spool-type-floor,18px),17px);color:#294a36;font-weight:500;line-height:1.6;font-variant-numeric:tabular-nums}
 body.simple-workspace #bookingView .booking-registered-time{font-size:max(var(--spool-type-floor,18px),17px);color:#294a36;font-variant-numeric:tabular-nums}
 body.simple-workspace #bookingView .booking-status-trigger{font-size:max(var(--spool-type-floor,18px),17px);text-decoration:none}
@@ -1274,7 +1293,25 @@ body.simple-workspace #bookingDialog .booking-optional-heading small{font-size:1
 body.simple-workspace #bookingDialog .disclosure>summary{min-height:48px;padding:12px 14px;line-height:1.5;text-wrap:balance}
 body.simple-workspace #bookingView .booking-details-body .model-file-actions{grid-template-columns:repeat(auto-fit,minmax(min(132px,100%),1fr))}
 body.simple-workspace #bookingView .booking-details-body .model-file-actions :is(a,button){white-space:nowrap;padding:9px 6px!important;font-size:max(var(--spool-type-floor,16px),16px)!important}
-@media(min-width:761px){body.simple-workspace #bookingDialog .booking-work-fields{grid-template-columns:2fr 1fr}body.simple-workspace #bookingDialog .booking-work-fields>.full{grid-column:auto}}
+#bookingDialog .booking-work-fields {
+  display:grid; grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"name-label" "name-input" "creator-label" "creator-input";
+  row-gap:8px; align-items:center;
+}
+#bookingDialog .booking-name-label { grid-area:name-label; margin:0; padding:0; border:0; }
+#bookingDialog .booking-name-label h3 { margin:0; }
+#bookingDialog .booking-name-label label { display:flex; flex-flow:row wrap; align-items:center; gap:6px; }
+#bookingDialog .booking-name-input { grid-area:name-input; align-self:start; }
+#bookingDialog .booking-creator-label { grid-area:creator-label; margin:8px 0 0; }
+#bookingDialog .booking-creator-input { grid-area:creator-input; align-self:start; }
+#bookingDialog .booking-work-fields input { width:100%; box-sizing:border-box; margin:0; }
+@media(min-width:761px){
+  #bookingDialog .booking-work-fields {
+    grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+    grid-template-areas:"name-label creator-label" "name-input creator-input";
+  }
+  #bookingDialog .booking-creator-label { margin:0; }
+}
 @media(max-width:760px){body.simple-workspace #bookingDialog .booking-schedule-fields{grid-template-columns:minmax(0,1fr)}body.simple-workspace #bookingDialog .booking-subheading{margin-top:16px}}
 
 body.simple-workspace #bookingDialog .booking-import{padding:12px;gap:6px;margin-bottom:18px}
@@ -1293,6 +1330,14 @@ body.simple-workspace #bookingDialog :is(.duration-presets button,#durationMinus
 /* Table details use the complete reservation width, without inflating empty columns. */
 body.simple-workspace #bookingView .booking-details-row>td{padding:0 16px 12px;border-top:0}
 body.simple-workspace #bookingView .booking-row:has(+.booking-details-row)>td{border-bottom:0;padding-bottom:4px}
+/* A reservation may span both a summary row and a details row. */
+#bookingView[data-booking-view=list] { --booking-divider:2px solid #829483; }
+body.simple-workspace #bookingView[data-booking-view=list] #bookingRows > .booking-row:not(:first-child) > td {
+  border-top:var(--booking-divider);
+}
+body.simple-workspace #bookingView[data-booking-view=list] #bookingCards > .booking-card {
+  border-bottom:var(--booking-divider);
+}
 body.simple-workspace #bookingView .booking-details-row .booking-row-details{margin-top:0}
 body.simple-workspace #bookingView .booking-details-row summary{max-width:430px}
 .booking-details-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-bottom:10px}.booking-details-top .booking-details-creator{margin:0}.booking-details-top .booking-model-zip{margin:0}
@@ -1416,7 +1461,7 @@ body.simple-workspace #bookingDialog .close{width:44px;height:44px;min-height:44
 body.simple-workspace #bookingDialog .booking-form-scroll{padding:20px 28px;scroll-padding-block:16px}
 body.simple-workspace #bookingDialog :is(.fields label,.color-field-heading>span,.form-section-heading h3,.booking-subheading){font-size:max(var(--spool-type-floor,18px),18px)}
 body.simple-workspace #bookingDialog .booking-form-scroll :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]),select,textarea){font-size:max(var(--spool-type-floor,18px),18px);min-height:52px;padding:12px 14px;line-height:1.5}
-body.simple-workspace #bookingDialog #bookingForm input[name=title]{font-size:max(var(--spool-type-floor,20px),20px)}
+body.simple-workspace #bookingDialog #bookingForm .booking-work-fields input{font-size:max(var(--spool-type-floor,20px),20px)}
 body.simple-workspace #bookingDialog .booking-color-choice strong{font-size:max(var(--spool-type-floor,18px),18px)}
 body.simple-workspace #bookingDialog .booking-color-choices{max-height:clamp(360px,52dvh,560px)}
 body.simple-workspace #bookingDialog .dialog-actions button{min-height:52px;padding:12px 20px;font-size:max(var(--spool-type-floor,18px),18px)}

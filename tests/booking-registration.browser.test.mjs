@@ -6,10 +6,21 @@ const html=readFileSync(new URL('../dist/index.html',import.meta.url));
 const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/html;charset=utf-8');res.end(html)});await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({executablePath:process.env.SPOOL_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)mkdirSync(shots,{recursive:true});
-try{for(const width of [1440,390,320]){
+try{for(const width of [1440,820,390,320]){
  const page=await browser.newPage({viewport:{width,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:'+server.address().port);assert.equal(await page.locator('#search').isVisible(),false);await page.locator('#inventorySearchTrigger').click();await page.locator('#foregroundSearch').fill('test');await page.locator('#applySearchPanel').click();assert.equal(await page.locator('#inventorySearchTrigger').evaluate(el=>el.classList.contains('has-query')),true);
  await page.evaluate(()=>{showBookingView(true);openBooking()});
+ const titleBox=await page.locator('#bookingTitle').boundingBox(),creatorBox=await page.getByRole('textbox',{name:/製作者/}).boundingBox();
+ const titleLabel=await page.locator('label[for=bookingTitle]').boundingBox(),creatorLabel=await page.locator('label[for=bookingCreator]').boundingBox();
+ assert.ok(Math.abs(titleBox.height-creatorBox.height)<=1,'Both text inputs have the same height');
+ if(width>760){
+  assert.ok(Math.abs(titleBox.y-creatorBox.y)<=1,'Both inputs start on the same row');
+  assert.ok(Math.abs((titleLabel.y+titleLabel.height/2)-(creatorLabel.y+creatorLabel.height/2))<=1,'Both labels are vertically centered together');
+ }else{
+  assert.ok(titleLabel.y+titleLabel.height<=titleBox.y && titleBox.y+titleBox.height<=creatorLabel.y && creatorLabel.y+creatorLabel.height<=creatorBox.y);
+  assert.ok(Math.abs(creatorBox.x-titleBox.x)<=1);
+ }
+
  // A deadline overrides a legacy weekday in the editor, saved record and both list layouts.
  await page.evaluate(()=>{const f=document.querySelector('#bookingForm').elements;f.registeredDate.value='2026-11-01';f.registeredDate.dispatchEvent(new Event('change',{bubbles:true}));});
  await page.locator('[name=deadline]').fill('2026-11-04');assert.equal(await page.locator('[name=weekday]').inputValue(),'水');

@@ -43,6 +43,14 @@ const server=http.createServer(async(req,res)=>{
         {BUCKET:bucket,SPOOL_EVENT_DEMOS:String(demosEnabled),EVENT_IDENTITY:{fetch:async()=>Response.json({id:guest?req.headers.authorization.slice(7):'mock-user',guest,allowed:true,canManageEvents:!guest&&administrator})}});
       res.writeHead(result.status,Object.fromEntries(result.headers)).end(Buffer.from(await result.arrayBuffer()));return;
     }
+    if(url.pathname==='/spool/'){
+      res.writeHead(200,{'Content-Type':'text/html;charset=utf-8'}).end('<button>イベント</button><script type="module">import {eventEntryUrl} from "./entry.mjs";document.querySelector("button").onclick=()=>location.assign(eventEntryUrl("mock-user"));</script>');
+      return;
+    }
+    if(url.pathname==='/spool/entry.mjs'){
+      res.writeHead(200,{'Content-Type':'application/javascript'}).end(await readFile(new URL('../../online/event/entry.mjs',import.meta.url)));
+      return;
+    }
     if(!url.pathname.startsWith('/spool/event/')){res.writeHead(404).end();return}
     if(url.pathname==='/spool/event/viewer.js' && failViewerOnce){
       failViewerOnce=false;
@@ -171,22 +179,38 @@ try{
     await galleryReady(guest);
     assert.equal(await authLoads(guest),0);
     assert.equal(await guest.locator('[data-open-submission]:visible').count(),0);
-    await Promise.all([guest.waitForEvent('load'),sibling.evaluate(session=>{
+    await sibling.evaluate(session=>{
       localStorage.setItem('spool-auth-127:remember','1');
       localStorage.setItem('spool-auth-127',session);
-    },session)]);
+    },session);
+    await guest.reload();
     await galleryReady(guest);
-    assert.equal(await authLoads(guest),1);
-    assert.ok(await guest.locator('[data-open-submission]:visible').count()>0);
-    await Promise.all([guest.waitForEvent('load'),sibling.evaluate(()=>{
+    assert.equal(await authLoads(guest),0);
+    assert.equal(await guest.locator('[data-open-submission]:visible').count(),0);
+
+    await sibling.goto(origin+'/spool/');
+    await sibling.getByRole('button',{name:'イベント'}).click();
+    await galleryReady(sibling);
+    assert.equal(sibling.url(),origin+'/spool/event/index.html');
+    assert.ok(await sibling.locator('[data-open-submission]:visible').count()>0);
+    await sibling.reload();
+    await galleryReady(sibling);
+    assert.equal(await authLoads(sibling),1);
+    const sharedLink=await guestContext.newPage();
+    await sharedLink.goto(sibling.url()+'#works');
+    await galleryReady(sharedLink);
+    assert.equal(await authLoads(sharedLink),0);
+    assert.equal(await sharedLink.locator('[data-open-submission]:visible').count(),0);
+    await sharedLink.close();
+    await Promise.all([sibling.waitForEvent('load'),guest.evaluate(()=>{
       localStorage.removeItem('spool-auth-127');
       const channel=new BroadcastChannel('spool-auth-127');
       channel.postMessage({event:'SIGNED_OUT',session:null});
       channel.close();
     })]);
-    await galleryReady(guest);
-    assert.equal(await authLoads(guest),0);
-    assert.equal(await guest.locator('[data-open-submission]:visible').count(),0);
+    await galleryReady(sibling);
+    assert.equal(await authLoads(sibling),0);
+    assert.equal(await sibling.locator('[data-open-submission]:visible').count(),0);
   }finally{await guestContext.close();}
   const privateGuest=await browser.newPage();
   try{
@@ -206,7 +230,8 @@ try{
   await page.evaluate(token=>sessionStorage.setItem('spool-auth-127',JSON.stringify({access_token:token,refresh_token:'mock',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'mock-user'}})),token);
   const works=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/works');
   unavailableRoute='/api/reactions';
-  await page.reload();
+  await page.goto(origin+'/spool/');
+  await page.getByRole('button',{name:'イベント'}).click();
   await page.locator('#gallery-error').waitFor();
   assert.equal(await page.locator('[data-open-submission]:visible').count(),0);
   unavailableRoute=undefined;
@@ -326,11 +351,60 @@ try{
     await image.decode();
     const manifest=await (await fetch('/api/works/'+response.work.id+'/model')).json();
     const model=await (await fetch(manifest.files[0].url)).json();
-    return {imageWidth:image.naturalWidth,modelVersion:model.asset.version};
+    return {id:response.work.id,imageWidth:image.naturalWidth,modelVersion:model.asset.version};
   });
   assert.ok(uploaded.imageWidth>0);assert.equal(uploaded.modelVersion,'2.0');
+  const primaryImage='/api/files/'+uploaded.id+'/image';
+  unavailableRoute=primaryImage;
   await page.getByRole('button',{name:'一覧を更新'}).click();
-  await page.locator('.work-card').filter({hasText:'星'}).waitFor();
+  const starThumbnail=page.locator('.work-card').filter({hasText:'星'}).locator('img');
+  await starThumbnail.waitFor();
+  await page.waitForFunction(id=>{
+    const image=document.querySelector('[data-work-id="'+id+'"] img');
+    return image?.naturalWidth>0 && new URL(image.src).pathname.endsWith('/real');
+  },uploaded.id,{timeout:5000});
+  assert.equal(await starThumbnail.getAttribute('alt'),'星の実物写真');
+  const primaryReads=()=>seen.filter(route=>route===primaryImage).length;
+  const failedReadsBeforeSort=primaryReads();
+  await page.locator('#sort-direction').click();
+  await starThumbnail.evaluate(image=>image.decode());
+  assert.equal(primaryReads(),failedReadsBeforeSort);
+  await page.locator('#sort-direction').click();
+
+  // Simulate older records and unavailable files in the in-memory event store.
+  const starKey='works/'+uploaded.id+'.json';
+  const originalStar=await documents.get(starKey).json();
+  const starCard=page.locator('.work-card').filter({hasText:'星'});
+  unavailableRoute='/api/files/'+uploaded.id+'/real';
+  const refresh=page.getByRole('button',{name:'一覧を更新'});
+  await bucket.put(starKey,JSON.stringify({...originalStar,version:2,modelView:{thumbnailSource:'model',hasModelImage:false}}));
+  await refresh.click();
+  await page.waitForFunction(id=>{
+    const image=document.querySelector('[data-work-id="'+id+'"] img');
+    return image?.hidden && image.getAttribute('src')?.endsWith('/real?v=2');
+  },uploaded.id);
+  assert.ok(await starCard.isVisible());
+  assert.equal(primaryReads(),failedReadsBeforeSort);
+  await starCard.click();
+  assert.ok(await page.locator('[data-media=image]').isHidden());
+  await page.locator('#close-detail').click();
+
+  await bucket.put(starKey,JSON.stringify({...originalStar,version:3,modelView:{thumbnailSource:'real'}}));
+  await refresh.click();
+  await page.waitForFunction(id=>{
+    const image=document.querySelector('[data-work-id="'+id+'"] img');
+    return image?.naturalWidth>0 && image.getAttribute('src')?.endsWith('/image?v=3');
+  },uploaded.id);
+  assert.equal(await starThumbnail.getAttribute('alt'),'星のモデル画像');
+
+  await bucket.put(starKey,JSON.stringify(originalStar));
+  unavailableRoute=undefined;
+  await page.getByRole('button',{name:'一覧を更新'}).click();
+  await page.waitForFunction(id=>{
+    const image=document.querySelector('[data-work-id="'+id+'"] img');
+    return image?.naturalWidth>0 && image.getAttribute('src')?.endsWith('/image?v=1');
+  },uploaded.id);
+  assert.equal(await starThumbnail.getAttribute('alt'),'星のモデル画像');
   assert.match(await page.locator('.work-card').filter({hasText:'STL test'}).locator('img').getAttribute('src'),/\/real(?:\?|$)/);
   const search=page.getByRole('searchbox',{name:'作品検索'});
   assert.equal(await search.getAttribute('placeholder'),'検索：作品名・作者名・一言');
@@ -697,5 +771,5 @@ try{
   await visitor.close();
   console.log('PASS fresh mobile guest deep link, published work, 3D model and both photos, hidden editing controls, five saved taps per work and persisted count after reload.');
   assert.deepEqual(errors,[]);
-  console.log('PASS: signed-out state, existing tab login, scoped API forwarding, gallery, submission dialog, multipart form, image and model reads under /spool/.');
+  console.log('PASS: direct guest visits, member-only entry from SPOOL, scoped API forwarding, gallery, submission dialog, multipart form, image and model reads under /spool/.');
 }finally{await browser?.close();server.closeAllConnections();await new Promise(r=>server.close(r));await rm(output,{recursive:true,force:true})}

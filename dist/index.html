@@ -1186,6 +1186,25 @@ body.simple-workspace #bookingView :is(.booking-quality-label,.booking-deadline 
 body.simple-workspace #bookingView .booking-deadline.overdue :is(time,small){color:#9b352b!important}
 body.simple-workspace #bookingView .booking-deadline.soon :is(time,small){color:#825414!important}
 body.simple-workspace #bookingView .deadline-undecided{font-size:max(var(--spool-type-floor,18px),18px);font-weight:500;color:#294a36}
+/* Keep the written weekday visible as well as its color. */
+#bookingView [data-weekday="月"] { --weekday-ink:#604288; --weekday-bg:#f2edf8; }
+#bookingView [data-weekday="火"] { --weekday-ink:#914118; --weekday-bg:#fff1e4; }
+#bookingView [data-weekday="水"] { --weekday-ink:#006371; --weekday-bg:#e6f5f6; }
+#bookingView [data-weekday="木"] { --weekday-ink:#286037; --weekday-bg:#ecf4e8; }
+#bookingView [data-weekday="金"] { --weekday-ink:#735517; --weekday-bg:#faf3d9; }
+#bookingView [data-weekday="土"] { --weekday-ink:#264e8c; --weekday-bg:#eaf0fc; }
+#bookingView [data-weekday="日"] { --weekday-ink:#95324a; --weekday-bg:#fcecf0; }
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) [data-weekday] {
+  display:inline-block; padding:2px 6px; border-radius:5px;
+  background:var(--weekday-bg); color:var(--weekday-ink);
+  font-size:max(var(--spool-type-floor,18px),21px); font-weight:700; line-height:1.4;
+}
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) :is(.booking-deadline time,.deadline-undecided,.booking-compact-deadline) {
+  font-size:max(var(--spool-type-floor,18px),clamp(21px,2vw,24px)); font-weight:750; line-height:1.4;
+}
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) .booking-deadline small {
+  font-size:max(var(--spool-type-floor,16px),18px); font-weight:650;
+}
 body.simple-workspace #bookingView .booking-registered time{display:grid;gap:2px;white-space:nowrap;font-size:max(var(--spool-type-floor,18px),17px);color:#294a36;font-weight:500;line-height:1.6;font-variant-numeric:tabular-nums}
 body.simple-workspace #bookingView .booking-registered-time{font-size:max(var(--spool-type-floor,18px),17px);color:#294a36;font-variant-numeric:tabular-nums}
 body.simple-workspace #bookingView .booking-status-trigger{font-size:max(var(--spool-type-floor,18px),17px);text-decoration:none}
@@ -1436,7 +1455,25 @@ body.simple-workspace #bookingDialog .booking-optional-heading small{font-size:1
 body.simple-workspace #bookingDialog .disclosure>summary{min-height:48px;padding:12px 14px;line-height:1.5;text-wrap:balance}
 body.simple-workspace #bookingView .booking-details-body .model-file-actions{grid-template-columns:repeat(auto-fit,minmax(min(132px,100%),1fr))}
 body.simple-workspace #bookingView .booking-details-body .model-file-actions :is(a,button){white-space:nowrap;padding:9px 6px!important;font-size:max(var(--spool-type-floor,16px),16px)!important}
-@media(min-width:761px){body.simple-workspace #bookingDialog .booking-work-fields{grid-template-columns:2fr 1fr}body.simple-workspace #bookingDialog .booking-work-fields>.full{grid-column:auto}}
+#bookingDialog .booking-work-fields {
+  display:grid; grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"name-label" "name-input" "creator-label" "creator-input";
+  row-gap:8px; align-items:center;
+}
+#bookingDialog .booking-name-label { grid-area:name-label; margin:0; padding:0; border:0; }
+#bookingDialog .booking-name-label h3 { margin:0; }
+#bookingDialog .booking-name-label label { display:flex; flex-flow:row wrap; align-items:center; gap:6px; }
+#bookingDialog .booking-name-input { grid-area:name-input; align-self:start; }
+#bookingDialog .booking-creator-label { grid-area:creator-label; margin:8px 0 0; }
+#bookingDialog .booking-creator-input { grid-area:creator-input; align-self:start; }
+#bookingDialog .booking-work-fields input { width:100%; box-sizing:border-box; margin:0; }
+@media(min-width:761px){
+  #bookingDialog .booking-work-fields {
+    grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+    grid-template-areas:"name-label creator-label" "name-input creator-input";
+  }
+  #bookingDialog .booking-creator-label { margin:0; }
+}
 @media(max-width:760px){body.simple-workspace #bookingDialog .booking-schedule-fields{grid-template-columns:minmax(0,1fr)}body.simple-workspace #bookingDialog .booking-subheading{margin-top:16px}}
 
 body.simple-workspace #bookingDialog .booking-import{padding:12px;gap:6px;margin-bottom:18px}
@@ -1455,6 +1492,14 @@ body.simple-workspace #bookingDialog :is(.duration-presets button,#durationMinus
 /* Table details use the complete reservation width, without inflating empty columns. */
 body.simple-workspace #bookingView .booking-details-row>td{padding:0 16px 12px;border-top:0}
 body.simple-workspace #bookingView .booking-row:has(+.booking-details-row)>td{border-bottom:0;padding-bottom:4px}
+/* A reservation may span both a summary row and a details row. */
+#bookingView[data-booking-view=list] { --booking-divider:2px solid #829483; }
+body.simple-workspace #bookingView[data-booking-view=list] #bookingRows > .booking-row:not(:first-child) > td {
+  border-top:var(--booking-divider);
+}
+body.simple-workspace #bookingView[data-booking-view=list] #bookingCards > .booking-card {
+  border-bottom:var(--booking-divider);
+}
 body.simple-workspace #bookingView .booking-details-row .booking-row-details{margin-top:0}
 body.simple-workspace #bookingView .booking-details-row summary{max-width:430px}
 .booking-details-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-bottom:10px}.booking-details-top .booking-details-creator{margin:0}.booking-details-top .booking-model-zip{margin:0}
@@ -1578,7 +1623,7 @@ body.simple-workspace #bookingDialog .close{width:44px;height:44px;min-height:44
 body.simple-workspace #bookingDialog .booking-form-scroll{padding:20px 28px;scroll-padding-block:16px}
 body.simple-workspace #bookingDialog :is(.fields label,.color-field-heading>span,.form-section-heading h3,.booking-subheading){font-size:max(var(--spool-type-floor,18px),18px)}
 body.simple-workspace #bookingDialog .booking-form-scroll :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]),select,textarea){font-size:max(var(--spool-type-floor,18px),18px);min-height:52px;padding:12px 14px;line-height:1.5}
-body.simple-workspace #bookingDialog #bookingForm input[name=title]{font-size:max(var(--spool-type-floor,20px),20px)}
+body.simple-workspace #bookingDialog #bookingForm .booking-work-fields input{font-size:max(var(--spool-type-floor,20px),20px)}
 body.simple-workspace #bookingDialog .booking-color-choice strong{font-size:max(var(--spool-type-floor,18px),18px)}
 body.simple-workspace #bookingDialog .booking-color-choices{max-height:clamp(360px,52dvh,560px)}
 body.simple-workspace #bookingDialog .dialog-actions button{min-height:52px;padding:12px 20px;font-size:max(var(--spool-type-floor,18px),18px)}
@@ -1906,10 +1951,11 @@ body.simple-workspace #bookingView .booking-model-zip>span{max-width:100%;white-
 <dialog id="usage"><form id="usageForm"><div class="dialog-head"><h2>使用量を記録</h2><button type="button" class="close" id="closeUsage" aria-label="閉じる">×</button></div><p id="usageName"></p><div class="usage-presets" aria-label="使用量の候補"><button type="button" data-usage-amount="25">25 g</button><button type="button" data-usage-amount="50">50 g</button><button type="button" data-usage-amount="100">100 g</button></div><label>今回使用した量 (g)<input type="number" inputmode="numeric" id="used" min="1" step="1" required></label><p id="usageError" class="error" role="alert"></p><div class="dialog-actions"><button class="primary">使用量を記録</button></div></form></dialog><dialog id="bulkDialog"><form id="bulkForm"><div class="dialog-head"><h2 id="bulkTitle"></h2><button type="button" class="close" id="closeBulk" aria-label="一括操作を閉じる">×</button></div><p id="bulkDescription"></p><ul id="bulkPreview"></ul><div id="bulkAddFields" class="fields"><label class="full">各商品の追加本数<input id="bulkCopies" type="number" inputmode="numeric" min="1" max="100" step="1" value="1" required></label><label class="full" id="resetRemainingLabel"><span><input id="resetRemaining" type="checkbox" checked> 新しいスプールは満量で追加する</span></label></div><p id="bulkSummary" aria-live="polite"></p><p id="bulkError" class="error" role="alert"></p><div class="dialog-actions"><button type="button" id="cancelBulk">キャンセル</button><button type="submit" class="primary" id="confirmBulk"></button></div></form></dialog><dialog id="activityDialog" class="activity-dialog" aria-labelledby="activityTitle"><div class="dialog-head"><h2 id="activityTitle">ごみ箱・残量履歴</h2><button type="button" id="closeActivity" aria-label="ごみ箱・残量履歴を閉じる">×</button></div><div class="activity-tabs" role="group" aria-label="履歴の種類"><button type="button" data-activity-tab="trash" aria-pressed="true">ごみ箱</button><button type="button" data-activity-tab="remaining" aria-pressed="false">残量の履歴</button></div><div class="activity-body"><p id="activityScope"></p><p id="activityMessage" role="status"></p><div id="activityRows"></div></div><div class="dialog-actions"><button type="button" id="restoreActivity">選択分を復元</button><button type="button" id="closeActivityFooter">閉じる</button></div></dialog>
 <dialog id="bookingDialog" aria-labelledby="bookingDialogTitle"><form id="bookingForm">
 <div class="dialog-head"><h2 id="bookingDialogTitle">印刷予約を登録</h2><button type="button" class="close" id="closeBooking" aria-label="予約画面を閉じる">×</button></div>
-<div class="booking-form-scroll"><section class="form-section" aria-labelledby="bookingWorkHeading"><div class="form-section-heading" id="bookingWorkHeading"><h3><label for="bookingTitle"><span class="booking-step">1</span> 予約名（作品名） <small class="field-required">必須</small></label></h3></div><div class="fields booking-work-fields">
-<div class="full" data-field-error-container><input id="bookingTitle" name="title" required maxlength="100" placeholder="例：キーホルダー" autocomplete="off"></div><label class="full"><span class="field-label">製作者 <span class="field-optional">任意</span></span><input name="creator" type="text" maxlength="100" placeholder="例：製作者名・アカウント名" autocomplete="off"></label>
-
-
+<div class="booking-form-scroll"><section class="form-section" aria-labelledby="bookingWorkHeading"><div class="fields booking-work-fields">
+<div class="form-section-heading booking-name-label" id="bookingWorkHeading"><h3><label for="bookingTitle"><span class="booking-step">1</span> 予約名（作品名） <small class="field-required">必須</small></label></h3></div>
+<div class="booking-name-input" data-field-error-container><input id="bookingTitle" name="title" required maxlength="100" placeholder="例：キーホルダー" autocomplete="off"></div>
+<label class="booking-creator-label" for="bookingCreator"><span class="field-label">製作者 <span class="field-optional">任意</span></span></label>
+<div class="booking-creator-input" data-field-error-container><input id="bookingCreator" name="creator" type="text" maxlength="100" placeholder="例：製作者名・アカウント名" autocomplete="off"></div>
 </div></section>
 <section class="booking-import" aria-labelledby="bookingFileHeading"><div class="form-section-heading"><h3 id="bookingFileHeading"><span class="booking-step">2</span> ファイル <small class="field-optional">任意</small></h3></div><label for="bookingFileInput" id="bookingImportPick"><svg class="booking-drop-icon" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></svg><strong>ファイルを追加</strong><span>ここにドラッグ＆ドロップ<br>またはタップして選択</span><small>3MF・G-codeから予定を自動入力</small><input id="bookingFileInput" type="file" accept=".stl,.obj,.3mf,.amf,.step,.stp,.gcode" multiple class="booking-native-file-picker" aria-label="モデル・印刷ファイルを選択"></label><button type="button" id="bookingGoColor" hidden>次へ：希望色を選ぶ ↓</button><div class="booking-upload-tools"><button type="button" id="bookingReferenceOpen" class="cloud-text-button">保存先・リンクで指定</button><details id="bookingUploadHelp" class="booking-upload-help"><summary>対応形式・容量について</summary><small id="bookingFileLimit" class="model-file-limit"></small></details></div><div id="bookingFileListHeading" class="model-file-list-heading" hidden><strong>関連ファイル</strong><span id="bookingFileCount"></span></div><div id="bookingFileBatchTools" class="booking-file-batch" hidden><span id="bookingFileSelectedCount" role="status"></span><button type="button" id="bookingFilesSelectAll">すべて選択</button><button type="button" id="bookingFilesClear">選択解除</button><button type="button" id="bookingFilesDelete" class="danger">選択したファイルを削除</button></div><ul id="bookingPendingFiles" class="booking-pending-files" aria-label="関連ファイル一覧"></ul><p id="bookingFileFeedback" class="field-feedback" role="status"></p><button type="button" id="bookingImportReadSaved" hidden>保存済みの印刷データを読み込む</button><div id="bookingImportPanel" hidden><label id="bookingImportSingle">反映するファイル・プレート<select id="bookingImportSource"></select></label><details id="bookingImportPlates" class="disclosure" hidden><summary>対象プレートを選択 <span id="bookingImportPlateCount"></span></summary><div class="booking-plate-select-actions"><button type="button" id="bookingImportAll">すべて選択</button><button type="button" id="bookingImportClear">選択解除</button></div><p class="plate-selection-hint">同じ印刷内容の3MFとG-codeを重複して選ばないでください。</p><div id="bookingImportPlateChoices"></div></details><div id="bookingImportSummary"></div><p id="bookingImportDuplicates" class="import-duplicate-warning" role="status" hidden></p><p id="bookingImportStatus" role="status"></p><button type="button" id="bookingImportApply">合計値を再反映</button></div><div id="bookingImportChanges" class="import-change-summary" role="status" hidden></div><p id="bookingImportFeedback" role="status" hidden></p></section><section class="form-section booking-plan-section" aria-labelledby="bookingPlanHeading"><div class="form-section-heading" id="bookingPlanHeading" tabindex="-1"><h3><span class="booking-step">3</span> 希望色 <small class="field-required">必須</small></h3></div>
 <div class="booking-color-field"><div class="color-field-heading"><small>色を選んでください。複数選択もできます。</small></div><input type="hidden" name="desiredColor" id="bookingColor"><div class="color-preference-actions"><button type="button" id="bookingNoPreference" aria-pressed="false"><span aria-hidden="true">○</span> 希望なし</button><button type="button" id="bookingRandom" aria-pressed="false" aria-label="登録したフィラメントからランダムに選ぶ"><span aria-hidden="true">⤨</span> ランダム</button></div><details id="bookingColorSearchDetails" class="booking-color-search-disclosure"><summary aria-label="希望色を検索" title="希望色を検索"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5" stroke-linecap="round"/></svg><span>色を検索</span></summary><label class="booking-color-search"><span aria-hidden="true">⌕</span><input id="bookingColorSearch" type="search" placeholder="色・商品・ブランドで探す" aria-label="希望色を検索"></label></details><p id="bookingColorCount" class="booking-color-count" role="status"></p><div id="bookingColorChoices" class="booking-color-choices" aria-label="希望色の選択"></div><div id="bookingSelectedColor" class="booking-selected-color" role="status"></div></div>
@@ -2435,6 +2481,10 @@ function bookingRequestedColorMarkup(booking){
 function durationLabel(minutes){const hours=Math.floor(minutes/60),rest=minutes%60;return (hours?hours+'時間':'')+(rest?rest+'分':'')||'0分'}
 function displayDate(value){return value.replaceAll('-','/')}
 function bookingStatus(booking){return booking.printStatus||'印刷予定'}
+function bookingWeekdayMarkup(booking, className){
+  const day=esc(bookingWeekday(booking));
+  return '<span class="'+className+'" data-weekday="'+day+'">'+day+'曜日</span>';
+}
 function bookingRegisteredMarkup(booking){return '<time datetime="'+booking.registeredDate+'">'+esc(displayDate(booking.registeredDate))+'</time>'}
 function bookingDue(booking,today=todayJST()){
   if(!booking.deadline)return {days:Infinity,tone:'undecided',label:'期限未定'};
@@ -2494,8 +2544,8 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
   const bookingDetails=bookingDetailsMarkup;
   const colorLabel=bookingRequestedColorMarkup;
   window.spoolFilteredBookings?.(shown);
-  $('#bookingRows').innerHTML=shown.map(x=>'<tr data-booking-id="'+esc(x.id)+'" class="booking-row '+(bookingStatus(x)==='印刷済み'?'is-printed':'')+'"><td class="work-cell"><strong class="work-title">'+esc(x.title)+'</strong><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'</td><td><span class="booking-weekday">'+esc(bookingWeekday(x))+'曜日</span></td><td>'+statusMarkup(x)+'</td><td class="booking-duration">'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></td><td>'+deadlineMarkup(x)+'</td><td class="booking-registered">'+bookingRegisteredMarkup(x)+'</td><td>'+editButton(x)+'</td></tr>'+(bookingDetails(x)?'<tr class="booking-details-row" data-booking-details-for="'+esc(x.id)+'"><td colspan="7">'+bookingDetails(x)+'</td></tr>':'')).join('');
-  $('#bookingCards').innerHTML=shown.map(x=>'<article data-booking-id="'+esc(x.id)+'" class="booking-card '+bookingDue(x).tone+'"><div class="booking-card-top"><span class="booking-card-weekday">'+esc(bookingWeekday(x))+'曜日</span>'+statusMarkup(x)+'</div><h3>'+esc(x.title)+'</h3><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'<div class="booking-compact-meta"><span>期限 '+esc(x.deadline?displayDate(x.deadline):'未定')+'</span><span>合計 '+esc(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</span></div><button type="button" class="booking-expand" data-booking-expand="'+esc(x.id)+'" aria-expanded="false" aria-label="'+esc(x.title)+'の詳細・操作">詳細・操作</button><div class="booking-card-metrics"><div><span>期限</span>'+deadlineMarkup(x)+'</div><div><span>印刷時間</span><strong>'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</strong>'+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></div></div>'+bookingDetails(x)+'<div class="booking-card-footer"><div class="booking-card-registration"><span>登録日</span>'+bookingRegisteredMarkup(x)+'</div>'+editButton(x)+'</div></article>').join('');
+  $('#bookingRows').innerHTML=shown.map(x=>'<tr data-booking-id="'+esc(x.id)+'" class="booking-row '+(bookingStatus(x)==='印刷済み'?'is-printed':'')+'"><td class="work-cell"><strong class="work-title">'+esc(x.title)+'</strong><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'</td><td>'+bookingWeekdayMarkup(x,'booking-weekday')+'</td><td>'+statusMarkup(x)+'</td><td class="booking-duration">'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></td><td>'+deadlineMarkup(x)+'</td><td class="booking-registered">'+bookingRegisteredMarkup(x)+'</td><td>'+editButton(x)+'</td></tr>'+(bookingDetails(x)?'<tr class="booking-details-row" data-booking-details-for="'+esc(x.id)+'"><td colspan="7">'+bookingDetails(x)+'</td></tr>':'')).join('');
+  $('#bookingCards').innerHTML=shown.map(x=>'<article data-booking-id="'+esc(x.id)+'" class="booking-card '+bookingDue(x).tone+'"><div class="booking-card-top">'+bookingWeekdayMarkup(x,'booking-card-weekday')+''+statusMarkup(x)+'</div><h3>'+esc(x.title)+'</h3><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'<div class="booking-compact-meta"><span class="booking-compact-deadline">期限 '+esc(x.deadline?displayDate(x.deadline):'未定')+'</span><span>合計 '+esc(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</span></div><button type="button" class="booking-expand" data-booking-expand="'+esc(x.id)+'" aria-expanded="false" aria-label="'+esc(x.title)+'の詳細・操作">詳細・操作</button><div class="booking-card-metrics"><div><span>期限</span>'+deadlineMarkup(x)+'</div><div><span>印刷時間</span><strong>'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</strong>'+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></div></div>'+bookingDetails(x)+'<div class="booking-card-footer"><div class="booking-card-registration"><span>登録日</span>'+bookingRegisteredMarkup(x)+'</div>'+editButton(x)+'</div></article>').join('');
   $('#bookingEmpty').hidden=!!shown.length;$('#bookingEmptyTitle').textContent=reservations.length?'条件に一致する予約がありません':'最初の印刷予約を登録しましょう';$('#bookingEmptyCopy').textContent=reservations.length?'検索やクラス、印刷情報の条件を変更してください。':'作品名・希望色・期限を決めて、印刷の予定をまとめられます。';$('#emptyAddBooking').hidden=!!reservations.length;$('#resetBookingFilters').hidden=!(q||cls||tag||window.spoolBookingQuickActive?.());
   window.spoolBookingViewsRendered?.();
   bindModelFileActions();

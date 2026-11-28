@@ -1,3 +1,4 @@
+import {eventEntryUrl} from './event/entry.mjs';
 import {createWebApp} from './pwa.mjs';
 import {createRememberedAuthStorage} from './auth-storage.mjs';
 import {createHealthPanel} from './health.mjs';
@@ -160,7 +161,7 @@ function render(){
  panel.querySelectorAll('[data-open-tools]').forEach(button=>button.onclick=()=>{if(button.dataset.openTools==='data'&&!canConfigureLibrary())return;document.querySelector('#cloud-account-dialog')?.close();if(button.dataset.openTools==='accounts'&&users){tools.close();users.showModal();users.querySelector('#cloud-add-account input')?.focus();return;}tools.querySelectorAll('details').forEach(d=>d.open=button.dataset.openTools!=='data'&&d.dataset.toolSection===button.dataset.openTools);tools.showModal();health.ensure();if(button.dataset.openTools==='accounts')tools.querySelector('#cloud-add-account input').focus()});
  panel.querySelector('[data-close-cloud-tools]').onclick=()=>tools.close();
  tools.addEventListener('click',event=>{if(event.target===tools){const r=tools.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)tools.close()}});
- panel.querySelectorAll('[data-cloud-nav]').forEach(button=>button.onclick=()=>{if(button.dataset.cloudNav==='events'){location.assign('./event/index.html');return}else bridge.navigate(button.dataset.cloudNav==='bookings');updateCloudNavigation()});
+ panel.querySelectorAll('[data-cloud-nav]').forEach(button=>button.onclick=()=>{if(button.dataset.cloudNav==='events'){location.assign(eventEntryUrl(__SPOOL_EVENT_ENABLED__ && session?.user.id));return}else bridge.navigate(button.dataset.cloudNav==='bookings');updateCloudNavigation()});
  updateCloudNavigation();
  bindAccount(logout);
  document.querySelector('#cloud-library').onchange=e=>loadLibrary(e.target.value);

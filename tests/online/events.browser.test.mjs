@@ -58,6 +58,7 @@ try{
   await page.setViewportSize({width,height:1000});
   await page.locator('[data-cloud-nav="events"]').click();
   await page.waitForURL('**/spool/event/index.html');
+  if(eventReleased)assert.equal(await page.evaluate(()=>history.state?.spoolEventMember),user);
   assert.equal(await page.locator('#addBooking, #add, #openLibrary').count(),0);
   if(await page.locator('script[src="announcement.js"]').count()){
     if(width<=640)await page.locator('.ornament-poster').waitFor();
