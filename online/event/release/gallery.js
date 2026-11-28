@@ -102,16 +102,24 @@ function photoAsset(work, kind) {
 function photoURL(asset, urls) {
   return asset instanceof Blob ? Wu(asset, urls) : asset;
 }
-function workThumbnail(work, urls, {previous, index, decorative = false} = {}) {
+// A filtered-out tile can return before the next gallery refresh. Keep its
+// decoded remote image for the lifetime of that work record (never a blob URL).
+const galleryThumbnails = new WeakMap();
+function workThumbnail(work, urls, {previous, index, decorative = false, retryThumbnails = false} = {}) {
   const preferred = thumbnailSource(work);
   const other = preferred === "real" ? "model" : "real";
   const primary = photoAsset(work, preferred);
   const kind = primary ? preferred : other;
   const url = photoURL(primary || photoAsset(work, other), urls);
-  const cached = previous?.get(url);
+  let cached = previous?.get(url);
+  if (!cached && previous && !retryThumbnails) {
+    const remembered = galleryThumbnails.get(work);
+    if (remembered?.complete && remembered.naturalWidth > 0 && remembered.dataset.primaryUrl === url) cached = remembered;
+  }
   const image = cached || new Image();
   image.loading = index < 2 ? "eager" : "lazy";
   image.fetchPriority = index === 0 ? "high" : "auto";
+  if (previous && work.shared && url && !url.startsWith("blob:")) galleryThumbnails.set(work, image);
   if (cached) return image;
   image.decoding = "async";
   function show(source, src) {
@@ -147,7 +155,7 @@ function Bn({retryThumbnails = false} = {}){
     const url = image.dataset.primaryUrl;
     if (!retryThumbnails || (!image.hidden && image.getAttribute("src") === url)) thumbnails.set(url, image);
   }
-C("#sort-by option[value=date]").textContent=gr?"\u53E4\u3044\u9806":"\u65B0\u7740\u9806",C("#sort-by option[value=reactions]").textContent=gr?"\u30EA\u30A2\u30AF\u30B7\u30E7\u30F3\u304C\u5C11\u306A\u3044\u9806":"\u30EA\u30A2\u30AF\u30B7\u30E7\u30F3\u304C\u591A\u3044\u9806",xr(zu);let i=Xu().map((e,index)=>{let t=document.createElement("button");t.type="button",t.className="work-card",t.dataset.workId=e.id;const n=workThumbnail(e,zu,{previous:thumbnails,index});
+C("#sort-by option[value=date]").textContent=gr?"\u53E4\u3044\u9806":"\u65B0\u7740\u9806",C("#sort-by option[value=reactions]").textContent=gr?"\u30EA\u30A2\u30AF\u30B7\u30E7\u30F3\u304C\u5C11\u306A\u3044\u9806":"\u30EA\u30A2\u30AF\u30B7\u30E7\u30F3\u304C\u591A\u3044\u9806",xr(zu);let i=Xu().map((e,index)=>{let t=document.createElement("button");t.type="button",t.className="work-card",t.dataset.workId=e.id;const n=workThumbnail(e,zu,{previous:thumbnails,index,retryThumbnails});
 let s=document.createElement("strong");s.textContent=e.title+(e.visibility==="hidden"?"\uFF08\u975E\u516C\u958B\uFF09":"");let r=document.createElement("small");r.textContent=e.author||"\u4F5C\u8005\u540D\u306A\u3057",t.append(n,s,r),t.addEventListener("click",()=>sm(e,t));let a=document.createElement("div");return a.className="work-tile",a.append(t,jc(e.id,Xt,!0)),a});gallery.replaceChildren(...i);
   if (focusedWork) galleryCard(focusedWork)?.focus({preventScroll:true});
   C("#empty-gallery").hidden=Un.length>0,C("#search-empty").hidden=i.length>0||!Un.length,C("#work-count").textContent=i.length+"\u4EF6",am()}async function Oa(works){try{let i=[];try{if(Ie.environment!=="production")i=await Gu("readonly",n=>n.getAll())}catch(n){if(Ie.mode!=="shared")throw n}let e=Ie.mode==="shared"?await id(works):[],t=Ie.demoEnabled===!1||new URLSearchParams(location.search).has("qa-empty")?[]:(await Ta()).filter(n=>!Ie.removedDemos?.includes(n.id)&&!e.some(s=>s.id===n.id));t.forEach(n=>{n.visibility=Ie.hiddenDemos?.includes(n.id)?"hidden":"public",n.version=Ie.demoVersions?.[n.id]||1}),Un=[...i,...e,...t],C("#work-count").hidden=false,C("#gallery-error").hidden=!0,C("#gallery-error").textContent="",Bn({retryThumbnails:true}),C("#admin-panel").open&&!C("#admin-works").hidden&&await _i()}catch(i){C("#gallery-error").textContent=i.message,C("#gallery-error").hidden=!1,C("#empty-gallery").hidden=!0}}function setSubmissionVisibility(guest) {

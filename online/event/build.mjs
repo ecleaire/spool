@@ -1,6 +1,9 @@
 import {readFileSync,writeFileSync,mkdirSync,readdirSync,lstatSync,existsSync} from 'node:fs';
 import path from 'node:path';
-import {build} from 'esbuild';
+import {createHash} from 'node:crypto';
+import {build,transform} from 'esbuild';
+import {PurgeCSS} from 'purgecss';
+import postcss from 'postcss';
 
 const source=new URL('./release/',import.meta.url);
 const assets=['three-LICENSE.txt','app.js','model-package.js','stl.js','reaction-queue.js','prototype.css','assets/style.css','assets/studio.css','assets/event-christmas-2026.png','assets/event-christmas-2026.webp','assets/event-christmas-2026-720.webp','assets/event-christmas-2026-1200.webp','assets/ornament-tree.webp','assets/ornament-tree-hd.webp','assets/ornament-title.webp','assets/ornament-title-hd.webp','assets/ornament-title-hd.avif','assets/ornament-tree-hd.avif'];
@@ -15,7 +18,30 @@ function checkDirectory(dir,allowed){
     checkDirectory(file,children);
   }
 }
+async function eventStyles(){
+  // Only prune the imported workspace theme. The event stylesheet also covers
+  // dynamically generated controls in dialogs, the 3D viewer and the admin UI.
+  const theme=['assets/style.css','assets/studio.css'].map(file=>{
+    const sheet=postcss.parse(readFileSync(new URL(file,source),'utf8'));
+    // Pruning alternatives inside :is(), :not() or :has() can change specificity.
+    sheet.walkRules(rule=>{
+      if(/:(?:is|not|has|where)\(/i.test(rule.selector))rule.append(postcss.comment({text:'purgecss ignore current'}));
+    });
+    return {raw:sheet.toString()};
+  });
+  const content=['index.html','gallery.js','prototype.css','model-viewer.mjs','model-package.js']
+    .map(file=>new URL(file,source).pathname);
+  content.push(new URL('./bootstrap.mjs',import.meta.url).pathname,new URL('./announcement.js',import.meta.url).pathname);
+  const rules=await new PurgeCSS().purge({
+    content, css:theme,
+    safelist:{greedy:[/event-/i,/prototype/,/ornament-/,/dialog/,/modal/,/is-/]},
+  });
+  const css=[...rules.map(result=>result.css),readFileSync(new URL('prototype.css',source),'utf8')].join('\n');
+  return (await transform(css,{loader:'css',minifyWhitespace:true})).code;
+}
 export async function buildEvent(outputs,config,submissionsOpen,version){
+  const css=await eventStyles();
+  const styleVersion=createHash('sha256').update(css).digest('hex').slice(0,16);
   const viewer=await build({entryPoints:[new URL('model-viewer.mjs',source).pathname],bundle:true,format:'esm',
     external:['./model-package.js'],minify:true,write:false});
   const gallery=await build({entryPoints:[new URL('gallery.js',source).pathname],bundle:true,format:'esm',
@@ -25,6 +51,8 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
   const worker=readFileSync(new URL('./event-worker.js',import.meta.url),'utf8').replace('__EVENT_CONFIG__',JSON.stringify(config));
   const policy="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' "+config.url+" blob: data:; worker-src 'self' blob:; form-action 'none'; base-uri 'none'; object-src 'none'";
   const html=readFileSync(new URL('index.html',source),'utf8')
+    .replace('<link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/studio.css">','')
+    .replace('href="prototype.css"','href="prototype.css?v='+styleVersion+'"')
     .replace('<meta charset="utf-8">','<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'+policy+'">')
     .replace('href="#" class="prototype-brand" aria-label="イベントトップ"','href="../" class="prototype-brand" aria-label="SPOOLに戻る"')
     .replace(/class="(test-badge|test-notice|local-data)"/g,'hidden class="$1"')
@@ -52,7 +80,7 @@ export async function buildEvent(outputs,config,submissionsOpen,version){
     const dir=path.join(parent,'event');
     checkDirectory(dir,[...assets,'gallery.js','auth-client.js','viewer.js','index.html','bootstrap.js','event-worker.js','submissions.html','announcement.js']);
     mkdirSync(path.join(dir,'assets'),{recursive:true});
-    for(const asset of assets)writeFileSync(path.join(dir,asset),readFileSync(new URL(asset,source)));
+    for(const asset of assets)writeFileSync(path.join(dir,asset),asset==='prototype.css'?css:readFileSync(new URL(asset,source)));
     writeFileSync(path.join(dir,'submissions.html'),liveHtml);
     writeFileSync(path.join(dir,'announcement.js'),readFileSync(new URL('./announcement.js',import.meta.url)));
     writeFileSync(path.join(dir,'index.html'),submissionsOpen?liveHtml:preview);

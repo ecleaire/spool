@@ -1199,7 +1199,7 @@ body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) [data-weekday
   background:var(--weekday-bg); color:var(--weekday-ink);
   font-size:max(var(--spool-type-floor,18px),21px); font-weight:700; line-height:1.4;
 }
-body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) :is(.booking-deadline time,.deadline-undecided,.booking-compact-deadline) {
+body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) :is(.booking-deadline time,.deadline-undecided) {
   font-size:max(var(--spool-type-floor,18px),clamp(21px,2vw,24px)); font-weight:750; line-height:1.4;
 }
 body.simple-workspace #bookingView :is(#bookingCards,#bookingRows) .booking-deadline small {
@@ -1837,7 +1837,7 @@ body.simple-workspace .booking-progress-summary[data-progress-state=完了]{colo
 
 .settings-icon{display:inline-block;width:22px;height:22px;min-width:22px;flex:none;vertical-align:middle}#filamentDetailsEdit{display:inline-flex;align-items:center;justify-content:center;gap:6px}#bookingWeek .week-color-icons{display:flex;align-items:center;flex-wrap:wrap;gap:5px}#bookingWeek .week-color-icons .booking-color-chip{width:18px;height:18px;min-width:18px}
 
-#bookingWeek .week-day h3 time{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}#bookingWeek .week-day-date{font-size:23px;font-weight:750;font-variant-numeric:tabular-nums;line-height:1.3}#bookingWeek .week-day-name{font-size:16px;font-weight:650;color:#32543d}#bookingWeek .week-day:nth-child(6) .week-day-name{color:#285d87}#bookingWeek .week-day:nth-child(7) .week-day-name{color:#9a463d}#bookingWeek .week-day-heading{align-items:center;gap:7px}#bookingWeek .week-day-count{white-space:nowrap}
+#bookingWeek .week-day h3 time{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}#bookingWeek .week-day-date{font-size:23px;font-weight:750;font-variant-numeric:tabular-nums;line-height:1.3}#bookingWeek .week-day-name{font-size:16px;font-weight:700;color:var(--weekday-ink);background:var(--weekday-bg);padding:1px 5px;border-radius:5px;white-space:nowrap}#bookingWeek .week-day-heading{align-items:center;gap:7px}#bookingWeek .week-day-count{white-space:nowrap}
 #attachmentOrganizerDialog{width:min(960px,calc(100vw - 32px));max-width:calc(100vw - 32px);box-sizing:border-box;margin:auto;flex-direction:column}#attachmentOrganizerDialog[open]{display:flex}#attachmentOrganizerDialog .dialog-head{flex:none;gap:12px}#attachmentOrganizerDialog .workspace-tools-body{width:100%;min-width:0;box-sizing:border-box;max-height:calc(90dvh - 90px)}#attachmentOrganizerDialog .workspace-tools-bar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:0;align-items:start}#attachmentOrganizerDialog .workspace-tools-bar label{display:grid;min-width:0;width:100%;gap:6px;margin:0}#attachmentOrganizerDialog .workspace-tools-bar :is(input,select){width:100%;min-width:0;box-sizing:border-box}#attachmentOrganizerDialog .attachment-organizer-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}#attachmentOrganizerDialog .attachment-organizer-row strong{display:block;overflow-wrap:anywhere}#attachmentOrganizerDialog .attachment-organizer-row button{white-space:normal;min-width:100px}@media(max-width:700px){#attachmentOrganizerDialog .workspace-tools-bar{grid-template-columns:repeat(2,minmax(0,1fr))}#attachmentOrganizerDialog .attachment-organizer-row{grid-template-columns:minmax(0,1fr)}#attachmentOrganizerDialog .attachment-organizer-row button{justify-self:start}}
 
 /* Preserve input space on tablets; keep primary actions together. */
@@ -1862,14 +1862,38 @@ body.simple-workspace #bookingView[data-booking-view=table] #bookingCards{displa
 body.simple-workspace #bookingView:is([data-booking-view=cards],[data-booking-view=compact]) .booking-table-scroll{display:none!important}
 body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:14px;align-items:start}
 body.simple-workspace #bookingView[data-booking-view=compact] #bookingCards{display:grid!important;grid-template-columns:minmax(0,1fr);gap:8px;padding:12px}
-body.simple-workspace .booking-compact-meta,body.simple-workspace .booking-expand{display:none}
+body.simple-workspace #bookingView .booking-card-top {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+body.simple-workspace #bookingView .booking-card-metrics {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(min(135px,100%),1fr)); align-items:start;
+}
+body.simple-workspace #bookingView .booking-card-metrics > div { min-width:0; }
+body.simple-workspace #bookingView .booking-card-metrics > div > span:first-child { display:block; margin:0 0 4px; }
+body.simple-workspace .booking-expand{display:none}
 body.simple-workspace #bookingView[data-booking-view=compact] .booking-card{padding:12px;min-width:0}
 body.simple-workspace #bookingView[data-booking-view=compact] .booking-card h3{margin:6px 0;font-size:max(var(--spool-type-floor,18px),18px)}
-body.simple-workspace #bookingView[data-booking-view=compact] .booking-card .booking-compact-meta{display:flex;gap:6px 18px;flex-wrap:wrap;color:#34573d;font-size:max(var(--spool-type-floor,16px),16px);margin:6px 0}
-body.simple-workspace #bookingView[data-booking-view=compact] .booking-expand{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;border:1px solid #adc0a3;border-radius:8px;background:#f2f6ed;color:#254d36;font-size:16px;margin:6px 0 0;max-width:100%;white-space:normal}
-body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) :is(.booking-card-metrics,.booking-row-details,.booking-card-footer,.booking-plates-summary,.booking-progress-summary,.booking-usage-summary){display:none!important}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-expand{display:flex;width:100%;gap:10px;align-items:center;justify-content:space-between;min-height:44px;padding:8px 12px;border:1px solid #adc0a3;border-radius:8px;background:#f2f6ed;color:#254d36;font-size:16px;margin:6px 0 0;max-width:100%;white-space:normal}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-expand::after {
+  content:''; width:8px; height:8px; margin-inline-end:4px;
+  border:solid currentColor; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-expand[aria-expanded=true]::after { transform:rotate(225deg); }
+body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) :is(.booking-row-details,.booking-card-footer,.booking-plates-summary,.booking-progress-summary,.booking-usage-summary){display:none!important}
 body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) .booking-work-meta .tag-list,body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) .booking-color-pill strong,body.simple-workspace #bookingView[data-booking-view=compact] .booking-card:not(.is-expanded) .booking-random-label{display:none!important}
 body.simple-workspace #bookingView[data-booking-view=compact] .booking-card .booking-work-meta{margin:4px 0}
+@media(min-width:900px) {
+  #bookingView[data-booking-view=compact] .booking-card {
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,.85fr) auto;
+    column-gap:18px; align-items:center;
+  }
+  #bookingView[data-booking-view=compact] .booking-card > * { grid-column:1 / -1; }
+  #bookingView[data-booking-view=compact] .booking-card > h3 { grid-area:1/1; }
+  #bookingView[data-booking-view=compact] .booking-card > .booking-card-top { grid-area:2/1; justify-content:flex-start; }
+  #bookingView[data-booking-view=compact] .booking-card > .booking-work-meta { grid-area:3/1; }
+  #bookingView[data-booking-view=compact] .booking-card > .booking-card-metrics { grid-area:1/2/span 3; }
+  #bookingView[data-booking-view=compact] .booking-card > .booking-expand { grid-area:1/3/span 3; }
+}
 @media(min-width:1400px){body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){body.simple-workspace #bookingView[data-booking-view=cards] #bookingCards{grid-template-columns:minmax(0,1fr)}body.simple-workspace #bookingView .list-view-switch{width:100%}body.simple-workspace #bookingView .list-view-switch button{flex:1 1 auto}}
 
@@ -2479,6 +2503,31 @@ function bookingRequestedColorMarkup(booking){
  return '<span class="booking-color-label '+(none?'is-no-preference':'has-requested-color')+'" aria-label="希望色"><span class="booking-color-samples">'+colors.map(c=>'<span class="booking-color-pill" title="'+esc(displayColorName(c.name))+'"><i class="booking-color-chip '+(none?'swatch-no-preference':swatchClass(c))+'" style="'+swatchStyle(c,c.color)+'" aria-hidden="true"></i><strong>'+esc(displayColorName(c.name).split(' / ')[0])+'</strong></span>').join('')+'</span>'+(booking.colorPreference==='random'?'<small class="booking-random-label">ランダム</small>':'')+'</span>';
 }
 function durationLabel(minutes){const hours=Math.floor(minutes/60),rest=minutes%60;return (hours?hours+'時間':'')+(rest?rest+'分':'')||'0分'}
+function bookingPrintTime(booking){
+  const usage=booking.filamentUsage;
+  const plates=usage?.plates||[];
+  const awaitingFile=booking.attachments?.some(file=>
+    /\.gcode\.3mf$/i.test(file.name) && !plates.some(plate=>plate.attachmentId===file.id));
+  if(awaitingFile||plates.some(plate=>plate.seconds===null))return {seconds:null,label:'合計未確定'};
+  if(usage?.missingPrintData)return {seconds:null,label:'時間未取得'};
+  const plateSeconds=plates.reduce((sum,plate)=>sum+plate.seconds,0);
+  if(plates.length && booking.printMinutes===Math.max(1,Math.ceil(plateSeconds/60))){
+    return {seconds:plateSeconds,label:exactPrintDuration(plateSeconds)};
+  }
+  return {seconds:booking.printMinutes*60,label:durationLabel(booking.printMinutes)};
+}
+function bookingTotalTimeMarkup(booking){return bookingPrintTime(booking).label}
+function summedBookingTime(bookings){
+  let total=0,unknown=0;
+  for(const booking of bookings){
+    const {seconds}=bookingPrintTime(booking);
+    if(seconds===null)unknown++;
+    else total+=seconds;
+  }
+  if(!unknown)return exactPrintDuration(total);
+  if(unknown===bookings.length)return '未確定（'+unknown+'件）';
+  return exactPrintDuration(total)+'（未確定'+unknown+'件）';
+}
 function displayDate(value){return value.replaceAll('-','/')}
 function bookingStatus(booking){return booking.printStatus||'印刷予定'}
 function bookingWeekdayMarkup(booking, className){
@@ -2531,7 +2580,7 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
   $('#bookingUnfinished').textContent = unfinishedCount;
   $('#bookingCompleted').textContent=completed.length;
   const urgent=reservations.filter(x=>bookingStatus(x)!=='印刷済み'&&bookingDue(x).days<=2).length;$('#bookingUrgent').textContent=urgent;$('.booking-urgent-stat').classList.toggle('has-urgent',urgent>0);
-  $('#bookingPendingTime').textContent=durationLabel(reservations.filter(x=>bookingStatus(x)!=='印刷済み').reduce((sum,x)=>sum+x.printMinutes,0));
+  $('#bookingPendingTime').textContent=summedBookingTime(reservations.filter(x=>bookingStatus(x)!=='印刷済み'));
   $('#bookingTabPrinting').textContent=reservations.filter(x=>bookingStatus(x)==='印刷途中').length;$('#bookingTabAll').textContent=reservations.length;
   $('#bookingTabUnfinished').textContent=unfinishedCount;$('#bookingTabPlanned').textContent=planned.length;$('#bookingTabUndecided').textContent=undecided.length;$('#bookingTabCompleted').textContent=completed.length;$('#navBookingCount').textContent=reservations.length;
   $$('[data-booking-status]').forEach(button=>{const active=button.dataset.bookingStatus===status;button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active))});
@@ -2544,8 +2593,18 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
   const bookingDetails=bookingDetailsMarkup;
   const colorLabel=bookingRequestedColorMarkup;
   window.spoolFilteredBookings?.(shown);
-  $('#bookingRows').innerHTML=shown.map(x=>'<tr data-booking-id="'+esc(x.id)+'" class="booking-row '+(bookingStatus(x)==='印刷済み'?'is-printed':'')+'"><td class="work-cell"><strong class="work-title">'+esc(x.title)+'</strong><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'</td><td>'+bookingWeekdayMarkup(x,'booking-weekday')+'</td><td>'+statusMarkup(x)+'</td><td class="booking-duration">'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></td><td>'+deadlineMarkup(x)+'</td><td class="booking-registered">'+bookingRegisteredMarkup(x)+'</td><td>'+editButton(x)+'</td></tr>'+(bookingDetails(x)?'<tr class="booking-details-row" data-booking-details-for="'+esc(x.id)+'"><td colspan="7">'+bookingDetails(x)+'</td></tr>':'')).join('');
-  $('#bookingCards').innerHTML=shown.map(x=>'<article data-booking-id="'+esc(x.id)+'" class="booking-card '+bookingDue(x).tone+'"><div class="booking-card-top">'+bookingWeekdayMarkup(x,'booking-card-weekday')+''+statusMarkup(x)+'</div><h3>'+esc(x.title)+'</h3><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'<div class="booking-compact-meta"><span class="booking-compact-deadline">期限 '+esc(x.deadline?displayDate(x.deadline):'未定')+'</span><span>合計 '+esc(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</span></div><button type="button" class="booking-expand" data-booking-expand="'+esc(x.id)+'" aria-expanded="false" aria-label="'+esc(x.title)+'の詳細・操作">詳細・操作</button><div class="booking-card-metrics"><div><span>期限</span>'+deadlineMarkup(x)+'</div><div><span>印刷時間</span><strong>'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</strong>'+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></div></div>'+bookingDetails(x)+'<div class="booking-card-footer"><div class="booking-card-registration"><span>登録日</span>'+bookingRegisteredMarkup(x)+'</div>'+editButton(x)+'</div></article>').join('');
+  $('#bookingRows').innerHTML=shown.map(x=>'<tr data-booking-id="'+esc(x.id)+'" class="booking-row '+(bookingStatus(x)==='印刷済み'?'is-printed':'')+'"><td class="work-cell"><strong class="work-title">'+esc(x.title)+'</strong><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'</td><td>'+bookingWeekdayMarkup(x,'booking-weekday')+'</td><td>'+statusMarkup(x)+'</td><td class="booking-duration">'+(bookingTotalTimeMarkup(x))+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></td><td>'+deadlineMarkup(x)+'</td><td class="booking-registered">'+bookingRegisteredMarkup(x)+'</td><td>'+editButton(x)+'</td></tr>'+(bookingDetails(x)?'<tr class="booking-details-row" data-booking-details-for="'+esc(x.id)+'"><td colspan="7">'+bookingDetails(x)+'</td></tr>':'')).join('');
+  $('#bookingCards').innerHTML=shown.map(x=>{
+    const time=bookingTotalTimeMarkup(x);
+    return '<article data-booking-id="'+esc(x.id)+'" class="booking-card '+bookingDue(x).tone+'">'+
+      '<h3>'+esc(x.title)+'</h3><div class="booking-card-top">'+bookingWeekdayMarkup(x,'booking-card-weekday')+statusMarkup(x)+'</div>'+
+      '<div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+
+      (typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+
+      '<div class="booking-card-metrics"><div><span>期限</span>'+deadlineMarkup(x)+'</div>'+
+      '<div><span>印刷時間</span><strong>'+esc(time)+'</strong><small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></div></div>'+
+      '<button type="button" class="booking-expand" data-booking-expand="'+esc(x.id)+'" aria-expanded="false" aria-label="'+esc(x.title)+'の詳細・操作">詳細・操作</button>'+
+      bookingDetails(x)+'<div class="booking-card-footer"><div class="booking-card-registration"><span>登録日</span>'+bookingRegisteredMarkup(x)+'</div>'+editButton(x)+'</div></article>';
+  }).join('');
   $('#bookingEmpty').hidden=!!shown.length;$('#bookingEmptyTitle').textContent=reservations.length?'条件に一致する予約がありません':'最初の印刷予約を登録しましょう';$('#bookingEmptyCopy').textContent=reservations.length?'検索やクラス、印刷情報の条件を変更してください。':'作品名・希望色・期限を決めて、印刷の予定をまとめられます。';$('#emptyAddBooking').hidden=!!reservations.length;$('#resetBookingFilters').hidden=!(q||cls||tag||window.spoolBookingQuickActive?.());
   window.spoolBookingViewsRendered?.();
   bindModelFileActions();
@@ -2979,7 +3038,6 @@ window.spoolClearImportPlates=()=>{bookingImportSelection.clear();setBookingFila
 let bookingUsageMetadata=null,bookingUsageSource=null;
 function filamentUsageLabel(value){if(!value)return '';return [value.grams!==null?value.grams.toLocaleString('ja-JP',{maximumFractionDigits:3})+' g':'',value.millimeters!==null?(value.millimeters/1000).toLocaleString('ja-JP',{maximumFractionDigits:3})+' m':''].filter(Boolean).join(' / ')}
 function bookingFilamentUsageMarkup(booking){const plates=booking.filamentUsage?.plates||[],summary=printProgressSummary(booking);return (plates.length?'<span class="booking-plates-summary">必要印刷回数 '+plates.length+'回</span>':'')+(summary.total?'<span class="booking-progress-summary" data-progress-state="'+summary.status+'">作業：'+summary.status+' · '+summary.done+' / '+summary.total+'モデル完了</span>':'')+(booking.filamentUsage&&(filamentUsageLabel(booking.filamentUsage)||booking.filamentUsage.filaments?.some(f=>f.grams!==null||f.millimeters!==null))?'<span class="booking-usage-summary">推定消費量 '+esc(filamentUsageLabel(booking.filamentUsage)||'色別内訳あり')+'</span>':'')}
-function bookingTotalTimeMarkup(booking){if((booking.attachments||[]).some(f=>/\.gcode\.3mf$/i.test(f.name)&&!booking.filamentUsage?.plates?.some(p=>p.attachmentId===f.id)))return '合計未確定';if(booking.filamentUsage?.plates?.some(p=>p.seconds===null))return '合計未確定';if(booking.filamentUsage?.missingPrintData)return '時間未取得';const plates=booking.filamentUsage?.plates;const total=plates?.length&&plates.every(p=>p.seconds!==null)?plates.reduce((n,p)=>n+p.seconds,0):null;return total!==null&&booking.printMinutes===Math.max(1,Math.ceil(total/60))?exactPrintDuration(total):durationLabel(booking.printMinutes)}
 function renderBookingUsage(){
  const plates=bookingUsageMetadata?.plates||[];$('#bookingUsagePlateSummary').hidden=!plates.length;$('#bookingUsagePlateSummary').textContent='必要印刷回数 '+plates.length+'回（選択したプレートを各1回）';$('#bookingUsageResetPlates').hidden=!plates.length;
  $('#bookingUsageRows').innerHTML=(bookingUsageMetadata?.filaments||[]).map(f=>'<span>'+(f.color?'<i class="booking-color-chip" style="background:'+esc(f.color)+'" aria-hidden="true"></i>':'')+'<span>'+esc([f.type,f.color].filter(Boolean).join(' ')||'色の記録なし')+'</span><strong>'+esc(filamentUsageLabel(f)||'消費量未取得')+'</strong></span>').join('');
@@ -3402,14 +3460,14 @@ window.spoolConsumptionRendered();
  const monday=date=>shift(date,-((new Date(date+'T00:00:00Z').getUTCDay()+6)%7));
  function card(x){return '<button type="button" class="week-booking" data-week-booking="'+esc(x.id)+'"><strong>'+esc(x.title)+'</strong><span class="week-booking-meta"><span class="week-status">'+esc(bookingStatus(x))+'</span><span>'+esc(bookingTotalTimeMarkup(x))+'</span></span><span class="week-color week-color-icons" role="img" aria-label="'+esc('希望色：'+x.desiredColor)+'" title="'+esc(x.desiredColor)+'">'+bookingColorSwatches(x)+'</span></button>'}
  function renderWeek(focus=''){const start=monday(anchor),days=Array.from({length:7},(_,i)=>shift(start,i)),today=todayJST(),week=filtered.filter(x=>days.includes(x.deadline)),undated=filtered.filter(x=>!x.deadline);
- $('#bookingWeek').innerHTML='<div class="workspace-tools-bar week-toolbar"><button type="button" data-week-move="-7" aria-label="前の週">←</button><strong class="week-range">'+esc(start.replaceAll('-','/')+' 〜 '+days[6].slice(5).replace('-','/'))+'</strong><button type="button" data-week-move="7" aria-label="次の週">→</button><button type="button" id="weekToday">今週</button><label>日付<input type="date" id="weekDate" min="0001-01-08" max="9999-12-24" value="'+esc(anchor)+'"></label></div><div class="week-overview"><strong>この週 '+week.length+'件</strong><span>合計 '+esc(durationLabel(week.reduce((n,x)=>n+x.printMinutes,0)))+'</span><small>期限で表示 · 絞り込み適用中の件数</small></div><div class="week-days">'+days.map((d,i)=>{const bookings=filtered.filter(x=>x.deadline===d);return '<section class="week-day'+(d===today?' is-today':'')+(bookings.length?' has-bookings':' is-empty')+'"'+(d===today?' aria-current="date"':'')+'><div class="week-day-heading"><h3><time datetime="'+d+'"><span class="week-day-date">'+Number(d.slice(5,7))+'/'+Number(d.slice(8))+'</span><span class="week-day-name">'+'月火水木金土日'[i]+'曜日</span></time></h3>'+(d===today?'<span class="week-today-label">今日</span>':'')+'<span class="week-day-count">'+bookings.length+'件</span></div><div class="week-day-bookings">'+(bookings.map(card).join('')||'<span class="week-empty-label">予約なし</span>')+'</div></section>'}).join('')+'</div><details class="week-undated"><summary>期限未定 <span>'+undated.length+'件</span></summary><div class="week-undated-bookings">'+(undated.map(card).join('')||'<span class="week-empty-label">期限未定の予約はありません</span>')+'</div></details>';
+ $('#bookingWeek').innerHTML='<div class="workspace-tools-bar week-toolbar"><button type="button" data-week-move="-7" aria-label="前の週">←</button><strong class="week-range">'+esc(start.replaceAll('-','/')+' 〜 '+days[6].slice(5).replace('-','/'))+'</strong><button type="button" data-week-move="7" aria-label="次の週">→</button><button type="button" id="weekToday">今週</button><label>日付<input type="date" id="weekDate" min="0001-01-08" max="9999-12-24" value="'+esc(anchor)+'"></label></div><div class="week-overview"><strong>この週 '+week.length+'件</strong><span>合計 '+esc(summedBookingTime(week))+'</span><small>期限で表示 · 絞り込み適用中の件数</small></div><div class="week-days">'+days.map(d=>{const weekday=registeredWeekday(d),bookings=filtered.filter(x=>x.deadline===d);return '<section class="week-day'+(d===today?' is-today':'')+(bookings.length?' has-bookings':' is-empty')+'"'+(d===today?' aria-current="date"':'')+'><div class="week-day-heading"><h3><time datetime="'+d+'"><span class="week-day-date">'+Number(d.slice(5,7))+'/'+Number(d.slice(8))+'</span><span class="week-day-name" data-weekday="'+weekday+'">'+weekday+'曜日</span></time></h3>'+(d===today?'<span class="week-today-label">今日</span>':'')+'<span class="week-day-count">'+bookings.length+'件</span></div><div class="week-day-bookings">'+(bookings.map(card).join('')||'<span class="week-empty-label">予約なし</span>')+'</div></section>'}).join('')+'</div><details class="week-undated"><summary>期限未定 <span>'+undated.length+'件</span></summary><div class="week-undated-bookings">'+(undated.map(card).join('')||'<span class="week-empty-label">期限未定の予約はありません</span>')+'</div></details>';
  $('#bookingWeek').querySelectorAll('[data-week-move]').forEach(b=>b.onclick=()=>{setAnchor(shift(anchor,Number(b.dataset.weekMove)));renderWeek('[data-week-move="'+b.dataset.weekMove+'"]')});$('#weekToday').onclick=()=>{anchor=todayJST();renderWeek('#weekToday')};$('#weekDate').onchange=e=>{if(validBookingDate(e.target.value)){setAnchor(e.target.value);renderWeek('#weekDate')}};$('#bookingWeek').querySelectorAll('[data-week-booking]').forEach(b=>b.onclick=()=>openBookingReview(b.dataset.weekBooking));if(focus)$('#bookingWeek').querySelector(focus)?.focus();}
  const displayButtons={list:'#bookingListMode',cards:'#bookingCardMode',compact:'#bookingCompactMode',table:'#bookingTableMode',week:'#bookingWeekMode'};
  function mode(value,persist=true){
   bookingDisplay=Object.hasOwn(displayButtons,value)?value:'list';weekMode=bookingDisplay==='week';bookingDisplayPreference=bookingDisplay;
   $('#bookingView').setAttribute('data-booking-view',bookingDisplay);$('#bookingWeek').hidden=!weekMode;$('.booking-table-scroll').classList.toggle('tools-calendar-hidden',weekMode);$('#bookingCards').classList.toggle('tools-calendar-hidden',weekMode);
   for(const [key,selector]of Object.entries(displayButtons))$(selector).setAttribute('aria-pressed',String(key===bookingDisplay));
-  const hint=$('#bookingDisplayHint');hint.hidden=!['table','compact'].includes(bookingDisplay);hint.textContent=bookingDisplay==='table'?'表は左右にスクロールして確認できます。':'「詳細・操作」から、関連ファイルや編集を開けます。';
+  const hint=$('#bookingDisplayHint');hint.hidden=bookingDisplay!=='table';hint.textContent='表は左右にスクロールして確認できます。';
   renderBookings();if(persist)saveDisplayPreferences();
  }
  for(const [key,selector]of Object.entries(displayButtons))$(selector).onclick=()=>mode(key);

@@ -14,6 +14,31 @@ function bookingRequestedColorMarkup(booking){
  return '<span class="booking-color-label '+(none?'is-no-preference':'has-requested-color')+'" aria-label="希望色"><span class="booking-color-samples">'+colors.map(c=>'<span class="booking-color-pill" title="'+esc(displayColorName(c.name))+'"><i class="booking-color-chip '+(none?'swatch-no-preference':swatchClass(c))+'" style="'+swatchStyle(c,c.color)+'" aria-hidden="true"></i><strong>'+esc(displayColorName(c.name).split(' / ')[0])+'</strong></span>').join('')+'</span>'+(booking.colorPreference==='random'?'<small class="booking-random-label">ランダム</small>':'')+'</span>';
 }
 function durationLabel(minutes){const hours=Math.floor(minutes/60),rest=minutes%60;return (hours?hours+'時間':'')+(rest?rest+'分':'')||'0分'}
+function bookingPrintTime(booking){
+  const usage=booking.filamentUsage;
+  const plates=usage?.plates||[];
+  const awaitingFile=booking.attachments?.some(file=>
+    /\.gcode\.3mf$/i.test(file.name) && !plates.some(plate=>plate.attachmentId===file.id));
+  if(awaitingFile||plates.some(plate=>plate.seconds===null))return {seconds:null,label:'合計未確定'};
+  if(usage?.missingPrintData)return {seconds:null,label:'時間未取得'};
+  const plateSeconds=plates.reduce((sum,plate)=>sum+plate.seconds,0);
+  if(plates.length && booking.printMinutes===Math.max(1,Math.ceil(plateSeconds/60))){
+    return {seconds:plateSeconds,label:exactPrintDuration(plateSeconds)};
+  }
+  return {seconds:booking.printMinutes*60,label:durationLabel(booking.printMinutes)};
+}
+function bookingTotalTimeMarkup(booking){return bookingPrintTime(booking).label}
+function summedBookingTime(bookings){
+  let total=0,unknown=0;
+  for(const booking of bookings){
+    const {seconds}=bookingPrintTime(booking);
+    if(seconds===null)unknown++;
+    else total+=seconds;
+  }
+  if(!unknown)return exactPrintDuration(total);
+  if(unknown===bookings.length)return '未確定（'+unknown+'件）';
+  return exactPrintDuration(total)+'（未確定'+unknown+'件）';
+}
 function displayDate(value){return value.replaceAll('-','/')}
 function bookingStatus(booking){return booking.printStatus||'印刷予定'}
 function bookingWeekdayMarkup(booking, className){
@@ -66,7 +91,7 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
   $('#bookingUnfinished').textContent = unfinishedCount;
   $('#bookingCompleted').textContent=completed.length;
   const urgent=reservations.filter(x=>bookingStatus(x)!=='印刷済み'&&bookingDue(x).days<=2).length;$('#bookingUrgent').textContent=urgent;$('.booking-urgent-stat').classList.toggle('has-urgent',urgent>0);
-  $('#bookingPendingTime').textContent=durationLabel(reservations.filter(x=>bookingStatus(x)!=='印刷済み').reduce((sum,x)=>sum+x.printMinutes,0));
+  $('#bookingPendingTime').textContent=summedBookingTime(reservations.filter(x=>bookingStatus(x)!=='印刷済み'));
   $('#bookingTabPrinting').textContent=reservations.filter(x=>bookingStatus(x)==='印刷途中').length;$('#bookingTabAll').textContent=reservations.length;
   $('#bookingTabUnfinished').textContent=unfinishedCount;$('#bookingTabPlanned').textContent=planned.length;$('#bookingTabUndecided').textContent=undecided.length;$('#bookingTabCompleted').textContent=completed.length;$('#navBookingCount').textContent=reservations.length;
   $$('[data-booking-status]').forEach(button=>{const active=button.dataset.bookingStatus===status;button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active))});
@@ -79,8 +104,18 @@ function renderBookings(){fillFacetFilter('#bookingTagFilter',reservations.flatM
   const bookingDetails=bookingDetailsMarkup;
   const colorLabel=bookingRequestedColorMarkup;
   window.spoolFilteredBookings?.(shown);
-  $('#bookingRows').innerHTML=shown.map(x=>'<tr data-booking-id="'+esc(x.id)+'" class="booking-row '+(bookingStatus(x)==='印刷済み'?'is-printed':'')+'"><td class="work-cell"><strong class="work-title">'+esc(x.title)+'</strong><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'</td><td>'+bookingWeekdayMarkup(x,'booking-weekday')+'</td><td>'+statusMarkup(x)+'</td><td class="booking-duration">'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></td><td>'+deadlineMarkup(x)+'</td><td class="booking-registered">'+bookingRegisteredMarkup(x)+'</td><td>'+editButton(x)+'</td></tr>'+(bookingDetails(x)?'<tr class="booking-details-row" data-booking-details-for="'+esc(x.id)+'"><td colspan="7">'+bookingDetails(x)+'</td></tr>':'')).join('');
-  $('#bookingCards').innerHTML=shown.map(x=>'<article data-booking-id="'+esc(x.id)+'" class="booking-card '+bookingDue(x).tone+'"><div class="booking-card-top">'+bookingWeekdayMarkup(x,'booking-card-weekday')+''+statusMarkup(x)+'</div><h3>'+esc(x.title)+'</h3><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'<div class="booking-compact-meta"><span class="booking-compact-deadline">期限 '+esc(x.deadline?displayDate(x.deadline):'未定')+'</span><span>合計 '+esc(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</span></div><button type="button" class="booking-expand" data-booking-expand="'+esc(x.id)+'" aria-expanded="false" aria-label="'+esc(x.title)+'の詳細・操作">詳細・操作</button><div class="booking-card-metrics"><div><span>期限</span>'+deadlineMarkup(x)+'</div><div><span>印刷時間</span><strong>'+(typeof bookingTotalTimeMarkup==='function'?bookingTotalTimeMarkup(x):durationLabel(x.printMinutes))+'</strong>'+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></div></div>'+bookingDetails(x)+'<div class="booking-card-footer"><div class="booking-card-registration"><span>登録日</span>'+bookingRegisteredMarkup(x)+'</div>'+editButton(x)+'</div></article>').join('');
+  $('#bookingRows').innerHTML=shown.map(x=>'<tr data-booking-id="'+esc(x.id)+'" class="booking-row '+(bookingStatus(x)==='印刷済み'?'is-printed':'')+'"><td class="work-cell"><strong class="work-title">'+esc(x.title)+'</strong><div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+(typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+'</td><td>'+bookingWeekdayMarkup(x,'booking-weekday')+'</td><td>'+statusMarkup(x)+'</td><td class="booking-duration">'+(bookingTotalTimeMarkup(x))+'<small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></td><td>'+deadlineMarkup(x)+'</td><td class="booking-registered">'+bookingRegisteredMarkup(x)+'</td><td>'+editButton(x)+'</td></tr>'+(bookingDetails(x)?'<tr class="booking-details-row" data-booking-details-for="'+esc(x.id)+'"><td colspan="7">'+bookingDetails(x)+'</td></tr>':'')).join('');
+  $('#bookingCards').innerHTML=shown.map(x=>{
+    const time=bookingTotalTimeMarkup(x);
+    return '<article data-booking-id="'+esc(x.id)+'" class="booking-card '+bookingDue(x).tone+'">'+
+      '<h3>'+esc(x.title)+'</h3><div class="booking-card-top">'+bookingWeekdayMarkup(x,'booking-card-weekday')+statusMarkup(x)+'</div>'+
+      '<div class="booking-work-meta">'+tagsMarkup(bookingTags(x),true)+colorLabel(x)+'</div>'+
+      (typeof bookingFilamentUsageMarkup==='function'?bookingFilamentUsageMarkup(x):'')+
+      '<div class="booking-card-metrics"><div><span>期限</span>'+deadlineMarkup(x)+'</div>'+
+      '<div><span>印刷時間</span><strong>'+esc(time)+'</strong><small class="booking-quality-label">'+bookingQualityLabel(x.quality)+'</small></div></div>'+
+      '<button type="button" class="booking-expand" data-booking-expand="'+esc(x.id)+'" aria-expanded="false" aria-label="'+esc(x.title)+'の詳細・操作">詳細・操作</button>'+
+      bookingDetails(x)+'<div class="booking-card-footer"><div class="booking-card-registration"><span>登録日</span>'+bookingRegisteredMarkup(x)+'</div>'+editButton(x)+'</div></article>';
+  }).join('');
   $('#bookingEmpty').hidden=!!shown.length;$('#bookingEmptyTitle').textContent=reservations.length?'条件に一致する予約がありません':'最初の印刷予約を登録しましょう';$('#bookingEmptyCopy').textContent=reservations.length?'検索やクラス、印刷情報の条件を変更してください。':'作品名・希望色・期限を決めて、印刷の予定をまとめられます。';$('#emptyAddBooking').hidden=!!reservations.length;$('#resetBookingFilters').hidden=!(q||cls||tag||window.spoolBookingQuickActive?.());
   window.spoolBookingViewsRendered?.();
   bindModelFileActions();

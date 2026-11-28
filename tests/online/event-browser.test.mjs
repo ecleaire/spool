@@ -111,6 +111,9 @@ try{
       await device.goto(origin+'/spool/event/index.html');
       await device.waitForFunction(()=>document.querySelector('#storage-state')?.textContent.includes('サーバーに保存'));
       assert.equal(await authLoads(device),0);
+      const styles=await device.evaluate(()=>performance.getEntriesByType('resource')
+        .filter(entry=>new URL(entry.name).pathname.endsWith('.css')).map(entry=>new URL(entry.name).pathname));
+      assert.deepEqual(styles,['/spool/event/prototype.css'],'event navigation loads one stylesheet');
       const initialReads=await device.evaluate(()=>performance.getEntriesByType('resource')
         .filter(entry=>['/api/session','/api/reactions','/api/works'].includes(new URL(entry.name).pathname))
         .map(({startTime,responseEnd})=>({startTime,responseEnd})));
@@ -370,6 +373,14 @@ try{
   await starThumbnail.evaluate(image=>image.decode());
   assert.equal(primaryReads(),failedReadsBeforeSort);
   await page.locator('#sort-direction').click();
+
+  const gallerySearch=page.getByRole('searchbox',{name:'作品検索'});
+  await gallerySearch.fill('no-matching-work');
+  await page.locator('#search-empty').waitFor();
+  await gallerySearch.fill('');
+  await starThumbnail.waitFor();
+  await page.waitForFunction(id=>document.querySelector('[data-work-id="'+id+'"] img')?.naturalWidth>0,uploaded.id);
+  assert.equal(primaryReads(),failedReadsBeforeSort,'clearing a search must reuse the loaded fallback thumbnail');
 
   // Simulate older records and unavailable files in the in-memory event store.
   const starKey='works/'+uploaded.id+'.json';

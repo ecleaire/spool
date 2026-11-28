@@ -31,5 +31,18 @@ try{
  await page.locator('[data-week-move="7"]').click();assert.equal(await page.evaluate(()=>document.activeElement?.dataset.weekMove),'7','Week navigation must retain keyboard focus');await page.locator('#weekToday').click();
  const shots=process.env.SPOOL_SCREENSHOT_DIR;if(shots)mkdirSync(shots,{recursive:true});
  for(const width of [1440,390,320]){await page.setViewportSize({width,height:900});await page.locator('#bookingWeekMode').click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);const dimensions=await page.evaluate(()=>{const size=id=>{const x=document.querySelector(id),s=getComputedStyle(x);return {height:x.getBoundingClientRect().height,font:s.fontSize,padding:s.padding}};showBookingView(false);const add=size('#add');showBookingView(true);return {add,booking:size('#addBooking')}});assert.deepEqual(dimensions.booking,dimensions.add,'Registration and filament-add controls must use the same sizing');if(shots){await page.locator('#bookingWeek').scrollIntoViewIfNeeded();await page.evaluate(()=>window.scrollBy(0,-160));await page.screenshot({path:shots+'/week-'+width+'.png'});}await page.locator('#attachmentOrganizer').click();assert.equal(await page.locator('#attachmentOrganizerDialog').evaluate(x=>x.scrollWidth>x.clientWidth),false);if(shots)await page.screenshot({path:shots+'/files-'+width+'.png'});await page.locator('[data-tools-close=attachmentOrganizerDialog]').click();}
+ await page.evaluate(()=>{
+   const base={...reservations[0],registeredDate:todayJST(),deadline:todayJST(),printStatus:'印刷予定',attachments:[],files:[]};
+   saveBookings([
+     {...base,id:'known',printMinutes:2},
+     {...base,id:'pending',printMinutes:60,filamentUsage:{grams:null,millimeters:null,filaments:[],missingPrintData:true}}
+   ]);
+ });
+ assert.equal(await page.locator('#bookingPendingTime').innerText(),'2分（未確定1件）');
+ assert.equal(await page.locator('.week-overview span').innerText(),'合計 2分（未確定1件）');
+ assert.deepEqual(await page.evaluate(()=>{
+   const plate={printMinutes:1,filamentUsage:{plates:[{seconds:25}]}};
+   return [summedBookingTime([plate,plate]),summedBookingTime([reservations.find(b=>b.id==='pending')]),summedBookingTime([])];
+ }),['50秒','未確定（1件）','0分']);
  const sharedStyles=await page.evaluate(()=>{const read=selector=>{const s=getComputedStyle(document.querySelector(selector));return {background:s.backgroundColor,color:s.color,radius:s.borderRadius}};return {inventory:read('.inventory .scope-tabs button.selected'),booking:read('#bookingView .scope-tabs button.selected')}});assert.deepEqual(sharedStyles.inventory,sharedStyles.booking,'Both lists must use the same selected-scope styling');assert.deepEqual(errors,[]);console.log('PASS: bulk edit preview/save/preservation/stale guard, week deadlines/undated review, attachment filters/navigation, 1440/390/320px no overflow, scope order and search-left placement, today/count/time and matching registration/add button sizing.');
 }finally{await browser?.close();await new Promise(r=>server.close(r));}
